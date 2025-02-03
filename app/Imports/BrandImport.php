@@ -27,7 +27,7 @@ class BrandImport implements ToArray, WithHeadingRow
 				$brandCode = trim($brand['code']);
 				$brandDescription = trim($brand['description']);
 				$brandDescription2 = trim($brand['description2']);
-				$brandType = trim($brand['type']);
+				$brandDescription3 = trim($brand['description3']);
 				$brandCount = Brand::where('code', $brandCode)->count();
 				if ($brandCount > 0) {
 					throw new ApiException('Brand ' . $brandName . ' Already Exists');
@@ -38,7 +38,7 @@ class BrandImport implements ToArray, WithHeadingRow
 				$newBrand->code = $brandCode;
 				$newBrand->description = $brandDescription;
 				$newBrand->description2 = $brandDescription2;
-				$newBrand->type = $brandType;
+				$newBrand->description3 = $brandDescription3;
 				$newBrand->slug = Str::slug($brandName, '-');
 				$newBrand->save();
 			}

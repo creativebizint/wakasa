@@ -87,7 +87,7 @@
             <a-row :gutter="16">
                 <a-col :xs="24" :sm="24" :md="24" :lg="24">
                     <a-form-item
-                        :label="$t('brand.description')"
+                        :label="$t('brand.description') + ' 2'"
                         name="code"
                         :help="rules.description ? rules.code.message : null"
                         :validateStatus="rules.description ? 'error' : null"
@@ -106,16 +106,16 @@
             <a-row :gutter="16">
                 <a-col :xs="24" :sm="24" :md="24" :lg="24">
                     <a-form-item
-                        :label="$t('brand.type')"
+                        :label="$t('brand.description') + ' 3'"
                         name="code"
-                        :help="rules.type ? rules.type.message : null"
-                        :validateStatus="rules.type ? 'error' : null"
+                        :help="rules.description ? rules.code.message : null"
+                        :validateStatus="rules.description ? 'error' : null"
                         class="required"
                     >
                         <a-input
-                            v-model:value="formData.type"
+                            v-model:value="formData.description3"
                             :placeholder="
-                                $t('common.placeholder_default_text', [$t('brand.type')])
+                                $t('common.placeholder_default_text', [$t('brand.description')])
                             "
                         />
                     </a-form-item>

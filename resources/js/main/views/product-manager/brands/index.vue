@@ -202,7 +202,7 @@ export default {
 
         const setUrlData = () => {
             crudVariables.tableUrl.value = {
-                url: "brands?fields=id,xid,name,slug,image,image_url,code,description,description2,type",
+                url: "brands?fields=id,xid,name,slug,image,image_url,code,description,description2,description3",
             };
             crudVariables.table.filterableColumns = filterableColumns;
 

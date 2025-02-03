@@ -11,7 +11,7 @@ class Brand extends BaseModel
 {
     protected $table = 'brands';
 
-    protected $default = ['id', 'xid', 'name','code','description','description2','type'];
+    protected $default = ['id', 'xid', 'name','code','description','description2','description3'];
 
     protected $guarded = ['id', 'created_at', 'updated_at'];
 

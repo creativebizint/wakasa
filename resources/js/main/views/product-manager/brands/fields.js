@@ -9,7 +9,7 @@ const fields = () => {
 		description: "",
 		description2: "",
 		code: "",
-		type: "",
+		description3: "",
 		slug: "",
 		image: undefined,
 		image_url: undefined,
@@ -33,6 +33,10 @@ const fields = () => {
 		{
 			title: t("brand.description") + 2,
 			dataIndex: "description2",
+		},
+		{
+			title: t("brand.description") + 3,
+			dataIndex: "description3",
 		},
 		{
 			title: t("common.action"),
