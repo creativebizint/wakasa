@@ -1,0 +1,275 @@
+import { ref, computed, onMounted } from "vue";
+import { useStore } from "vuex";
+import { useI18n } from "vue-i18n";
+import { useRoute } from "vue-router";
+import common from "../../../../common/composable/common";
+
+const fields = () => {
+    const { dayjs } = common();
+    const store = useStore();
+    const { t } = useI18n();
+    const route = useRoute();
+    const orderType = ref(route.meta.orderType);
+    const columns = ref([]);
+    const hashableColumns = ['user_id', 'warehouse_id', 'floor', 'shelf_group', 'shelf_number', 'row'];
+
+    onMounted(() => {
+        orderType.value = "product-placement";
+    });
+
+    const initData = {
+        placement_date: dayjs().utc().format("YYYY-MM-DDTHH:mm:ssZ"),
+        user_id: undefined,
+        notes: "",
+        order_status: undefined,
+        tax_id: undefined,
+        warehouse_id: undefined,
+        discount: 0,
+        shipping: 0,
+        subtotal: 0,
+    };
+
+    const initPaymentData = {
+        date: undefined,
+        payment_mode_id: undefined,
+        amount: "",
+        notes: "",
+    };
+
+    const orderItemColumns = [
+        {
+            title: "#",
+            dataIndex: "sn",
+        },
+        {
+            title: t("product.name"),
+            dataIndex: "name",
+        },
+        {
+            title: t("product.brand"),
+            dataIndex: "brand",
+        },
+        {
+            title: t("product.category"),
+            dataIndex: "category",
+        },
+        {
+            title: t("product.group"),
+            dataIndex: "group",
+        },
+        {
+            title: t("product.color"),
+            dataIndex: "color",
+        },
+        {
+            title: t("product.quantity"),
+            dataIndex: "unit_quantity",
+        },
+        {
+            title: t("common.action"),
+            dataIndex: "action",
+        },
+    ];
+
+    const orderItemDetailsColumns = [
+        {
+            title: "#",
+            dataIndex: "no",
+        },
+        {
+            title: t("product.item_code"),
+            dataIndex: "item_code",
+        },
+        {
+            title: t("product.name"),
+            dataIndex: "name",
+        },
+        {
+            title: t("product.brand"),
+            dataIndex: "brand",
+        },
+        {
+            title: t("product.category"),
+            dataIndex: "category",
+        },
+        {
+            title: t("product.group"),
+            dataIndex: "group",
+        },
+        {
+            title: t("product.color"),
+            dataIndex: "color",
+        },
+        {
+            title: t("product.quantity"),
+            dataIndex: "quantity",
+        },
+        
+    ];
+
+    const filterableColumns = [
+        {
+            key: "invoice_number",
+            value: t("stock.invoice_number")
+        },
+    ];
+
+    const pageObject = computed(() => {
+        var pageObjectDetails = {};
+
+        if (orderType.value == "purchases") {
+            pageObjectDetails = {
+                type: "purchases",
+                langKey: "purchase",
+                menuKey: "purchases",
+                userType: "suppliers",
+                permission: "purchases",
+            };
+        } else if (orderType.value == "sales") {
+            pageObjectDetails = {
+                type: "sales",
+                langKey: "sales",
+                menuKey: "sales",
+                userType: "customers",
+                permission: "sales",
+            };
+        } else if (orderType.value == "purchase-returns") {
+            pageObjectDetails = {
+                type: "purchase-returns",
+                langKey: "purchase_returns",
+                menuKey: "purchase_returns",
+                userType: "suppliers",
+                permission: "purchase_returns",
+            };
+        } else if (orderType.value == "sales-returns") {
+            pageObjectDetails = {
+                type: "sales-returns",
+                langKey: "sales_returns",
+                menuKey: "sales_returns",
+                userType: "customers",
+                permission: "sales_returns",
+            };
+        } else if (orderType.value == "online-orders") {
+            pageObjectDetails = {
+                type: "online-orders",
+                langKey: "online_orders",
+                menuKey: "online_orders",
+                userType: "customers",
+                permission: "online_orders",
+            };
+        } else if (orderType.value == "quotations") {
+            pageObjectDetails = {
+                type: "quotations",
+                langKey: "quotation",
+                menuKey: "sales",
+                userType: "customers",
+                permission: "quotations",
+            };
+        } else if (orderType.value == "stock-transfers") {
+            pageObjectDetails = {
+                type: "stock-transfers",
+                langKey: "stock_transfer",
+                menuKey: "stock_transfer",
+                userType: "customers",
+                permission: "stock_transfers",
+            };
+        } 
+
+        return pageObjectDetails;
+    });
+
+    const setupTableColumns = () => {
+        var allColumns = [
+            {
+                title: t(`stock.invoice_number`),
+                dataIndex: "invoice_number",
+            },
+        ];
+
+        if (pageObject.value.type == 'stock-transfers') {
+            allColumns.push({
+                title: t("stock_transfer.warehouse"),
+                dataIndex: "warehouse",
+            });
+        }
+
+        allColumns.push({
+            title: t(`${pageObject.value.langKey}.${pageObject.value.langKey}_date`),
+            dataIndex: "order_date",
+        });
+
+        if (pageObject.value.type != 'stock-transfers') {
+            allColumns.push({
+                title: t(`${pageObject.value.langKey}.user`),
+                dataIndex: "user_id",
+            });
+        }
+
+        //* ADDENDUM
+        if (pageObject.value.type == 'purchases') {
+            allColumns.push({
+                title: t('stock_transfer.to_warehouse'),
+                dataIndex: "warehouse",
+            });
+        }
+
+        if (pageObject.value.type == 'sales' || pageObject.value.type == 'stock-transfers') {
+            allColumns.push({
+                title: t('stock_transfer.from_warehouse'),
+                dataIndex: "warehouse",
+            });
+        }
+
+
+        columns.value = [
+            ...allColumns,
+            {
+                title: t("invoice.total_items"),
+                dataIndex: "total_items",
+            },
+            {
+                title: t("invoice.total_quantities"),
+                dataIndex: "total_quantities",
+            },
+            {
+                title: t("payments.total_amount"),
+                dataIndex: "total_amount",
+            },
+            {
+                title: t("common.action"),
+                dataIndex: "action",
+            },
+        ];
+    };
+
+    const orderPaymentsColumns = [
+        {
+            title: t("payments.date"),
+            dataIndex: "date",
+        },
+        {
+            title: t("payments.amount"),
+            dataIndex: "amount",
+        },
+        {
+            title: t("payments.payment_mode"),
+            dataIndex: "payment_mode_id",
+        },
+    ];
+
+    return {
+        initData,
+        initPaymentData,
+        columns,
+        hashableColumns,
+        setupTableColumns,
+        filterableColumns,
+        pageObject,
+        orderType,
+        orderItemColumns,
+        orderPaymentsColumns,
+        orderItemDetailsColumns
+    }
+}
+
+export default fields;
