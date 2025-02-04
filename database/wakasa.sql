@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 01, 2025 at 08:04 PM
+-- Generation Time: Feb 04, 2025 at 06:15 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -132,6 +132,7 @@ CREATE TABLE `brands` (
   `code` varchar(10) DEFAULT NULL,
   `description` text DEFAULT NULL,
   `description2` text DEFAULT NULL,
+  `description3` text DEFAULT NULL,
   `type` tinyint(2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -139,9 +140,10 @@ CREATE TABLE `brands` (
 -- Dumping data for table `brands`
 --
 
-INSERT INTO `brands` (`id`, `company_id`, `name`, `slug`, `image`, `created_at`, `updated_at`, `code`, `description`, `description2`, `type`) VALUES
-(1, 1, 'S 38', 's-38', NULL, '2025-01-04 11:53:32', '2025-01-04 11:53:32', '2010', '2 TAK', '360 cc', 2),
-(3, 1, 'Daihatsu', 'daihatsu-fbgaixrw', NULL, '2025-01-10 11:38:17', '2025-01-10 11:38:17', '2000', 'Daihatsu', NULL, 2);
+INSERT INTO `brands` (`id`, `company_id`, `name`, `slug`, `image`, `created_at`, `updated_at`, `code`, `description`, `description2`, `description3`, `type`) VALUES
+(1, 1, 'S 38', 's-38', NULL, '2025-01-04 11:53:32', '2025-02-03 13:11:40', '2010', '2 TAK', '360 cc', 'tes', NULL),
+(3, 1, 'Daihatsu', 'daihatsu-fbgaixrw', NULL, '2025-01-10 11:38:17', '2025-02-03 12:58:17', '2000', 'Daihatsu', 'test2', NULL, 2),
+(4, 1, 'test', 'test-933emt8', NULL, '2025-02-03 12:58:44', '2025-02-03 13:12:48', 'test', 'test', 'test deskripsi', 'ok', NULL);
 
 -- --------------------------------------------------------
 
@@ -6267,7 +6269,7 @@ ALTER TABLE `basic_salaries`
 -- AUTO_INCREMENT for table `brands`
 --
 ALTER TABLE `brands`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `categories`
