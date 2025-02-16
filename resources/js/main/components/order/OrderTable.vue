@@ -85,9 +85,9 @@
                         <template v-if="column.dataIndex === 'paid_amount'">
                             {{ formatAmountCurrency(record.paid_amount) }}
                         </template>
-                        <template v-if="column.dataIndex === 'total_amount'">
+                        <!-- <template v-if="column.dataIndex === 'total_amount'">
                             {{ formatAmountCurrency(record.total) }}
-                        </template>
+                        </template> -->
                         <template v-if="column.dataIndex === 'total_items'">
                             {{ record.total_items }}
                         </template>

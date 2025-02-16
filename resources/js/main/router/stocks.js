@@ -117,7 +117,7 @@ export default [
                 name: "admin.inventory_in.edit",
                 meta: {
                     requireAuth: true,
-                    menuParent: "inventory",
+                    menuParent: "stock_management",
                     menuKey: (route) => "inventory_in",
                     permission: (route) => "inventory_in_edit",
                     orderType: "inventory_in",
@@ -130,7 +130,7 @@ export default [
                 name: "admin.inventory_in.create",
                 meta: {
                     requireAuth: true,
-                    menuParent: "inventory",
+                    menuParent: "stock_management",
                     menuKey: (route) => "inventory_in",
                     permission: (route) => "inventory_in_create",
                     orderType: "inventory_in",
@@ -143,7 +143,7 @@ export default [
                 name: "admin.inventory_in.index",
                 meta: {
                     requireAuth: true,
-                    menuParent: "inventory",
+                    menuParent: "stock_management",
                     menuKey: (route) => "inventory_in",
                     permission: (route) => "inventory_in_view",
                     orderType: "inventory_in",
@@ -158,7 +158,7 @@ export default [
                 name: "admin.inventory_out.edit",
                 meta: {
                     requireAuth: true,
-                    menuParent: "inventory",
+                    menuParent: "stock_management",
                     menuKey: (route) => "inventory_out",
                     permission: (route) => "inventory_out_edit",
                     orderType: "inventory_out",
@@ -171,7 +171,7 @@ export default [
                 name: "admin.inventory_out.create",
                 meta: {
                     requireAuth: true,
-                    menuParent: "inventory",
+                    menuParent: "stock_management",
                     menuKey: (route) => "inventory_out",
                     permission: (route) => "inventory_out_create",
                     orderType: "inventory_out",
@@ -184,7 +184,7 @@ export default [
                 name: "admin.inventory_out.index",
                 meta: {
                     requireAuth: true,
-                    menuParent: "inventory",
+                    menuParent: "stock_management",
                     menuKey: (route) => "inventory_out",
                     permission: (route) => "inventory_out_view",
                     orderType: "inventory_out",

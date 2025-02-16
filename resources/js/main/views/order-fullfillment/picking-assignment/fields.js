@@ -11,12 +11,7 @@ const fields = () => {
     const route = useRoute();
     const orderType = ref(route.meta.orderType);
     const columns = ref([]);
-    const hashableColumns = [
-        "user_id",
-        "warehouse_id",
-        "from_warehouse_id",
-        "staff_user_id",
-    ];
+    const hashableColumns = ['user_id', 'warehouse_id'];
 
     onMounted(() => {
         if (route.meta && route.meta.orderType) {
@@ -33,8 +28,6 @@ const fields = () => {
         order_status: undefined,
         tax_id: undefined,
         warehouse_id: undefined,
-        from_warehouse_id: undefined,
-        staff_user_id: undefined,
         discount: 0,
         shipping: 0,
         subtotal: 0,
@@ -59,6 +52,10 @@ const fields = () => {
         {
             title: t("product.quantity"),
             dataIndex: "unit_quantity",
+        },
+        {
+            title: t("product.shelf"),
+            dataIndex: "shelf",
         },
         {
             title: t("product.unit_price"),
@@ -130,11 +127,11 @@ const fields = () => {
         }
         else if (orderType.value == "inventory_in") {
             pageObjectDetails = {
-                type: "purchases",
-                langKey: "purchase",
-                menuKey: "purchases",
+                type: "inventory_in",
+                langKey: "inventory_in",
+                menuKey: "inventory_in",
                 userType: "suppliers",
-                permission: "purchases",
+                permission: "inventory_in",
             };
         }
         else if (orderType.value == "inventory_out") {
@@ -205,17 +202,7 @@ const fields = () => {
                 title: t(`stock.invoice_number`),
                 dataIndex: "invoice_number",
                 sorter:true
-            },
-//            {
-//                title: t(
-//                    `${pageObject.value.langKey}.${pageObject.value.langKey}_date`
-//                ),
-//                dataIndex: "order_date",
-//            },
-            {
-                title: t(`common.created_by`),
-                dataIndex: "staff_user_id",
-            },
+            }
         ];
 
         if (pageObject.value.type == 'stock-transfers') {
@@ -227,14 +214,6 @@ const fields = () => {
             });
         }
 
-        //* ADDENDUM
-        if (pageObject.value.type == "purchases") {
-            allColumns.push({
-                title: t("stock_transfer.to_warehouse"),
-                dataIndex: "warehouse",
-            });
-        }
-        
         allColumns.push({
             title: t(`${pageObject.value.langKey}.${pageObject.value.langKey}_date`),
             dataIndex: "order_date",
@@ -258,19 +237,12 @@ const fields = () => {
                 sorter:true,
             },
             {
-                title: t("invoice.total_items"),
-                dataIndex: "total_items",
+                title: t("payments.total_amount"),
+                dataIndex: "total_amount",
+                sorter:true,
+                sorter_field:"orders.total"
+
             },
-            {
-                title: t("invoice.total_quantities"),
-                dataIndex: "total_quantities",
-            },    
-            //{
-            //    title: t("payments.total_amount"),
-            //    dataIndex: "total_amount",
-            //    sorter:true,
-            //    sorter_field:"orders.total"
-            //},
             {
                 title: t("common.action"),
                 dataIndex: "action",

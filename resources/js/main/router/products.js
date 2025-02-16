@@ -196,9 +196,36 @@ export default [
                 name: 'admin.stock_management.out_history',
                 meta: {
                     requireAuth: true,
-                    menuParent: "stock_management",
+                    menuParent: "order_fullfillment",
                     menuKey: route => "out_history",
                     permission: "products_view",
+                }
+            },
+            
+            {
+                path: '/admin/order-fullfillment/picking-request',
+                component:  () =>
+                    import('../views/order-fullfillment/picking-request/index.vue'),
+                name: 'admin.order_fullfillment.picking_request',
+                meta: {
+                    requireAuth: true,
+                    menuParent: "order_fullfillment",
+                    menuKey: (route) => "picking_request",
+                    permission: (route) => "order_fullfillment_view",
+                    orderType: "inventory_out",
+                }
+            },
+            {
+                path: '/admin/order-fullfillment/picking-assignment',
+                component:  () =>
+                    import('../views/order-fullfillment/picking-assignment/index.vue'),
+                name: 'admin.order_fullfillment.picking_assignment',
+                meta: {
+                    requireAuth: true,
+                    menuParent: "order_fullfillment",
+                    menuKey: (route) => "picking_assignment",
+                    permission: (route) => "order_fullfillment_view",
+                    orderType: "inventory_out",
                 }
             },
             

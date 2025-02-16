@@ -68,28 +68,22 @@ const fields = () => {
 
     const columnsNames = [
         {
-            title: t("product.item_code"),
-            dataIndex: "item_code",
-            sorter: true,
-            sorter_field: "products.item_code",
-        },
-        {
             title: t("product.item_id"),
             dataIndex: "item_id",
             sorter: true,
             sorter_field: "products.item_id",
         },
         {
+            title: t("product.item_code"),
+            dataIndex: "item_code",
+            sorter: true,
+            sorter_field: "products.item_code",
+        },
+        {
             title: t("product.product"),
             dataIndex: "name",
             sorter: true,
             sorter_field: "products.name",
-        },
-        {
-            title: t("product.product_type"),
-            dataIndex: "product_type",
-            sorter: true,
-            sorter_field: "products.product_type",
         },
         {
             title: t("product.category"),
@@ -181,6 +175,10 @@ const fields = () => {
         {
             key: "item_code",
             value: t("product.item_code"),
+        },
+        {
+            key: "item_id",
+            value: t("product.item_id"),
         },
     ];
 

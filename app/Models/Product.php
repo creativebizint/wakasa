@@ -20,7 +20,7 @@ class Product extends BaseModel
 
     protected $appends = ['xid', 'x_category_id', 'x_brand_id', 'x_part_id', 'x_unit_id', 'x_user_id', 'x_warehouse_id', 'x_variant_id', 'x_variant_value_id', 'x_parent_id', 'image_url','x_supplier_id'];
 
-    protected $filterable = ['id', 'products.id', 'products.name', 'name', 'item_code', 'category_id', 'brand_id','part_id'];
+    protected $filterable = ['id', 'products.id', 'products.name', 'name', 'item_code', 'category_id', 'brand_id','part_id','item_id'];
 
     protected $hashableGetterFunctions = [
         'getXCategoryIdAttribute' => 'category_id',
