@@ -393,7 +393,7 @@
                             </a-form-item>
                         </a-col>
                     </a-row>
-                    <a-row :gutter="16">
+                    <a-row :gutter="16" :style="{ display: 'none' }">
                         <a-col
                             :xs="24"
                             :sm="24"
@@ -405,7 +405,6 @@
                                 name="unit_id"
                                 :help="rules.unit_id ? rules.unit_id.message : null"
                                 :validateStatus="rules.unit_id ? 'error' : null"
-                                class="required"
                             >
                                 <span style="display: flex">
                                     <a-select
@@ -467,6 +466,87 @@
                                     min="0"
                                     style="width: 100%"
                                 />
+                            </a-form-item>
+                        </a-col>
+                    </a-row>
+
+
+                    <a-row :gutter="16">
+                        <a-col
+                            :xs="24"
+                            :sm="24"
+                            :md="formData.product_type == 'single' ? 12 : 24"
+                            :lg="formData.product_type == 'single' ? 12 : 24"
+                        >
+                            <a-form-item
+                                :label="$t('product.uom_sale_in')"
+                                name="uom_sale_in"
+                                :help="rules.uom_sale_in ? rules.uom_sale_in.message : null"
+                                :validateStatus="rules.uom_sale_in ? 'error' : null"
+                            >
+                                <span style="display: flex">
+                                    <a-select
+                                        v-model:value="formData.uom_sale_in"
+                                        :placeholder="
+                                            $t('common.select_default_text', [
+                                                $t('product.uom_sale_in'),
+                                            ])
+                                        "
+                                        :allowClear="true"
+                                        @change="
+                                            (value, option) => (selectedUnit = option)
+                                        "
+                                    >
+                                        <a-select-option
+                                            v-for="unit in units"
+                                            :key="unit.xid"
+                                            :value="unit.xid"
+                                            :short_name="unit.short_name"
+                                        >
+                                            {{ unit.name }} ({{ unit.short_name }})
+                                        </a-select-option>
+                                    </a-select>
+                                    <UnitAddButton @onAddSuccess="unitAdded" />
+                                </span>
+                            </a-form-item>
+                        </a-col>
+                        <a-col
+                            v-if="formData.product_type == 'single'"
+                            :xs="24"
+                            :sm="24"
+                            :md="12"
+                            :lg="12"
+                        >
+                            <a-form-item
+                                :label="$t('product.uom_buy_in')"
+                                name="uom_buy_in"
+                                :help="rules.uom_buy_in ? rules.uom_buy_in.message : null"
+                                :validateStatus="rules.uom_buy_in ? 'error' : null"
+                            >
+                                <span style="display: flex">
+                                    <a-select
+                                        v-model:value="formData.uom_buy_in"
+                                        :placeholder="
+                                            $t('common.select_default_text', [
+                                                $t('product.uom_buy_in'),
+                                            ])
+                                        "
+                                        :allowClear="true"
+                                        @change="
+                                            (value, option) => (selectedUnit = option)
+                                        "
+                                    >
+                                        <a-select-option
+                                            v-for="unit in units"
+                                            :key="unit.xid"
+                                            :value="unit.xid"
+                                            :short_name="unit.short_name"
+                                        >
+                                            {{ unit.name }} ({{ unit.short_name }})
+                                        </a-select-option>
+                                    </a-select>
+                                    <UnitAddButton @onAddSuccess="unitAdded" />
+                                </span>
                             </a-form-item>
                         </a-col>
                     </a-row>
@@ -599,7 +679,7 @@
                 </a-col>
             </a-row>
 
-            <a-row :gutter="16">
+            <a-row :gutter="16" :style="{ display: 'none' }">
                 <a-col
                     :xs="24"
                     :sm="24"
@@ -612,7 +692,6 @@
                         name="purchase_price"
                         :help="rules.purchase_price ? rules.purchase_price.message : null"
                         :validateStatus="rules.purchase_price ? 'error' : null"
-                        class="required"
                     >
                         <a-input-number
                             v-model:value="formData.purchase_price"
@@ -646,7 +725,6 @@
                         name="sales_price"
                         :help="rules.sales_price ? rules.sales_price.message : null"
                         :validateStatus="rules.sales_price ? 'error' : null"
-                        class="required"
                     >
                         <a-input-number
                             v-model:value="formData.sales_price"
@@ -754,7 +832,7 @@
                 </a-col>
             </a-row>
 
-            <a-row :gutter="16">
+            <a-row :gutter="16"  :style="{ display: 'none' }">
                 <a-col :xs="24" :sm="24" :md="12" :lg="12">
                     <a-form-item
                         :label="$t('product.subgroup3')"
@@ -791,7 +869,7 @@
                 </a-col>
             </a-row>
 
-            <a-row :gutter="16">
+            <a-row :gutter="16" :style="{ display: 'none' }">
                 <a-col :xs="24" :sm="24" :md="12" :lg="12">
                     <a-form-item
                         :label="$t('product.subgroup5')"
@@ -809,6 +887,10 @@
                         />
                     </a-form-item>
                 </a-col>
+                
+            </a-row>
+
+            <a-row :gutter="16">
                 <a-col :xs="24" :sm="24" :md="12" :lg="12">    
                     <a-form-item
                         :label="$t('product.subgroup6')"
@@ -826,9 +908,6 @@
                         />
                     </a-form-item>
                 </a-col>
-            </a-row>
-
-            <a-row :gutter="16">
                 <a-col :xs="24" :sm="24" :md="12" :lg="12">
                     <a-form-item
                         :label="$t('product.subgroup7')"
@@ -957,6 +1036,171 @@
                     </a-form-item>
                 </a-col>
             </a-row>
+            
+            <a-row :gutter="16">
+                <a-col :xs="24" :sm="24" :md="12" :lg="12">    
+                    <a-form-item
+                        :label="$t('product.text1')"
+                        name="name"
+                        :help="rules.text1 ? rules.text1.message : null"
+                        :validateStatus="rules.text1 ? 'error' : null"
+                    >
+                        <a-input
+                            v-model:value="formData.text1"
+                            :placeholder="
+                                $t('common.placeholder_default_text', [
+                                    $t('product.text1'),
+                                ])
+                            "                                    
+                        />
+                    </a-form-item>
+                </a-col>
+                <a-col :xs="24" :sm="24" :md="12" :lg="12">
+                    <a-form-item
+                        :label="$t('product.text2')"
+                        name="name"
+                        :help="rules.text2 ? rules.text2.message : null"
+                        :validateStatus="rules.text2 ? 'error' : null"
+                    >
+                        <a-input
+                            v-model:value="formData.text2"
+                            :placeholder="
+                                $t('common.placeholder_default_text', [
+                                    $t('product.text2'),
+                                ])
+                            "                                    
+                        />
+                    </a-form-item>
+                </a-col>
+            </a-row>
+
+            <a-row :gutter="16">
+                <a-col :xs="24" :sm="24" :md="12" :lg="12">    
+                    <a-form-item
+                        :label="$t('product.kemasan_jual_packing')"
+                        name="name"
+                        :help="rules.kemasan_jual_packing ? rules.kemasan_jual_packing.message : null"
+                        :validateStatus="rules.kemasan_jual_packing ? 'error' : null"
+                    >
+                        <a-input
+                            v-model:value="formData.kemasan_jual_packing"
+                            :placeholder="
+                                $t('common.placeholder_default_text', [
+                                    $t('product.kemasan_jual_packing'),
+                                ])
+                            "                                    
+                        />
+                    </a-form-item>
+                </a-col>
+                <a-col :xs="24" :sm="24" :md="12" :lg="12">
+                    <a-form-item
+                        :label="$t('product.kemasan_jual_qty')"
+                        name="name"
+                        :help="rules.kemasan_jual_qty ? rules.kemasan_jual_qty.message : null"
+                        :validateStatus="rules.kemasan_jual_qty ? 'error' : null"
+                    >
+                        <a-input
+                            v-model:value="formData.kemasan_jual_qty"
+                            :placeholder="
+                                $t('common.placeholder_default_text', [
+                                    $t('product.kemasan_jual_qty'),
+                                ])
+                            "                                    
+                        />
+                    </a-form-item>
+                </a-col>
+            </a-row>
+
+            <a-row :gutter="16">
+                <a-col :xs="24" :sm="24" :md="12" :lg="12">    
+                    <a-form-item
+                        :label="$t('product.kemasan_jual_weight')"
+                        name="name"
+                        :help="rules.kemasan_jual_weight ? rules.kemasan_jual_weight.message : null"
+                        :validateStatus="rules.kemasan_jual_weight ? 'error' : null"
+                    >
+                        <a-input
+                            v-model:value="formData.kemasan_jual_weight"
+                            :placeholder="
+                                $t('common.placeholder_default_text', [
+                                    $t('product.kemasan_jual_weight'),
+                                ])
+                            "                                    
+                        />
+                    </a-form-item>
+                </a-col>
+                <a-col :xs="24" :sm="24" :md="12" :lg="12">
+                    <a-form-item
+                        :label="$t('product.intruksi_packing')"
+                        name="name"
+                        :help="rules.intruksi_packing ? rules.intruksi_packing.message : null"
+                        :validateStatus="rules.intruksi_packing ? 'error' : null"
+                    >
+                        <a-input
+                            v-model:value="formData.intruksi_packing"
+                            :placeholder="
+                                $t('common.placeholder_default_text', [
+                                    $t('product.intruksi_packing'),
+                                ])
+                            "                                    
+                        />
+                    </a-form-item>
+                </a-col>
+            </a-row>
+
+            <a-row :gutter="16">
+                <a-col :xs="24" :sm="24" :md="12" :lg="12">    
+                    <a-form-item
+                                :label="$t('product.kemasan_jual_unit')"
+                                name="kemasan_jual_unit"
+                                :help="rules.kemasan_jual_unit ? rules.kemasan_jual_unit.message : null"
+                                :validateStatus="rules.kemasan_jual_unit ? 'error' : null"
+                            >
+                        <span style="display: flex">
+                            <a-select
+                                v-model:value="formData.kemasan_jual_unit"
+                                :placeholder="
+                                    $t('common.select_default_text', [
+                                        $t('product.kemasan_jual_unit'),
+                                    ])
+                                "
+                                :allowClear="true"
+                                @change="
+                                    (value, option) => (selectedUnit = option)
+                                "
+                            >
+                                <a-select-option
+                                    v-for="unit in units"
+                                    :key="unit.xid"
+                                    :value="unit.xid"
+                                    :short_name="unit.short_name"
+                                >
+                                    {{ unit.name }} ({{ unit.short_name }})
+                                </a-select-option>
+                            </a-select>
+                            <UnitAddButton @onAddSuccess="unitAdded" />
+                        </span>
+                    </a-form-item>
+                </a-col>
+                <a-col :xs="24" :sm="24" :md="12" :lg="12">
+                    <a-form-item
+                        :label="$t('product.numeric1')"
+                        name="name"
+                        :help="rules.numeric1 ? rules.numeric1.message : null"
+                        :validateStatus="rules.numeric1 ? 'error' : null"
+                    >
+                        <a-input
+                            v-model:value="formData.numeric1"
+                            :placeholder="
+                                $t('common.placeholder_default_text', [
+                                    $t('product.numeric1'),
+                                ])
+                            "                                    
+                        />
+                    </a-form-item>
+                </a-col>
+            </a-row>
+            
         </a-form>
         <template #footer>
             <a-button
@@ -1132,6 +1376,18 @@ export default defineComponent({
                         "xid",
                         props.formData.unit_id,
                     ]);
+                    selectedUnit.value = find(units.value, [
+                        "xid",
+                        props.formData.uom_sale_in,
+                    ]);
+                    selectedUnit.value = find(units.value, [
+                        "xid",
+                        props.formData.uom_buy_in,
+                    ]);
+                    selectedUnit.value = find(units.value, [
+                        "xid",
+                        props.formData.kemasan_jual_unit,
+                    ]);
 
                     setCategories(categoriesResponse.data);
                 }
@@ -1202,6 +1458,17 @@ export default defineComponent({
                 sales_price: props.formData.sales_price,
                 purchase_price: props.formData.purchase_price,
                 unit_id: units.value[0].xid,
+                kemasan_jual_packing: props.formData.kemasan_jual_packing,
+                kemasan_jual_qty: props.formData.kemasan_jual_qty,
+                kemasan_jual_weight: props.formData.kemasan_jual_weight,
+                intruksi_packing: props.formData.intruksi_packing,
+                text1: props.formData.text1,
+                text2: props.formData.text2,
+                numeric1: props.formData.numeric1,
+                kemasan_jual_unit: props.formData.kemasan_jual_unit,
+                uom_sale_in: props.formData.uom_sale_in,
+                uom_buy_in: props.formData.uom_buy_in,
+                
             };
 
             addEditRequestAdmin({

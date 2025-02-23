@@ -258,8 +258,8 @@
                                 </a-button>
                             </template>
                         </template>
-                        <template v-if="userType && userType != 'users'" #summary>
-                            <a-table-summary-row>
+                        <template v-if="userType && userType != 'users'" #summary >
+                            <a-table-summary-row :style="{ display: 'none' }">
                                 <a-table-summary-cell :col-span="1">
                                 </a-table-summary-cell>
                                 <a-table-summary-cell :col-span="2">
@@ -309,6 +309,7 @@
                                 </a-table-summary-cell>
                             </a-table-summary-row>
                         </template>
+
                     </a-table>
                 </div>
             </a-col>

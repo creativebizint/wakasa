@@ -4,7 +4,7 @@ import { useI18n } from "vue-i18n";
 const fields = () => {
     const addEditUrl = "products";
     const { t } = useI18n();
-    const hashableColumns = ["unit_id", "category_id", "brand_id", "tax_id","part_id","supplier_id"];
+    const hashableColumns = ["unit_id", "category_id", "brand_id", "tax_id","part_id","supplier_id","uom_sale_in","uom_buy_in","kemasan_jual_unit"];
     const multiDimensalObjectColumns = {
         stock_quantitiy_alert: "details.stock_quantitiy_alert",
         mrp: "details.mrp",
@@ -51,6 +51,9 @@ const fields = () => {
         sales_price: 0,
         tax_id: undefined,
         unit_id: undefined,
+        kemasan_jual_unit: undefined,
+        uom_sale_in: undefined,
+        uom_buy_in: undefined,
         description: "",
         purchase_tax_type: "exclusive",
         sales_tax_type: "exclusive",
@@ -63,6 +66,13 @@ const fields = () => {
         variations: [],
         purchase_price: 0,
         sales_price: 0,
+        kemasan_jual_packing: undefined,
+        kemasan_jual_qty: undefined,
+        kemasan_jual_weight: undefined,
+        intruksi_packing: undefined,
+        text1: undefined,
+        text2: undefined,
+        numeric1: undefined,
     };
     const productType = ref("single");
 

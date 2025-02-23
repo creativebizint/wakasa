@@ -16,9 +16,9 @@ class Product extends BaseModel
 
     protected $guarded = ['id', 'warehouse_id', 'user_id', 'created_at', 'updated_at'];
 
-    protected $hidden = ['id', 'category_id', 'brand_id', 'unit_id', 'user_id', 'warehouse_id', 'variant_id', 'variant_value_id', 'parent_id'];
+    protected $hidden = ['id', 'category_id', 'brand_id', 'unit_id', 'uom_sale_in', 'uom_buy_in', 'kemasan_jual_unit', 'user_id', 'warehouse_id', 'variant_id', 'variant_value_id', 'parent_id'];
 
-    protected $appends = ['xid', 'x_category_id', 'x_brand_id', 'x_part_id', 'x_unit_id', 'x_user_id', 'x_warehouse_id', 'x_variant_id', 'x_variant_value_id', 'x_parent_id', 'image_url','x_supplier_id'];
+    protected $appends = ['xid', 'x_category_id', 'x_brand_id', 'x_part_id', 'x_unit_id', 'x_uom_sale_in', 'x_uom_buy_in', 'x_kemasan_jual_unit', 'x_user_id', 'x_warehouse_id', 'x_variant_id', 'x_variant_value_id', 'x_parent_id', 'image_url','x_supplier_id'];
 
     protected $filterable = ['id', 'products.id', 'products.name', 'name', 'item_code', 'category_id', 'brand_id','part_id','item_id'];
 
@@ -26,6 +26,9 @@ class Product extends BaseModel
         'getXCategoryIdAttribute' => 'category_id',
         'getXBrandIdAttribute' => 'brand_id',
         'getXUnitIdAttribute' => 'unit_id',
+        'getXUomSaleInAttribute' => 'uom_sale_in',
+        'getXUomBuyInAttribute' => 'uom_buy_in',
+        'getXKemasanJualUnitAttribute' => 'kemasan_jual_unit',
         'getXPartIdAttribute' => 'part_id',
         'getXUserIdAttribute' => 'user_id',
         'getXWarehouseIdAttribute' => 'warehouse_id',
@@ -40,6 +43,9 @@ class Product extends BaseModel
         'brand_id' => Hash::class . ':hash',
         'part_id' => Hash::class . ':hash',
         'unit_id' => Hash::class . ':hash',
+        'uom_sale_in' => Hash::class . ':hash',
+        'uom_buy_in' => Hash::class . ':hash',
+        'kemasan_jual_unit' => Hash::class . ':hash',
         'user_id' => Hash::class . ':hash',
         'warehouse_id' => Hash::class . ':hash',
         'variant_id' => Hash::class . ':hash',

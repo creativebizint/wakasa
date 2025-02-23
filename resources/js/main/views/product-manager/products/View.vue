@@ -97,9 +97,7 @@
                                                 : "-"
                                         }}
                                     </a-descriptions-item>
-                                    <a-descriptions-item
-                                        :label="$t('product.quantitiy_alert')"
-                                    >
+                                    <a-descriptions-item :label="$t('product.quantitiy_alert')" :style="{ display: 'none' }">
                                         {{
                                             product.details &&
                                             product.details.stock_quantitiy_alert
@@ -108,8 +106,7 @@
                                         }}
                                     </a-descriptions-item>
                                     <a-descriptions-item
-                                        :label="$t('product.sales_price')"
-                                    >
+                                        :label="$t('product.sales_price')" :style="{ display: 'none' }">
                                         {{
                                             product.details && product.details.sales_price
                                                 ? formatAmountCurrency(
@@ -124,9 +121,7 @@
                                                 : ` (${$t("common.without_tax")})`
                                         }}
                                     </a-descriptions-item>
-                                    <a-descriptions-item
-                                        :label="$t('product.purchase_price')"
-                                    >
+                                    <a-descriptions-item :label="$t('product.purchase_price')" :style="{ display: 'none' }">
                                         {{
                                             product.details &&
                                             product.details.purchase_price
@@ -152,7 +147,7 @@
                                                 : "-"
                                         }}
                                     </a-descriptions-item>-->
-                                    <a-descriptions-item :label="$t('tax.rate')">
+                                    <a-descriptions-item :label="$t('tax.rate')" :style="{ display: 'none' }">
                                         {{
                                             product.details &&
                                             product.details.tax &&
@@ -179,27 +174,36 @@
                                     <a-descriptions-item :label="$t('product.minimum_purchase_quantity')">
                                     {{ product.minimum_purchase_qty }}
                                     </a-descriptions-item>
-
+                                    <br>
+                                    <br>
                                     <a-descriptions-item :label="$t('product.subgroup1')">
                                     {{ product.subgroup1 }}
                                     </a-descriptions-item>
                                     <a-descriptions-item :label="$t('product.subgroup2')">
                                     {{ product.subgroup2 }}
                                     </a-descriptions-item>
-                                    <a-descriptions-item :label="$t('product.subgroup3')">
-                                    {{ product.subgroup3 }}
-                                    </a-descriptions-item>
-                                    <a-descriptions-item :label="$t('product.subgroup4')">
-                                    {{ product.subgroup4 }}
-                                    </a-descriptions-item>
-                                    <a-descriptions-item :label="$t('product.subgroup5')">
-                                    {{ product.subgroup5 }}
-                                    </a-descriptions-item>
                                     <a-descriptions-item :label="$t('product.subgroup6')">
                                     {{ product.subgroup6 }}
                                     </a-descriptions-item>
                                     <a-descriptions-item :label="$t('product.subgroup7')">
                                     {{ product.subgroup7 }}
+                                    </a-descriptions-item>
+
+                                    <a-descriptions-item :label="$t('product.subgroup3')" :style="{ display: 'none' }">
+                                    {{ product.subgroup3 }}
+                                    </a-descriptions-item>
+                                    <a-descriptions-item :label="$t('product.subgroup4')" :style="{ display: 'none' }">
+                                    {{ product.subgroup4 }}
+                                    </a-descriptions-item>
+                                    <a-descriptions-item :label="$t('product.subgroup5')" :style="{ display: 'none' }">
+                                    {{ product.subgroup5 }}
+                                    </a-descriptions-item>
+                                    
+                                    <a-descriptions-item :label="$t('text1')">
+                                    {{ product.text1 }}
+                                    </a-descriptions-item>
+                                    <a-descriptions-item :label="$t('product.text2')">
+                                    {{ product.text2 }}
                                     </a-descriptions-item>
                                     <a-descriptions-item :label="$t('product.reorder_quantity')">
                                     {{ product.reorder_qty }}

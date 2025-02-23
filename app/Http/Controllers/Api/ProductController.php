@@ -124,12 +124,26 @@ class ProductController extends ApiBaseController
                 $newVariantProduct->category_id = $product->category_id;
                 $newVariantProduct->brand_id = $product->brand_id;
                 $newVariantProduct->unit_id = $product->unit_id;
+                $newVariantProduct->kemasan_jual_packing = $product->kemasan_jual_packing;
+                $newVariantProduct->kemasan_jual_qty = $product->kemasan_jual_qty;
+                $newVariantProduct->kemasan_jual_unit = $product->kemasan_jual_unit;
+                $newVariantProduct->kemasan_jual_weight = $product->kemasan_jual_weight;
+                $newVariantProduct->intruksi_packing = $product->intruksi_packing;
+                $newVariantProduct->text1 = $product->text1;
+                $newVariantProduct->text2 = $product->text2;
+                $newVariantProduct->uom_sale_in = $this->getIdFromHash($product->uom_sale_in);
+                $newVariantProduct->uom_buy_in = $this->getIdFromHash($product->uom_buy_in);
+                $newVariantProduct->numeric1 = $product->numeric1;
                 $newVariantProduct->user_id = user()->id;
                 // $newVariantProduct->variant_id = $allVariation['variant_id'];
                 // $newVariantProduct->variant_value_id = $allVariation['variant_value_id'];
                 $newVariantProduct->parent_id = $product->id;
                 $newVariantProduct->save();
 
+                file_put_contents(storage_path('logs') . '/product.log', "[" . date('Y-m-d H:i:s') . "]test 1 : \n" . $this->getIdFromHash($product->uom_sale_in) . "\n\n", FILE_APPEND);
+                    acsac:qfile_put_contents(storage_path('logs') . '/product.log', "[" . date('Y-m-d H:i:s') . "]test 1 : \n" . $this->getIdFromHash($product->uom_buy_in) . "\n\n", FILE_APPEND);
+                    file_put_contents(storage_path('logs') . '/product.log', "[" . date('Y-m-d H:i:s') . "]test 1 : \n" . $this->getIdFromHash($product->kemasan_jual_unit) . "\n\n", FILE_APPEND);
+                    
                 foreach ($allRequestVariantTypes as $allRequestVariantType) {
                     $convertedVariantValueId = $this->getIdFromHash($allRequestVariantType);
                     $variantValueRecord = Variation::find($convertedVariantValueId);
@@ -211,6 +225,10 @@ class ProductController extends ApiBaseController
             $product->warehouse_id = $request->warehouse_id;
         }
 
+        $product->uom_sale_in = $this->getIdFromHash($request->uom_sale_in);
+        $product->uom_buy_in = $this->getIdFromHash($request->uom_buy_in);
+        $product->kemasan_jual_unit = $this->getIdFromHash($request->kemasan_jual_unit);
+            
         return $product;
     }
 
@@ -219,7 +237,7 @@ class ProductController extends ApiBaseController
         $request = request();
         $productType = $product->product_type;
         $allWarehouses = Warehouse::select('id')->get();
-
+//        file_put_contents(storage_path('logs') . '/product.log', "[" . date('Y-m-d H:i:s') . "]test 1 : \n" . $productType . "\n\n", FILE_APPEND);
         if ($productType == 'variable') {
             $allVariations = $request->variations;
 
@@ -251,6 +269,16 @@ class ProductController extends ApiBaseController
                     $newVariantProduct->brand_id = $product->brand_id;
                     $newVariantProduct->unit_id = $product->unit_id;
                     $newVariantProduct->user_id = user()->id;
+                    $newVariantProduct->kemasan_jual_packing = $product->kemasan_jual_packing;
+                    $newVariantProduct->kemasan_jual_qty = $product->kemasan_jual_qty;
+                    $newVariantProduct->kemasan_jual_weight = $product->kemasan_jual_weight;
+                    $newVariantProduct->intruksi_packing = $product->intruksi_packing;
+                    $newVariantProduct->text1 = $product->text1;
+                    $newVariantProduct->text2 = $product->text2;
+                    $newVariantProduct->uom_sale_in = $this->getIdFromHash($product->uom_sale_in);
+                    $newVariantProduct->uom_buy_in = $this->getIdFromHash($product->uom_buy_in);
+                    $newVariantProduct->kemasan_jual_unit = $this->getIdFromHash($product->kemasan_jual_unit);
+                    $newVariantProduct->numeric1 = $product->numeric1;
                     // $newVariantProduct->variant_id = $allVariation['variant_id'];
                     // $newVariantProduct->variant_value_id = $allVariation['variant_value_id'];
                     $newVariantProduct->parent_id = $product->id;

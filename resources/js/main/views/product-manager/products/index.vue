@@ -519,7 +519,7 @@ export default {
 
         const setCrudVariables = () => {
             var url =
-                "products?fields=id,xid,name,slug,product_type,barcode_symbology,item_id,item_code,image,image_url,category_id,x_category_id,category{id,xid,category_id,name},brand_id,x_brand_id,brand{id,xid,code,name},part_id,x_part_id,part{id,xid,name},details{sales_price,purchase_price},unit_id,x_unit_id,unit{id,xid,name,short_name},description,],details:tax{id,xid,name,rate},details:warehouse{id,xid,name},customFields{id,xid,field_name,field_value},warehouse_id,x_warehouse_id,warehouse{id,xid},supplier_id,x_supplier_id,supplier{id,xid,code,name},priority,subgroup1,subgroup2,subgroup3,subgroup4,subgroup5,subgroup6,subgroup7,notes";
+                "products?fields=id,xid,name,slug,product_type,barcode_symbology,item_id,item_code,image,image_url,category_id,x_category_id,category{id,xid,category_id,name},brand_id,x_brand_id,brand{id,xid,code,name},part_id,x_part_id,part{id,xid,name},details{sales_price,purchase_price},unit_id,x_unit_id,unit{id,xid,name,short_name},x_uom_sale_in,x_uom_buy_in,x_kemasan_jual_unit description,],details:tax{id,xid,name,rate},details:warehouse{id,xid,name},customFields{id,xid,field_name,field_value},warehouse_id,x_warehouse_id,warehouse{id,xid},supplier_id,x_supplier_id,supplier{id,xid,code,name},priority,subgroup1,subgroup2,subgroup3,subgroup4,subgroup5,subgroup6,subgroup7,notes,kemasan_jual_packing,kemasan_jual_qty,kemasan_jual_unit,kemasan_jual_weight,intruksi_packing,text1,text2,numeric1,uom_sale_in,uom_buy_in";
 
             // if (productType.value == "variable") {
             //     url =
