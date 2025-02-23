@@ -62,10 +62,10 @@
                         >
                             {{ selectedItem.from_warehouse.name }}
                         </a-descriptions-item>
-                        <a-descriptions-item :label="$t('stock.status')">
+                        <a-descriptions-item :label="$t('stock.status')" :style="{ display: 'none' }">
                             <OrderStatus :data="selectedItem" />
                         </a-descriptions-item>
-                        <a-descriptions-item
+                        <a-descriptions-item :style="{ display: 'none' }"
                             :label="$t('payments.payment_status')"
                         >
                             <PaymentStatus
@@ -82,26 +82,22 @@
                                     : "-"
                             }}
                         </a-descriptions-item>
-                        <a-descriptions-item
-                            :label="$t('payments.total_amount')"
-                        >
+                        <a-descriptions-item :label="$t('payments.total_amount')" :style="{ display: 'none' }">
                             {{ formatAmountCurrency(selectedItem.total) }}
                         </a-descriptions-item>
-                        <a-descriptions-item
-                            :label="$t('payments.paid_amount')"
-                        >
+                        <a-descriptions-item :label="$t('payments.paid_amount')" :style="{ display: 'none' }">
                             {{ formatAmountCurrency(selectedItem.paid_amount) }}
                         </a-descriptions-item>
-                        <a-descriptions-item :label="$t('payments.due_amount')">
+                        <a-descriptions-item :label="$t('payments.due_amount')" :style="{ display: 'none' }">
                             {{ formatAmountCurrency(selectedItem.due_amount) }}
                         </a-descriptions-item>
-                        <a-descriptions-item :label="$t('stock.discount')">
+                        <a-descriptions-item :label="$t('stock.discount')" :style="{ display: 'none' }">
                             {{ formatAmountCurrency(selectedItem.discount) }}
                         </a-descriptions-item>
-                        <a-descriptions-item :label="$t('stock.shipping')">
+                        <a-descriptions-item :label="$t('stock.shipping')" :style="{ display: 'none' }">
                             {{ formatAmountCurrency(selectedItem.shipping) }}
                         </a-descriptions-item>
-                        <a-descriptions-item :label="$t('stock.order_tax')">
+                        <a-descriptions-item :label="$t('stock.order_tax')" :style="{ display: 'none' }">
                             {{
                                 selectedItem.tax_rate > 0
                                     ? `${selectedItem.tax_rate}%`
@@ -115,7 +111,7 @@
             <a-row>
                 <a-col :span="24">
                     <a-tabs v-model:activeKey="activeKey">
-                        <a-tab-pane
+                        <!-- <a-tab-pane 
                             v-if="
                                 permsArray.includes('order_payments_view') ||
                                 permsArray.includes('admin')
@@ -224,7 +220,7 @@
                                     </div>
                                 </a-col>
                             </a-row>
-                        </a-tab-pane>
+                        </a-tab-pane> -->
                         <a-tab-pane
                             key="order_items"
                             :tab="$t('product.order_items')"
@@ -247,18 +243,41 @@
                                                         'product_id'
                                                     "
                                                 >
-                                                    <a-badge>
-                                                        <a-avatar
-                                                            shape="square"
-                                                            :src="
-                                                                record.product
-                                                                    .image_url
-                                                            "
-                                                        />
+                                                        {{record.product.item_id}}
+                                                </template>
+                                                <template v-if=" column.dataIndex === 'product_code' ">
+                                                        {{record.product.item_code}}
+                                                </template>
+                                                <template v-if=" column.dataIndex === 'name' ">
+                                                        {{record.product.name}}
+                                                </template>
+                                                <template v-if=" column.dataIndex === 'description' ">
+                                                        {{ record.product.description }}
+                                                </template>
+                                                <template
+                                                    v-if="
+                                                        column.dataIndex ===
+                                                        'subgroup2'
+                                                    "
+                                                >
                                                         {{
-                                                            record.product.name
+                                                            record.product.subgroup2
                                                         }}
-                                                    </a-badge>
+                                                </template>
+                                                <template
+                                                    v-if="
+                                                        column.dataIndex ===
+                                                        'text1'
+                                                    "
+                                                >
+                                                        {{
+                                                            record.product.text1
+                                                        }}
+                                                </template>
+                                                <template v-if=" column.dataIndex === 'sat' ">
+                                                        {{
+                                                            record.product.uom_buy_in !== null ? record.product.uom_buy_in.short_name : record.product.unit.short_name
+                                                        }}
                                                 </template>
                                                 <template
                                                     v-if="
@@ -339,45 +358,7 @@
                                                         :col-span="1"
                                                     >
                                                     </a-table-summary-cell>
-                                                    <a-table-summary-cell
-                                                        :col-span="1"
-                                                    >
-                                                        <a-typography-text
-                                                            strong
-                                                        >
-                                                            {{
-                                                                formatAmountCurrency(
-                                                                    totals.totalDiscount
-                                                                )
-                                                            }}
-                                                        </a-typography-text>
-                                                    </a-table-summary-cell>
-                                                    <a-table-summary-cell
-                                                        :col-span="1"
-                                                    >
-                                                        <a-typography-text
-                                                            strong
-                                                        >
-                                                            {{
-                                                                formatAmountCurrency(
-                                                                    totals.totalTax
-                                                                )
-                                                            }}
-                                                        </a-typography-text>
-                                                    </a-table-summary-cell>
-                                                    <a-table-summary-cell
-                                                        :col-span="1"
-                                                    >
-                                                        <a-typography-text
-                                                            strong
-                                                        >
-                                                            {{
-                                                                formatAmountCurrency(
-                                                                    totals.totalAmount
-                                                                )
-                                                            }}
-                                                        </a-typography-text>
-                                                    </a-table-summary-cell>
+                                                    
                                                 </a-table-summary-row>
                                             </template>
                                         </a-table>
@@ -438,11 +419,12 @@ export default {
         const formData = ref({});
         const viewData = ref({});
         const editItemAmount = ref(0);
-        const activeKeyName =
-            permsArray.value.includes("order_payments_view") ||
-            permsArray.value.includes("admin")
-                ? "payments"
-                : "order_items";
+        //const activeKeyName =
+        //    permsArray.value.includes("order_payments_view") ||
+        //    permsArray.value.includes("admin")
+        //        ? "payments"
+        //        : "order_items";
+        const activeKeyName = "order_items";
         const activeKey = ref(activeKeyName);
 
         const pageTitle = computed(() => {

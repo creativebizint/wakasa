@@ -396,7 +396,7 @@ class ProductController extends ApiBaseController
         $orderType = $request->order_type;
         $warehouseId = $warehouse->id;
 
-        $products = Product::select('products.id', 'products.name', 'products.image', 'products.unit_id', 'products.product_type')
+        $products = Product::select('products.id', 'products.name', 'products.image', 'products.unit_id', 'products.product_type','products.product_type','products.description','products.item_code','products.item_id','products.subgroup2','products.text1','products.uom_sale_in','products.uom_buy_in')
             ->where(function ($query) use ($searchTerm) {
                 $query->where(DB::raw('LOWER(products.name)'), 'LIKE', "%$searchTerm%")
                     ->orWhere(DB::raw('LOWER(products.item_code)'), 'LIKE', "%$searchTerm%")
@@ -446,7 +446,9 @@ class ProductController extends ApiBaseController
                 $group = $product->group_id != null ? Group::where('id', '=', $product->group_id)->first() : null;
                 $color = $product->color_id != null ? Color::where('id', '=', $product->color_id)->first() : null;
                 $discountRate = $productDetails->discount_counter_price != 'SP' ? $productDetails->discount_counter_price : 0;
-
+                $unit_buy_in = $product->uom_buy_in != null ? Unit::find($product->uom_buy_in) : null;
+                $unit_sale_in = $product->uom_sale_in != null ? Unit::find($product->uom_sale_in) : null;
+                
                 if ($orderType == 'product-placement' || $orderType == 'purchases' || $orderType == 'purchase-returns' || $orderType == 'stock-adjustment-orders') {
                     $taxType = $productDetails->purchase_tax_type;
                 } else if ($orderType == 'sales' || $orderType == 'sales-returns'
@@ -456,7 +458,7 @@ class ProductController extends ApiBaseController
                     $taxType = $productDetails->sales_tax_type;
                     
                 }
-                $unitPrice = $productDetails->retail_counter_price;
+                $unitPrice = $productDetails->retail_counter_price != null ? $productDetails->retail_counter_price : 0;
                 $productType = 'retail_counter_price';
                 $singleUnitPrice = $unitPrice;
 
@@ -504,6 +506,11 @@ class ProductController extends ApiBaseController
 
                     //* ADDENDUM
                     'item_code'  =>  $product->item_code,
+                    'description'  =>  $product->description,
+                    'subgroup2'  =>  $product->subgroup2,
+                    'text1'  =>  $product->text1,
+                    'unit_buy_in'    =>  $unit_buy_in,
+                    'unit_sale_in'    =>  $unit_sale_in,
                     'brand' => $brand,
                     'category' => $category,
                     'group' => $group,

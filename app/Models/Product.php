@@ -92,6 +92,16 @@ class Product extends BaseModel
     {
         return $this->belongsTo(Unit::class, 'unit_id', 'id');
     }
+    
+    public function uomSaleIn()
+    {
+        return $this->belongsTo(Unit::class, 'uom_sale_in', 'id');
+    }
+    
+    public function uomBuyIn()
+    {
+        return $this->belongsTo(Unit::class, 'uom_buy_in', 'id');
+    }
 
     public function user()
     {

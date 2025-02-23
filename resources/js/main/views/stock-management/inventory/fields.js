@@ -58,21 +58,41 @@ const fields = () => {
             dataIndex: "shelf",
         },
         {
-            title: t("product.unit_price"),
-            dataIndex: "single_unit_price",
+            title: t("product.product_code"),
+            dataIndex: "product_code",
         },
         {
-            title: t("product.discount"),
-            dataIndex: "total_discount",
+            title: t("product.product_description"),
+            dataIndex: "description",
         },
         {
-            title: t("product.tax"),
-            dataIndex: "total_tax",
+            title: t("product.subgroup2"),
+            dataIndex: "subgroup2",
         },
         {
-            title: t("product.subtotal"),
-            dataIndex: "subtotal",
+            title: t("product.text1"),
+            dataIndex: "text1",
         },
+        {
+            title: t("product.sat"),
+            dataIndex: "sat",
+        },
+        //{
+        //    title: t("product.unit_price"),
+        //    dataIndex: "single_unit_price",
+        //},
+        //{
+        //    title: t("product.discount"),
+        //    dataIndex: "total_discount",
+        //},
+        //{
+        //    title: t("product.tax"),
+        //    dataIndex: "total_tax",
+        //},
+        //{
+        //    title: t("product.subtotal"),
+        //    dataIndex: "subtotal",
+        //},
         {
             title: t("common.action"),
             dataIndex: "action",

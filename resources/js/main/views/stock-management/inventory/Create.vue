@@ -345,6 +345,21 @@
                                         v-model:value="record.shelf"
                                     />
                                 </template>
+                                <template v-if="column.dataIndex === 'product_code'">
+                                    {{record.item_code}}
+                                </template>
+                                <template v-if="column.dataIndex === 'description'">
+                                    {{record.description}}
+                                </template>
+                                <template v-if="column.dataIndex === 'subgroup2'">
+                                    {{record.subgroup2}}
+                                </template>
+                                <template v-if="column.dataIndex === 'text1'">
+                                    {{record.text1}}
+                                </template>
+                                <template v-if="column.dataIndex === 'sat'">
+                                    {{record.unit_buy_in.short_name}}
+                                </template>
                                 <template v-if="column.dataIndex === 'single_unit_price'">
                                     {{ formatAmountCurrency(record.single_unit_price) }}
                                 </template>
@@ -379,13 +394,13 @@
                                     <a-table-summary-cell
                                         :col-span="4"
                                     ></a-table-summary-cell>
-                                    <a-table-summary-cell>
+                                    <a-table-summary-cell :style="{ display: 'none' }">
                                         {{ $t("product.subtotal") }}
                                     </a-table-summary-cell>
-                                    <a-table-summary-cell>
+                                    <a-table-summary-cell :style="{ display: 'none' }">
                                         {{ formatAmountCurrency(productsAmount.tax) }}
                                     </a-table-summary-cell>
-                                    <a-table-summary-cell :col-span="2">
+                                    <a-table-summary-cell :col-span="2" :style="{ display: 'none' }">
                                         {{
                                             formatAmountCurrency(productsAmount.subtotal)
                                         }}
@@ -426,9 +441,7 @@
                                             ? rules.order_status.message
                                             : null
                                     "
-                                    :validateStatus="rules.order_status ? 'error' : null"
-                                    class="required"
-                                >
+                                    :validateStatus="rules.order_status ? 'error' : null">
                                     <a-select
                                         v-model:value="formData.order_status"
                                         :placeholder="
@@ -450,7 +463,7 @@
                             </a-col>
                         </a-row>
 
-                        <a-row :gutter="16">
+                        <a-row :gutter="16" :style="{ display: 'none' }">
                             <a-col :xs="24" :sm="24" :md="24" :lg="24">
                                 <a-form-item
                                     :label="$t('stock.order_tax')"
@@ -487,7 +500,7 @@
                             </a-col>
                         </a-row>
                         <a-row :gutter="16">
-                            <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                            <a-col :xs="24" :sm="24" :md="24" :lg="24" :style="{ display: 'none' }">
                                 <a-form-item
                                     :label="$t('stock.discount')"
                                     name="discount"
@@ -512,7 +525,7 @@
                                 </a-form-item>
                             </a-col>
                         </a-row>
-                        <a-row :gutter="16">
+                        <a-row :gutter="16" :style="{ display: 'none' }">
                             <a-col :xs="24" :sm="24" :md="24" :lg="24">
                                 <a-form-item
                                     :label="$t('stock.shipping')"
@@ -740,7 +753,7 @@
                                     </a-button>
                                 </a-form-item>
                             </a-col>
-                        </div> -->
+                        </div> 
                         <a-row :gutter="16" class="mt-10">
                             <a-col :xs="12" :sm="12" :md="12" :lg="12">
                                 {{ $t("stock.order_tax") }}
@@ -772,7 +785,7 @@
                             <a-col :xs="12" :sm="12" :md="12" :lg="12">
                                 {{ formatAmountCurrency(formData.subtotal) }}
                             </a-col>
-                        </a-row>
+                        </a-row>-->
                         <a-row :gutter="16" class="mt-20 mb-20">
                             <a-button
                                 type="primary"

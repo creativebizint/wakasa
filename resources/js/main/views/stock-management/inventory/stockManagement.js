@@ -100,7 +100,7 @@ const stockManagement = () => {
 
     const searchValueSelected = (value, option) => {
         const newProduct = option.product;
-console.log(newProduct);
+        //console.log(newProduct);
         if (!includes(selectedProductIds.value, newProduct.xid)) {
             selectedProductIds.value.push(newProduct.xid);
 
@@ -182,7 +182,10 @@ console.log(newProduct);
         var maxQuantity = parseFloat(product.stock_quantity);
         var orderItemId = product.item_id;
         const unitPrice = parseFloat(product.unit_price);
-
+        if(isNaN(unitPrice)){
+            unitPrice = 0;
+        }
+        console.log('unit price:',unitPrice);
         // Check if entered quantity value is greater
         if (product.product_type != "service") {
             quantityValue =
@@ -268,10 +271,23 @@ console.log(newProduct);
 
         total = total - discountAmount;
 
-        const tax = total * (taxRate / 100);
-        total = total + parseFloat(formData.value.shipping);
+        var tax = 0;
+        if(taxRate != 0 && taxRate != ''){
+            alert('masuk:',typeof taxRate);
+            tax = total * (taxRate / 100);
+        }
+        
+        var shipping  = typeof formData.value.shipping != 'undefined' ? formData.value.shipping : 0;
+        console.log('shipping',shipping);
+        total = total + parseFloat(shipping);
 
-        formData.value.subtotal = formatAmount(total + tax);
+    
+        total = formatAmount(total + tax);
+        if(isNaN(total)){
+            total = 0;
+        }
+        formData.value.subtotal = total;
+
         formData.value.tax_amount = formatAmount(tax);
         formData.value.discount = discountAmount;
     };
