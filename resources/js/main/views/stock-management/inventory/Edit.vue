@@ -22,19 +22,13 @@
                     </router-link>
                 </a-breadcrumb-item>
                 <a-breadcrumb-item>
+                    <router-link :to="{ name: 'admin.inventory_in.index' }">
                     {{
                        $t(`menu.inventory_in`)
                     }}
-                </a-breadcrumb-item>
-                <a-breadcrumb-item>
-                    <router-link
-                        :to="{
-                            name: `admin.${orderType}.index`,
-                        }"
-                    >
-                        {{ $t(`menu.inventory_in`) }}
                     </router-link>
                 </a-breadcrumb-item>
+                
                 <a-breadcrumb-item>
                     {{ $t("common.edit") }}
                 </a-breadcrumb-item>
@@ -344,13 +338,13 @@
                                 <a-table-summary-cell
                                     :col-span="4"
                                 ></a-table-summary-cell>
-                                <a-table-summary-cell>
+                                <a-table-summary-cell :style="{ display: 'none' }">
                                     {{ $t("product.subtotal") }}
                                 </a-table-summary-cell>
-                                <a-table-summary-cell>
+                                <a-table-summary-cell :style="{ display: 'none' }">
                                     {{ formatAmountCurrency(productsAmount.tax) }}
                                 </a-table-summary-cell>
-                                <a-table-summary-cell :col-span="2">
+                                <a-table-summary-cell :col-span="2" :style="{ display: 'none' }">
                                     {{ formatAmountCurrency(productsAmount.subtotal) }}
                                 </a-table-summary-cell>
                             </a-table-summary-row>
@@ -361,27 +355,6 @@
 
             <a-row :gutter="16" class="mt-30">
                 <a-col :xs="24" :sm="24" :md="16" :lg="16">
-                    <a-row :gutter="16">
-                        <a-col :xs="24" :sm="24" :md="24" :lg="24">
-                            <a-form-item
-                                :label="$t('warehouse.terms_condition')"
-                                name="terms_condition"
-                                :help="
-                                    rules.terms_condition
-                                        ? rules.terms_condition.message
-                                        : null
-                                "
-                                :validateStatus="rules.terms_condition ? 'error' : null"
-                            >
-                                <a-textarea
-                                    v-model:value="formData.terms_condition"
-                                    :placeholder="$t('warehouse.terms_condition')"
-                                    :auto-size="{ minRows: 2, maxRows: 3 }"
-                                    :disabled="editOrderDisable"
-                                />
-                            </a-form-item>
-                        </a-col>
-                    </a-row>
                     <a-row :gutter="16">
                         <a-col :xs="24" :sm="24" :md="24" :lg="24">
                             <a-form-item
@@ -436,7 +409,7 @@
                         </a-col>
                     </a-row>
                     <a-row :gutter="16">
-                        <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                        <a-col :xs="24" :sm="24" :md="24" :lg="24" :style="{ display: 'none' }">
                             <a-form-item
                                 :label="$t('stock.order_tax')"
                                 name="tax_id"
@@ -473,7 +446,7 @@
                         </a-col>
                     </a-row>
                     <a-row :gutter="16">
-                        <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                        <a-col :xs="24" :sm="24" :md="24" :lg="24" :style="{ display: 'none' }">
                             <a-form-item
                                 :label="$t('stock.discount')"
                                 name="discount"
@@ -499,7 +472,7 @@
                             </a-form-item>
                         </a-col>
                     </a-row>
-                    <a-row :gutter="16">
+                    <a-row :gutter="16" :style="{ display: 'none' }">
                         <a-col :xs="24" :sm="24" :md="24" :lg="24">
                             <a-form-item
                                 :label="$t('stock.shipping')"
@@ -526,7 +499,7 @@
                             </a-form-item>
                         </a-col>
                     </a-row>
-                    <a-row :gutter="16" class="mt-10">
+                    <a-row :gutter="16" class="mt-10" :style="{ display: 'none' }">
                         <a-col :xs="12" :sm="12" :md="12" :lg="12">
                             {{ $t("stock.order_tax") }}
                         </a-col>
@@ -534,7 +507,7 @@
                             {{ formatAmountCurrency(formData.tax_amount) }}
                         </a-col>
                     </a-row>
-                    <a-row :gutter="16" class="mt-10">
+                    <a-row :gutter="16" class="mt-10" :style="{ display: 'none' }">
                         <a-col :xs="12" :sm="12" :md="12" :lg="12">
                             {{ $t("stock.discount") }}
                         </a-col>
@@ -542,7 +515,7 @@
                             {{ formatAmountCurrency(formData.discount) }}
                         </a-col>
                     </a-row>
-                    <a-row :gutter="16" class="mt-10">
+                    <a-row :gutter="16" class="mt-10" :style="{ display: 'none' }">
                         <a-col :xs="12" :sm="12" :md="12" :lg="12">
                             {{ $t("stock.shipping") }}
                         </a-col>
@@ -550,7 +523,7 @@
                             {{ formatAmountCurrency(formData.shipping) }}
                         </a-col>
                     </a-row>
-                    <a-row :gutter="16" class="mt-10">
+                    <a-row :gutter="16" class="mt-10" :style="{ display: 'none' }">
                         <a-col :xs="12" :sm="12" :md="12" :lg="12">
                             {{ $t("stock.grand_total") }}
                         </a-col>
@@ -876,7 +849,7 @@ export default {
                 allUnits.value = unitResponse.data;
                 warehouses.value = warehousesResponse.data;
                 userWarehouses.value = orderResponseData.warehouse;
-console.log('xxx',orderResponseData);
+
                 if (orderResponseData.order.payment_status != "unpaid") {
                     editOrderDisable.value = true;
                 }

@@ -152,7 +152,7 @@
             </a-col>
         </a-row>
 
-        <a-row v-if="userType && userType != 'users'">
+        <a-row v-if="userType && userType != 'users'" :style="{display:'none'}">
             <a-col :span="24">
                 <a-tabs v-model:activeKey="searchDueType" @change="setUrlData">
                     <a-tab-pane key="all" :tab="`${$t('common.all')}`" />
@@ -208,7 +208,7 @@
                             <template v-if="column.dataIndex === 'created_at'">
                                 {{ formatDateTime(record.created_at) }}
                             </template>
-                            <template v-if="column.dataIndex === 'balance'">
+                            <!--<template v-if="column.dataIndex === 'balance'">
                                 <a-typography-link
                                     type="primary"
                                     @click="openTransactions(record)"
@@ -218,7 +218,7 @@
                                         :amount="record.details?.due_amount"
                                     />
                                 </a-typography-link>
-                            </template>
+                            </template>-->
                             <template v-if="column.dataIndex === 'action'">
                                 <a-button
                                     type="primary"

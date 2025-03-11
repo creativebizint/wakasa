@@ -1,7 +1,7 @@
 <template>
     <AdminPageHeader>
         <template #header>
-            <a-page-header :title="$t(`menu.${orderType}`)" class="p-0" />
+            <a-page-header :title="$t(`menu.categories`)" class="p-0" />
         </template>
         <template #breadcrumb>
             <a-breadcrumb separator="-" style="font-size: 12px">
@@ -11,16 +11,10 @@
                     </router-link>
                 </a-breadcrumb-item>
                 <a-breadcrumb-item>
-                    {{
-                        orderPageObject.type == "inventory_out" ||
-                        orderPageObject.type == "sales-returns" ||
-                        orderPageObject.type == "quotations"
-                            ? $t(`menu.inventory_out`)
-                            : $t(`menu.inventory_in`)
-                    }}
+                    {{ $t(`menu.product_manager`) }}
                 </a-breadcrumb-item>
                 <a-breadcrumb-item>
-                    {{ $t(`menu.${orderType}`) }}
+                    {{ $t(`menu.categories`) }}
                 </a-breadcrumb-item>
             </a-breadcrumb>
         </template>
@@ -32,37 +26,43 @@
                 <a-space>
                     <template
                         v-if="
-                            permsArray.includes(`${orderPageObject.permission}_create`) ||
+                            permsArray.includes('categories_create') ||
                             permsArray.includes('admin')
                         "
                     >
-                        <router-link
-                            :to="{
-                                name: `admin.${orderType}.create`,
-                            }"
-                        >
-                            <a-button type="primary">
+                        <a-space>
+                            <a-button type="primary" @click="addItem">
                                 <PlusOutlined />
-                                {{ $t(`${orderType}.add`) }}
+                                {{ $t("category.add") }}
                             </a-button>
-                        </router-link>
+                            <QueueImport
+                                :pageTitle="$t('category.import_categories')"
+                                :sampleFileUrl="sampleFileUrl"
+                                importUrl="categories/import"
+                                context="categories"
+                                bus="master"
+                                @onUploadSuccess="getCategories"
+                            />
+                            <a-typography-link
+                                :href="exportUrl"
+                                target="_blank"
+                            >
+                                <a-button type="primary">
+                                    <FileExcelOutlined />
+                                    {{ $t("common.export") }}
+                                    {{ $t("menu.categories") }}
+                                </a-button>
+                            </a-typography-link>
+                        </a-space>
                     </template>
-
-                    <QueueImport
-                        :pageTitle="$t(`${orderType}.import`)"
-                        :sampleFileUrl="sampleFileUrl"
-                        :context="orderType"
-                        :bus="orderType"
-                        @onUploadSuccess="orderTableRef.setUrlData()"
-                    />
                     <a-button
                         v-if="
-                            selectedRowIds.length > 0 &&
-                            (permsArray.includes(`${orderPageObject.permission}_view`) ||
+                            selectedRowKeys.length > 0 &&
+                            (permsArray.includes('categories_delete') ||
                                 permsArray.includes('admin'))
                         "
                         type="primary"
-                        @click="orderTableRef.showSelectedDeleteConfirm"
+                        @click="showSelectedDeleteConfirm"
                         danger
                     >
                         <template #icon><DeleteOutlined /></template>
@@ -71,201 +71,298 @@
                 </a-space>
             </a-col>
             <a-col :xs="24" :sm="24" :md="12" :lg="14" :xl="14">
-                <a-row :gutter="[16, 16]" justify="end">
-                    <a-col :xs="24" :sm="24" :md="12" :lg="8" :xl="6">
-                        <a-input-search
-                            style="width: 100%"
-                            v-model:value="filters.searchString"
-                            show-search
-                            :placeholder="
-                                $t('common.placeholder_search_text', [
-                                    $t('stock.invoice_number'),
-                                ])
-                            "
-                        />
-                    </a-col>
-                    <a-col :xs="24" :sm="24" :md="8" :lg="8" :xl="6">
-                        <a-select
-                            v-model:value="filters.user_id"
-                            :placeholder="
-                                $t('common.select_default_text', [
-                                    $t(`${orderType}.user`),
-                                ])
-                            "
-                            :allowClear="true"
-                            style="width: 100%"
-                            optionFilterProp="title"
-                            show-search
-                        >
-                            <a-select-option
-                                v-for="user in users"
-                                :key="user.xid"
-                                :title="user.name"
-                                :value="user.xid"
-                            >
-                                {{ user.name }}
-                            </a-select-option>
-                        </a-select>
-                    </a-col>
-                    <a-col :xs="24" :sm="24" :md="8" :lg="8" :xl="6">
-                        <DateRangePicker
-                            ref="serachDateRangePicker"
-                            @dateTimeChanged="
-                                (changedDateTime) => (filters.dates = changedDateTime)
-                            "
-                        />
-                    </a-col>
-                </a-row>
+                <a-row :gutter="[16, 16]" justify="end"> </a-row>
             </a-col>
         </a-row>
     </admin-page-filters>
 
     <admin-page-table-content>
-        <OrderTable
-            ref="orderTableRef"
-            :orderType="orderType"
-            :filters="filters"
-            tableSize="middle"
-            :bordered="true"
-            :selectable="true"
-            @onRowSelection="(selectedIds) => (selectedRowIds = selectedIds)"
+        <AddEdit
+            :addEditType="addEditType"
+            :visible="addEditVisible"
+            :url="addEditUrl"
+            @addEditSuccess="addEditSuccess"
+            @closed="onCloseAddEdit"
+            :formData="formData"
+            :data="viewData"
+            :destroyOnClose="true"
         />
+
+        <a-row>
+            <a-col :span="24">
+                <div class="table-responsive">
+                    <a-table
+                        :row-selection="rowSelection"
+                        :columns="columns"
+                        :row-key="(record) => record.xid"
+                        :data-source="allCategories"
+                        :defaultExpandAllRows="true"
+                        bordered
+                        size="middle"
+                    >
+                        <template #bodyCell="{ column, text, record }">
+                            <template v-if="column.dataIndex === 'image_url'">
+                                <a-image :width="32" :src="text" />
+                            </template>
+                            <template v-if="column.dataIndex === 'action'">
+                                <a-button
+                                    v-if="
+                                        permsArray.includes('categories_edit') ||
+                                        permsArray.includes('admin')
+                                    "
+                                    type="primary"
+                                    @click="editItem(record)"
+                                    style="margin-left: 4px"
+                                >
+                                    <template #icon><EditOutlined /></template>
+                                </a-button>
+                                <a-button
+                                    v-if="
+                                        (permsArray.includes('categories_delete') ||
+                                            permsArray.includes('admin')) &&
+                                        (!record.children || record.children.length == 0)
+                                    "
+                                    type="primary"
+                                    @click="showDeleteConfirm(record.xid)"
+                                    style="margin-left: 4px"
+                                >
+                                    <template #icon><DeleteOutlined /></template>
+                                </a-button>
+                            </template>
+                        </template>
+                    </a-table>
+                </div>
+            </a-col>
+        </a-row>
     </admin-page-table-content>
 </template>
 <script>
-import { onMounted, watch, ref } from "vue";
-import { PlusOutlined, DeleteOutlined } from "@ant-design/icons-vue";
-import { useRoute } from "vue-router";
+import { onMounted, ref, createVNode, unref, computed } from "vue";
+import fields from "./fields";
+import {
+    PlusOutlined,
+    EditOutlined,
+    DeleteOutlined,
+    ExclamationCircleOutlined,
+} from "@ant-design/icons-vue";
+import { Modal, notification } from "ant-design-vue";
+import { useStore } from "vuex";
+import { useI18n } from "vue-i18n";
+import { forEach } from "lodash-es";
 import common from "../../../../common/composable/common";
-import OrderTable from "../../../components/order/OrderTable.vue";
-import DateRangePicker from "../../../../common/components/common/calendar/DateRangePicker.vue";
+import AddEdit from "./AddEdit.vue";
 import AdminPageHeader from "../../../../common/layouts/AdminPageHeader.vue";
 import QueueImport from "../../../../common/core/ui/QueueImport.vue";
 
 export default {
     components: {
         PlusOutlined,
+        EditOutlined,
         DeleteOutlined,
-
-        OrderTable,
-        DateRangePicker,
+        ExclamationCircleOutlined,
+        AddEdit,
         AdminPageHeader,
         QueueImport,
     },
     setup() {
-        const {
-            formatAmountCurrency,
-            orderType,
-            orderPageObject,
-            orderStatus,
-            permsArray,
-        } = common();
-        const route = useRoute();
+        const store = useStore();
+        const { initData, columns } = fields();
+        const { permsArray } = common();
+        const { t } = useI18n();
+        const sampleFileUrl = window.config.category_sample_file;
+        const exportUrl = window.config.category_export_url;
 
-        const warehouses = ref([]);
-        const users = ref([]);
-        const serachDateRangePicker = ref(null);
+        const detailsVisible = ref(false);
+        const viewData = ref({});
 
-        const selectedRowIds = ref([]);
-        const orderTableRef = ref(null);
+        const addEditVisible = ref(false);
+        const addEditType = ref("add");
+        const addEditUrl = ref("categories");
+        const allCategories = ref([]);
 
-        const filters = ref({
-            payment_status: "all",
-            user_id: undefined,
-            dates: [],
-            searchColumn: "invoice_number",
-            searchString: "",
+        const formData = ref({});
 
-            //* ADDENDUM
-            warehouse_id: undefined,
-        });
-
-        const sampleFileUrl = ref([]);
+        const selectedRowKeys = ref([]);
 
         onMounted(() => {
-            fetchUsers();
-            fetchWarehouses();
-            sampleFileUrl.value =
-                window.config[orderType.value+`_sample_file`];
+            getCategories();
         });
 
-        const fetchUsers = () => {
-            const usersPromise = axiosAdmin.get(
-                `${orderPageObject.value.userType}?limit=10000`
-            );
-
-            Promise.all([usersPromise]).then(([usersResponse]) => {
-                users.value = usersResponse.data;
-            });
+        const onRowSelectionChange = (selectedRowKeyValues) => {
+            selectedRowKeys.value = selectedRowKeyValues;
         };
 
-        const fetchWarehouses = () => {
-            const warehousesPromise = axiosAdmin.get("warehouses?limit=10000");
-
-            Promise.all([warehousesPromise]).then(([warehousesResponse]) => {
-                var warehouses_all = [
-                    { name: "All", profile_image: "", xid: "" },
-                ];
-                var warehouses__ = warehouses_all.concat(
-                    warehousesResponse.data
-                );
-                warehouses.value = warehouses__;
-            });
+        const getCheckboxProps = (record) => {
+            return {
+                disabled: !record.children || record.children.length == 0 ? false : true,
+                name: record.xid,
+            };
         };
 
-        watch(
-            () => route.meta.orderType,
-            (newVal, oldVal) => {
-                if (
-                    newVal == "purchases" ||
-                    newVal == "inventory_in" ||
-                    newVal == "inventory_out" ||
-                    newVal == "purchase-returns" ||
-                    newVal == "sales" ||
-                    newVal == "sales-returns" ||
-                    newVal == "quotations"
-                ) {
-                    orderType.value = route.meta.orderType;
+        const rowSelection = computed(() => {
+            return {
+                selectedRowKeys: unref(selectedRowKeys),
+                onChange: onRowSelectionChange,
+                getCheckboxProps: getCheckboxProps,
+            };
+        });
 
-                    filters.value = {
-                        payment_status: "all",
-                        user_id: undefined,
-                        dates: [],
-                        searchColumn: "invoice_number",
-                        searchString: "",
-                    };
+        const getCategories = () => {
+            axiosAdmin
+                .get(
+                    `categories?fields=id,xid,name,slug,parent_id,x_parent_id,image,image_url,category_id&order=parent_id asc&limit=10000`
+                )
+                .then((response) => {
+                    const allCategoriesArray = [];
+                    var listArray = response.data;
+                    // listArray = sortBy(listArray, "x_parent_id");
 
-                    fetchUsers();
-                    fetchWarehouses();
+                    listArray.forEach((node) => {
+                        // No parentId means top level
+                        if (!node.x_parent_id) return allCategoriesArray.push(node);
 
-                    serachDateRangePicker.value.resetPicker();
-                }
+                        // Insert node as child of parent in listArray array
+                        const parentIndex = listArray.findIndex(
+                            (el) => el.xid === node.x_parent_id
+                        );
+                        if (!listArray[parentIndex].children) {
+                            return (listArray[parentIndex].children = [node]);
+                        }
 
-                sampleFileUrl.value =
-                window.config[orderType.value+`_sample_file`];
+                        listArray[parentIndex].children.push(node);
+                    });
 
+                    allCategories.value = allCategoriesArray;
+                });
+        };
+
+        const viewItem = (item) => {
+            viewData.value = item;
+            detailsVisible.value = true;
+        };
+
+        const addItem = () => {
+            addEditUrl.value = "categories";
+            addEditType.value = "add";
+            addEditVisible.value = true;
+        };
+
+        const addEditSuccess = (id) => {
+            // If add action is performed then move page to first
+            if (addEditType.value == "add") {
+                formData.value = {
+                    name: "",
+                    slug: "",
+                    image: undefined,
+                    image_url: undefined,
+                    parent_id: null,
+                };
             }
-        );
+
+            getCategories();
+            addEditVisible.value = false;
+        };
+
+        const onCloseAddEdit = () => {
+            formData.value = { ...initData };
+            addEditVisible.value = false;
+        };
+
+        const editItem = (item) => {
+            formData.value = {
+                name: item.name,
+                slug: item.slug,
+                image: item.image,
+                image_url: item.image_url,
+                parent_id: item.x_parent_id,
+                _method: "PUT",
+            };
+
+            viewData.value = item;
+            addEditUrl.value = `categories/${item.xid}`;
+            addEditType.value = "edit";
+            addEditVisible.value = true;
+        };
+
+        const showDeleteConfirm = (id) => {
+            Modal.confirm({
+                title: t("common.delete") + "?",
+                icon: createVNode(ExclamationCircleOutlined),
+                content: t("category.delete_message"),
+                centered: true,
+                okText: t("common.yes"),
+                okType: "danger",
+                cancelText: t("common.no"),
+                onOk() {
+                    axiosAdmin.delete(`categories/${id}`).then(() => {
+                        getCategories();
+                        notification.success({
+                            message: t("common.success"),
+                            description: t("category.deleted"),
+                        });
+                    });
+                },
+                onCancel() {},
+            });
+        };
+
+        const showSelectedDeleteConfirm = () => {
+            Modal.confirm({
+                title: t("common.delete") + "?",
+                icon: createVNode(ExclamationCircleOutlined),
+                content: t("category.delete_message"),
+                centered: true,
+                okText: t("common.yes"),
+                okType: "danger",
+                cancelText: t("common.no"),
+                onOk() {
+                    const allDeletePromise = [];
+                    forEach(selectedRowKeys.value, (selectedRow) => {
+                        allDeletePromise.push(
+                            axiosAdmin.delete(`categories/${selectedRow}`)
+                        );
+                    });
+
+                    Promise.all(allDeletePromise).then((successResponse) => {
+                        // Update Visible Subscription Modules
+                        store.dispatch("auth/updateVisibleSubscriptionModules");
+
+                        getCategories();
+
+                        notification.success({
+                            message: t("common.success"),
+                            description: t(`category.deleted`),
+                            placement: "bottomRight",
+                        });
+                    });
+                },
+                onCancel() {},
+            });
+        };
 
         return {
-            orderPageObject,
-
+            columns,
+            addEditSuccess,
+            formData,
+            editItem,
+            addEditVisible,
+            addItem,
+            onCloseAddEdit,
+            addEditUrl,
+            addEditType,
+            showDeleteConfirm,
+            detailsVisible,
+            viewItem,
+            viewData,
+            allCategories,
             permsArray,
-            orderStatus,
-            formatAmountCurrency,
-
-            users,
-
-            filters,
-            orderType,
-            serachDateRangePicker,
-
-            selectedRowIds,
-            orderTableRef,
-
-            //* ADDENDUM
-            warehouses,
             sampleFileUrl,
+            getCategories,
+
+            selectedRowKeys,
+            rowSelection,
+            showSelectedDeleteConfirm,
+            exportUrl,
         };
     },
 };

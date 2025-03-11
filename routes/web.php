@@ -95,6 +95,7 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
 
         // Imports
         ApiRoute::post('brands/import', ['as' => 'api.brands.import', 'uses' => 'BrandController@import']);
+        ApiRoute::post('barcode/import', ['as' => 'api.barcode.import', 'uses' => 'BarcodeController@import']);
         ApiRoute::post('parts/import', ['as' => 'api.parts.import', 'uses' => 'PartController@import']);
         ApiRoute::post('categories/import', ['as' => 'api.categories.import', 'uses' => 'CategoryController@import']);
         ApiRoute::post('products/import', ['as' => 'api.products.import', 'uses' => 'ProductController@import']);
@@ -117,6 +118,7 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         ApiRoute::resource('products', 'ProductController', ['as' => 'api', 'except' => ['index']]);
 
         ApiRoute::resource('brands', 'BrandController', $options);
+        ApiRoute::resource('barcode', 'BarcodeController', $options);
         ApiRoute::resource('parts', 'PartController', $options);
         ApiRoute::resource('categories', 'CategoryController', ['as' => 'api', 'except' => ['index', 'show']]);
         ApiRoute::resource('variations', 'VariationController', ['as' => 'api', 'except' => ['index']]);
@@ -156,6 +158,7 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         ApiRoute::get('product-placement/{id}/shelf-number', ['as' => 'api.productplacement.index', 'uses' => 'ProductPlacementController@shelfNumber']);
         ApiRoute::get('product-placement/{id}/row', ['as' => 'api.productplacement.index', 'uses' => 'ProductPlacementController@row']);
         ApiRoute::post('stock-adjustment-order-items-data', ['as' => 'api.extra.stock-adjustment-order-items-data', 'uses' => 'StockAdjustmentController@getStockAdjustmentOrderItemData']);
+        ApiRoute::get('picking-request', ['as' => 'api.pickingRequest.index', 'uses' => 'PickingRequestController@index']);
         
         
         ApiRoute::resource('floors', 'FloorController', $options, ['as' => 'api', 'except' => ['index']]);

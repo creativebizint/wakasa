@@ -26,7 +26,16 @@
                 >
                     <template #bodyCell="{ column, record }">
                         <template v-if="column.dataIndex === 'invoice_number'">
-                            <a-typography-link @click="viewItem(record)">
+                            <a-typography-link 
+                                @click="
+                                                () =>
+                                                    $router.push({
+                                                        name: `admin.inventory_in.edit`,
+                                                        params: {
+                                                            id: record.xid,
+                                                        },
+                                                    })
+                                            ">
                                 {{ record.invoice_number }}
                             </a-typography-link>
                         </template>
@@ -369,7 +378,7 @@
                                             @click="
                                                 () =>
                                                     $router.push({
-                                                        name: (pageObject.type == 'purchases') ? `admin.inventory_in.edit` :'',
+                                                        name: (pageObject.type == 'purchases') ? `admin.inventory-in.edit` :'',
                                                         params: {
                                                             id: record.xid,
                                                         },
@@ -442,106 +451,7 @@
                             </a-dropdown>
                         </template>
                     </template>
-                    <template #expandedRowRender="orderItemData">
-                        <a-table
-                            v-if="
-                                orderItemData &&
-                                orderItemData.record &&
-                                orderItemData.record.items
-                            "
-                            :row-key="(record) => record.xid"
-                            :columns="orderItemDetailsColumns"
-                            :data-source="orderItemData.record.items"
-                            :pagination="false"
-                        >
-                            <template #bodyCell="{ column, record }">
-                                <template v-if="column.dataIndex === 'product_id'">
-                                        {{ record.product.item_id }}
-                                </template>
-                                <template v-if="column.dataIndex === 'product_code'">
-                                        {{ record.product.item_code }}
-                                </template>
-                                <template v-if="column.dataIndex === 'name'">
-                                        {{ record.product.name }}
-                                </template>
-                                <template v-if="column.dataIndex === 'description'">
-                                        {{ record.product.description }}
-                                </template>
-                                <template v-if="column.dataIndex === 'subgroup2'">
-                                        {{ record.product.subgroup2 }}
-                                </template>
-                                <template v-if="column.dataIndex === 'text1'">
-                                        {{ record.product.text1 }}
-                                </template>
-                                <template v-if="column.dataIndex === 'sat'">
-                                        {{ record.product.uom_buy_in !== null ? record.product.uom_buy_in.short_name : record.product.unit.short_name }}
-                                </template>
-                                <template
-                                    v-if="column.dataIndex === 'quantity'"
-                                >
-                                    {{
-                                        `${record.quantity} ${record.product.unit.short_name}`
-                                    }}
-                                </template>
-                                <template
-                                    v-if="
-                                        column.dataIndex === 'single_unit_price'
-                                    "
-                                >
-                                    {{
-                                        formatAmountCurrency(
-                                            record.single_unit_price
-                                        )
-                                    }}
-                                </template>
-                                <template
-                                    v-if="column.dataIndex === 'total_discount'"
-                                >
-                                    {{
-                                        formatAmountCurrency(
-                                            record.total_discount
-                                        )
-                                    }}
-                                </template>
-                                <template
-                                    v-if="column.dataIndex === 'total_tax'"
-                                >
-                                    <span
-                                        v-if="
-                                            record.order_item_taxes.length > 0
-                                        "
-                                    >
-                                        <span
-                                            v-for="order_item_tax in record.order_item_taxes"
-                                            :key="order_item_tax.xid"
-                                        >
-                                            <span>
-                                                {{ order_item_tax.tax_name }} :
-                                                {{
-                                                    formatAmountCurrency(
-                                                        order_item_tax.tax_amount
-                                                    )
-                                                }}
-                                            </span>
-                                            <br />
-                                        </span>
-                                    </span>
-                                    <span v-else>
-                                        {{
-                                            formatAmountCurrency(
-                                                record.total_tax
-                                            )
-                                        }}
-                                    </span>
-                                </template>
-                                <template
-                                    v-if="column.dataIndex === 'subtotal'"
-                                >
-                                    {{ formatAmountCurrency(record.subtotal) }}
-                                </template>
-                            </template>
-                        </a-table>
-                    </template>
+                    
                     
                 </a-table>
             </div>
@@ -624,7 +534,7 @@ import { useStore } from "vuex";
 import { find, forEach } from "lodash-es";
 import { useI18n } from "vue-i18n";
 import print from "print-js";
-import fields from "../../views/stock-management/purchases/fields";
+import fields from "../../views/stock-management/barcode-registration/fields";
 import common from "../../../common/composable/common";
 import datatable from "../../../common/composable/datatable";
 import PaymentStatus from "../../../common/components/order/PaymentStatus.vue";

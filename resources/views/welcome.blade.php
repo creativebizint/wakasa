@@ -126,16 +126,18 @@
                 'stock_in_export_url': "{{ route('api.stockIn.export') }}",
                 'stock_out_sample_file': "{{ asset('files/sample_stock_out.xlsx') }}",
                 'stock_out_export_url': "{{ route('api.stockOut.export') }}",
-                
-                'part_export_url': "{{ route('api.parts.export') }}",
-                'brand_export_url': "{{ route('api.brands.export') }}",
-                'category_export_url': "{{ route('api.categories.export') }}",
-                'product_export_url': "{{ route('api.products.export') }}",
+                'barcode_sample_file': "{{ asset('files/sample_barcode.xlsx') }}",
                 'warehouse_sample_file': "{{ asset('files/sample_warehouses.xlsx') }}",
                 'purchases_sample_file': "{{ asset('files/sample_purchases.xlsx') }}",
                 'purchase-returns_sample_file': "{{ asset('files/sample_purchase_returns.xlsx') }}",
                 'sales_sample_file': "{{ asset('files/sample_sales.xlsx') }}",
                 'stock-adjustment_sample_file': "{{ asset('files/sample_stock_adjustment.xlsx') }}",
+                
+                'part_export_url': "{{ route('api.parts.export') }}",
+                'brand_export_url': "{{ route('api.brands.export') }}",
+                'barcode_export_url': "{{ route('api.barcode.export') }}",
+                'category_export_url': "{{ route('api.categories.export') }}",
+                'product_export_url': "{{ route('api.products.export') }}",
                 'stock_listing_export_url': "{{ route('api.stock-listings.export') }}",
             };
         </script>

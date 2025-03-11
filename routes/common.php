@@ -22,6 +22,7 @@ Route::get('langs/download/{xid?}', ['as' => 'api.extra.langs.download', 'uses' 
 
 //export
 Route::get('brands/export', ['as' => 'api.brands.export', 'uses' => 'Api\BrandController@export']);
+Route::get('barcode/export', ['as' => 'api.barcode.export', 'uses' => 'Api\BarcodeController@export']);
 Route::get('categories/export', ['as' => 'api.categories.export', 'uses' => 'Api\CategoryController@export']);
 Route::get('products/export', ['as' => 'api.products.export', 'uses' => 'Api\ProductController@export']);
 Route::get('parts/export', ['as' => 'api.parts.export', 'uses' => 'Api\PartController@export']);

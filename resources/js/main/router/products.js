@@ -28,6 +28,18 @@ export default [
                 },
             },
             {
+                path: "/admin/barcode",
+                component: () =>
+                    import("../views/product-manager/barcode/index.vue"),
+                name: "admin.barcode.index",
+                meta: {
+                    requireAuth: true,
+                    menuParent: "product_manager",
+                    menuKey: (route) => "barcode",
+                    permission: "barcode_view",
+                },
+            },
+            {
                 path: "/admin/categories",
                 component: () =>
                     import("../views/product-manager/categories/index.vue"),

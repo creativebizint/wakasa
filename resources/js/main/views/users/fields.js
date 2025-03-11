@@ -101,13 +101,13 @@ const fields = () => {
             sorter:true,
             sorter_field: "user_details.created_at",
         },
-        {
-            title: t("common.balance"),
-            dataIndex: "balance",
-            sorter:true,
-            sorter_field: "user_details.opening_balance",
-
-        },
+//        {
+//            title: t("common.balance"),
+//            dataIndex: "balance",
+//            sorter:true,
+//            sorter_field: "user_details.opening_balance",
+//
+//        },
         {
             title: t("user.status"),
             dataIndex: "status",

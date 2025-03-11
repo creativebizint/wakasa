@@ -328,7 +328,23 @@
                         >
                             {{ $t("menu.categories") }}
                         </a-menu-item>
-                        
+                        <a-menu-item
+                            @click="
+                                () => {
+                                    menuSelected();
+                                    $router.push({
+                                        name: 'admin.barcode.index',
+                                    });
+                                }
+                            "
+                            key="barcode"
+                            v-if="
+                                permsArray.includes('barcode_view') ||
+                                permsArray.includes('admin')
+                            "
+                        >
+                            {{ $t("menu.barcode") }}
+                        </a-menu-item>
                         
                         
                     </a-sub-menu>
@@ -366,6 +382,24 @@
                             {{ $t("menu.inventory_in") }}
                         </a-menu-item>
                         
+                        <a-menu-item
+                            @click="
+                                () => {
+                                    menuSelected();
+                                    $router.push({
+                                        name: 'admin.barcode_registration.index',
+                                    });
+                                }
+                            "
+                            key="barcode_registration"
+                            v-if="
+                                permsArray.includes('barcode_registration_view') ||
+                                permsArray.includes('admin')
+                            "
+                        >
+                            {{ $t("menu.barcode_registration") }}
+                        </a-menu-item>
+
                         <a-menu-item
                             @click="
                                 () => {

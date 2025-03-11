@@ -52,6 +52,8 @@ class MasterImportJob implements ShouldQueue, ShouldBeUnique
         
         if ($this->context == "brands") {
             Excel::import(new \App\Imports\BrandImport($this->cacheKey, $this->userId), $storage->path($this->file));
+        } else if ($this->context == "barcode") {
+            Excel::import(new \App\Imports\BarcodeImport($this->cacheKey, $this->userId), $storage->path($this->file));
         } else if ($this->context == "categories") {
             Excel::import(new \App\Imports\CategoryImport($this->cacheKey, $this->userId), $storage->path($this->file));
         } 

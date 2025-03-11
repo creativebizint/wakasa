@@ -150,6 +150,21 @@ export default [
                 },
             },
             
+            //registrasi barcode
+            {
+                path: "barcode-registration",
+                component: () =>
+                    import("../views/stock-management/barcode-registration/index.vue"),
+                name: "admin.barcode_registration.index",
+                meta: {
+                    requireAuth: true,
+                    menuParent: "stock_management",
+                    menuKey: (route) => "barcode_registration",
+                    permission: (route) => "barcode_registration_view",
+                    orderType: "inventory_in",
+                },
+            },
+            
             //inventory out            
             {
                 path: "inventory-out/edit/:id",
