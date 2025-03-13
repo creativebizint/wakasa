@@ -164,6 +164,19 @@ export default [
                     orderType: "inventory_in",
                 },
             },
+            {
+                path: "barcode-registration/:id",
+                component: () =>
+                    import("../views/stock-management/barcode-registration/index.vue"),
+                name: "admin.barcode_registration.scan",
+                meta: {
+                    requireAuth: true,
+                    menuParent: "stock_management",
+                    menuKey: (route) => "barcode_registration",
+                    permission: (route) => "barcode_registration_scan",
+                    orderType: "inventory_in",
+                },
+            },
             
             //inventory out            
             {

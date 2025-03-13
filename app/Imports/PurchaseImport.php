@@ -22,6 +22,8 @@ use Illuminate\Support\Facades\Cache;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Concerns\ToArray;
+use DateTime;
+use DateInterval;
 
 class PurchaseImport implements ToArray, WithHeadingRow, WithMultipleSheets
 {
@@ -48,151 +50,93 @@ class PurchaseImport implements ToArray, WithHeadingRow, WithMultipleSheets
 			$errMessage = "";
 
 			$company = company();
-			$userType = 'supplier';
 			$warehouseType = 'warehouse';
 			$orderType = 'purchases';
 			$orderStatus = 'received';
 
 			$orderSubtotal = 0;
 			$totalQuantities = 0;
-
-			if (
-				!array_key_exists('invoice_number', $orderItems[0]) || !array_key_exists($userType . '_code', $orderItems[0]) || !array_key_exists($warehouseType . '_code', $orderItems[0]) || 
-				!array_key_exists('order_date', $orderItems[0]) || !array_key_exists('order_notes',  $orderItems[0])
-			) {
-				$errMessage = '[row ' . $currentRow . ']: Field missing from header.';
-				Cache::put($this->cacheKey, $errMessage);
-				return;
-			}
-
-			// User Code
-			$userCode = trim($orderItems[0][$userType . '_code']);
-			if ($userCode == '') {
-				$errMessage = '[row ' . $currentRow . ']: ' . $userType . '_code Cannot Be Empty.';
-				Cache::put($this->cacheKey, $errMessage);
-				return;
-			} else {
-				$user = User::where('code', $userCode)->first();
-				if (!$user) {
-					$errMessage = '[row ' . $currentRow . ']: ' . $userType . '_code  *' . $userCode . '* Not Found.';
-					Cache::put($this->cacheKey, $errMessage);
-					return;
-				}
-			}
-
-			// Warehouse Code
-			$warehouseCode = trim($orderItems[0][$warehouseType . '_code']);
-			if ($warehouseCode == '') {
-				$errMessage = '[row ' . $currentRow . ']: ' . $warehouseType . '_code  Cannot Be Empty.';
-				Cache::put($this->cacheKey, $errMessage);
-				return;
-			} else {
-				$warehouse = Warehouse::where('code', $warehouseCode)->first();
-				if (!$warehouse) {
-					$errMessage = '[row ' . $currentRow . ']: ' . $warehouseType . '_code  *' . $warehouseCode . '* Not Found.';
-					Cache::put($this->cacheKey, $errMessage);
-					return;
-				}
-			}
-
-			$invoiceNumber = trim($orderItems[0]['invoice_number']);
-			$orderDate = trim($orderItems[0]['order_date']) ? Carbon::createFromFormat('Y-m-d H:i:s', trim($orderItems[0]['order_date']), $company->timezone)->setTimezone('UTC') : Carbon::now();
-			$notes = trim($orderItems[0]['order_notes']);
-			$label = 'purchases';
-
-			$newOrder = new Order();
-			$newOrder->company_id = $company->id;
-			$newOrder->unique_id = Common::generateOrderUniqueId();
-			$newOrder->order_type = $orderType;
-			$newOrder->order_date = $orderDate;
-			$newOrder->warehouse_id = $warehouse->id;
-			$newOrder->user_id = $user->id;
-			$newOrder->tax_id = null;
-			$newOrder->tax_rate = 0;
-			$newOrder->discount = 0;
-			$newOrder->shipping = 0;
-			$newOrder->paid_amount = 0;
-			$newOrder->order_status = $orderStatus;
-			$newOrder->notes = $notes;
-			$newOrder->payment_status = 'unpaid';
-			$newOrder->total_items = count($orderItems);
-			$newOrder->total_quantity = 0;
-			$newOrder->subtotal = 0;
-			$newOrder->total = 0;
-			$newOrder->due_amount = 0;
-			$newOrder->invoice_number = $invoiceNumber;
-			$newOrder->save();
-                        //file_put_contents(storage_path('logs') . '/purchases.log', "[" . date('Y-m-d H:i:s') . "]order : \n" . print_r($newOrder,1) . "\n\n", FILE_APPEND);
-			$productItems = [];
-			$processedItemCodes = [];
-
-            foreach ($orderItems as $orderItem) {
-
-				if (
-					!array_key_exists('item_code', $orderItem) || !array_key_exists('shelf', $orderItem) || !array_key_exists('item_quantity', $orderItem)
-				) {
-					$errMessage = '[row ' . $currentRow . ']: Field missing from header.';
-					Cache::put($this->cacheKey, $errMessage);
-                                        //file_put_contents(storage_path('logs') . '/purchases.log', "[" . date('Y-m-d H:i:s') . "]xx : \n" . "\n\n", FILE_APPEND);    
-					$newOrder->delete();
-					return;
-				}
-
-				// Item Code
-				$itemCode = trim($orderItem['item_code']);
-				$item_id = trim($orderItem['item_id']);
-				$shelf = trim($orderItem['shelf']);
-				if ($itemCode == '' && $item_id == '') {
-					$errMessage = '[row ' . $currentRow . ']: item_code Cannot Be Empty.';
-					Cache::put($this->cacheKey, $errMessage);
-                                        //file_put_contents(storage_path('logs') . '/purchases.log', "[" . date('Y-m-d H:i:s') . "]yyy : \n" . "\n\n", FILE_APPEND);
-					$newOrder->delete();
-					return;
-				} 
-				// else if (Str::contains($itemCode, $processedItemCodes)) {
-				// 	$errMessage = '[row ' . $currentRow . ']: Duplicate item_code *' . $itemCode .  '*.';
-				// 	Cache::put($this->cacheKey, $errMessage);
-				// 	$newOrder->delete();
-				// 	return;
-				// } 
-				else {
-					$product = Product::where('item_code', $itemCode)
-                                            ->where('item_id',$item_id)
-                                            ->first();
-					if (!$product) {
-						$errMessage = '[row ' .  $currentRow . ']: item_code  *' . $itemCode . '* Not Found.';
-						Cache::put($this->cacheKey, $errMessage);
-                                                //file_put_contents(storage_path('logs') . '/purchases.log', "[" . date('Y-m-d H:i:s') . "]cccc : \n" . print_r($itemCode,1) . "\n\n", FILE_APPEND);
-						$newOrder->delete();
-						return;
-					}
-				}
-
-				// Item Quantity
-				$itemQuantity = (int) trim($orderItem['item_quantity']);
-				if (!$itemQuantity) {
-					$errMessage = '[row ' . $currentRow . ']: item_quantity Cannot Be Empty Or 0.';
-					Cache::put($this->cacheKey, $errMessage);
-					$newOrder->delete();
-					return;
-				}
-
-				$productDetails = ProductDetails::withoutGlobalScope('current_warehouse')
+                        
+                        // Warehouse Code default B15
+			$warehouseCode = 'B15';
+			$warehouse = Warehouse::where('code', $warehouseCode)->first();
+                        
+                        $productItems = [];
+                        
+                        foreach ($orderItems as $orderItem) {
+                        
+                            // User Code
+                            $userCode = trim($orderItem['vendorid']);
+                            if ($userCode == '') {
+                                $errMessage = '[row ' . $currentRow . ']: VendorId Cannot Be Empty.';
+                                Cache::put($this->cacheKey, $errMessage);
+                                return;
+                            } else {
+                                $user = User::where('code', $userCode)->first();
+                                if (!$user) {
+                                        $errMessage = '[row ' . $currentRow . ']: VendorId  *' . $userCode . '* Not Found.';
+                                        Cache::put($this->cacheKey, $errMessage);
+                                        return;
+                                }
+                            }
+                        
+                            $date = $this->excelToDateTime(trim($orderItem['transactiondate']));
+                            $refference = trim($orderItem['purchaseorderno']);
+                            $invoiceNumber = trim($orderItem['receiveno']);
+                            
+                            $order = Order::where('invoice_number', $invoiceNumber)->count();
+                            if($order == 0){
+                                //new order
+                                $newOrder = new Order();
+                                $newOrder->company_id = $company->id;
+                                $newOrder->unique_id = Common::generateOrderUniqueId();
+                                $newOrder->order_type = $orderType;
+                                $newOrder->order_date = $date;
+                                $newOrder->warehouse_id = $warehouse->id;
+                                $newOrder->user_id = $user->id;
+                                $newOrder->tax_id = null;
+                                $newOrder->tax_rate = 0;
+                                $newOrder->discount = 0;
+                                $newOrder->shipping = 0;
+                                $newOrder->paid_amount = 0;
+                                $newOrder->order_status = $orderStatus;
+                                $newOrder->refference  = $refference ;
+                                $newOrder->payment_status = 'unpaid';
+                                $newOrder->total_items = 0;
+                                $newOrder->total_quantity = 0;
+                                $newOrder->subtotal = 0;
+                                $newOrder->total = 0;
+                                $newOrder->due_amount = 0;
+                                $newOrder->invoice_number = $invoiceNumber;
+                                $newOrder->staff_user_id = $this->userId;    
+                                $newOrder->save();
+                                
+                                $item_id = trim($orderItem['itemid']);
+                                $qty = (int) trim($orderItem['receiveqty']);
+                                $product = Product::where('item_id', $item_id)->first();
+                                if (!$product) {
+                                        $errMessage = '[row ' .  $currentRow . ']: itemId  *' . $item_id . '* Not Found.';
+                                        Cache::put($this->cacheKey, $errMessage);
+                                        //file_put_contents(storage_path('logs') . '/purchases.log', "[" . date('Y-m-d H:i:s') . "]cccc : \n" . print_r($itemCode,1) . "\n\n", FILE_APPEND);
+                                        return;
+                                }
+                                else{
+                                    $productDetails = ProductDetails::withoutGlobalScope('current_warehouse')
 					->where('warehouse_id', '=', $warehouse->id)
 					->where('product_id', '=', $product->id)
 					->first();
-				
-				$currentStock = $productDetails->current_stock;
-				$itemPriceTypeCode = 'purchase_price';
+                                    
+                                    $currentStock = $productDetails->current_stock;
+                                    $itemPriceTypeCode = 'purchase_price';
 
-                                //purchase_price
-                                $unitPrice = isset($orderItem['purchase_price']) && $orderItem['purchase_price'] != '' ? trim($orderItem['purchase_price']) : $productDetails->purchase_price;
-				$subtotal = $unitPrice * $itemQuantity;
-
-			
-				$unit = $product->unit;
-
-				$productItems[] = (object) [
+                                    //purchase_price
+                                    $unitPrice = 0;
+                                    $subtotal = 0;
+                                    
+                                    $unit = $product->unit;
+                                    $productItems[$invoiceNumber] = [];
+                                     
+                                    $productItems[$invoiceNumber][] = (object) [
 					'xid'    =>  Common::getHashFromId($product->id),
 					'item_id'    =>  '',
 					'name'    =>  $product->name,
@@ -205,8 +149,8 @@ class PurchaseImport implements ToArray, WithHeadingRow, WithMultipleSheets
 					'unit_price'    =>  $unitPrice,
 					'single_unit_price'    =>  $unitPrice,
 					'subtotal'    =>  $subtotal,
-					'quantity'    =>  $itemQuantity,
-					'shelf'    =>  $shelf,
+					'quantity'    =>  $qty,
+					'shelf'    =>  '',
 					'tax_rate'    =>  0,
 					'tax_type'    =>  $productDetails->purchase_tax_type,
 					'x_unit_id'    =>  Common::getHashFromId($unit->id),
@@ -219,39 +163,111 @@ class PurchaseImport implements ToArray, WithHeadingRow, WithMultipleSheets
 					'brand' => $product->brand,
 					'category' => $product->category,
 					'price_type' => $itemPriceTypeCode,
-				];
+                                    ];
 
-				$orderSubtotal += $subtotal;
-				$totalQuantities += $itemQuantity;
+                                }
+                                
+                                
+                                
+                            }
+                            else{
+                                //invoice order already create
+                                $item_id = trim($orderItem['itemid']);
+                                $qty = (int) trim($orderItem['receiveqty']);
+                                $product = Product::where('item_id', $item_id)->first();
+                                if (!$product) {
+                                        $errMessage = '[row ' .  $currentRow . ']: itemId  *' . $item_id . '* Not Found.';
+                                        Cache::put($this->cacheKey, $errMessage);
+                                        //file_put_contents(storage_path('logs') . '/purchases.log', "[" . date('Y-m-d H:i:s') . "]cccc : \n" . print_r($itemCode,1) . "\n\n", FILE_APPEND);
+                                        return;
+                                }
+                                else{
+                                    $productDetails = ProductDetails::withoutGlobalScope('current_warehouse')
+					->where('warehouse_id', '=', $warehouse->id)
+					->where('product_id', '=', $product->id)
+					->first();
+                                    
+                                    $currentStock = $productDetails->current_stock;
+                                    $itemPriceTypeCode = 'purchase_price';
 
-				$currentRow++;
-				
-				$processedItemCodes[] = $itemCode;
-            }
+                                    //purchase_price
+                                    $unitPrice = 0;
+                                    $subtotal = 0;
+                                    
+                                    $unit = $product->unit;
+                                    $productItems[$invoiceNumber][] = (object) [
+					'xid'    =>  Common::getHashFromId($product->id),
+					'item_id'    =>  '',
+					'name'    =>  $product->name,
+					'image'    =>  $product->image,
+					'image_url'    =>  $product->image_url,
+					'x_tax_id'    =>   Common::getHashFromId($productDetails->tax_id),
+					'discount_rate'    =>  0,
+					'total_discount'    =>  0,
+					'total_tax'    =>  0,
+					'unit_price'    =>  $unitPrice,
+					'single_unit_price'    =>  $unitPrice,
+					'subtotal'    =>  $subtotal,
+					'quantity'    =>  $qty,
+					'shelf'    =>  '',
+					'tax_rate'    =>  0,
+					'tax_type'    =>  $productDetails->purchase_tax_type,
+					'x_unit_id'    =>  Common::getHashFromId($unit->id),
+					'unit'    =>  $unit,
+					'stock_quantity' =>  $currentStock,
+					'unit_short_name' => $unit && $unit->short_name ? $unit->short_name : '',
 
-			$newOrder->total_quantity = $totalQuantities;
-			$newOrder->subtotal = $orderSubtotal;
-			$newOrder->total = $orderSubtotal;
-			$newOrder->due_amount = $orderSubtotal;
-			$newOrder->staff_user_id = $this->userId;
+					//* ADDENDUM
+					'item_code' => $product->item_code,
+					'brand' => $product->brand,
+					'category' => $product->category,
+					'price_type' => $itemPriceTypeCode,
+                                    ];
 
-			if (!$newOrder->invoice_number || $newOrder->invoice_number == "") {
-				$newOrder->invoice_number = Common::getTransactionNumber($orderType);
-			}
+                                }
+                                
+                            }
+                            
+                        
+                            
+                            
+                            $currentRow++;
+                        }
+                        
+                        
+                        foreach($productItems as $key => $productItem){
+                            $order = Order::where('invoice_number',$key)->first();
+                            $order = Common::storeAndUpdateOrder($order, "", $productItem);
 
-			$newOrder->save();
-                        //file_put_contents(storage_path('logs') . '/purchases.log', "[" . date('Y-m-d H:i:s') . "]ff : \n" .print_r($productItems,1). "\n\n", FILE_APPEND);
-			// Update Stock
-			$newOrder = Common::storeAndUpdateOrder($newOrder, "", $productItems);
+                            // Updating Warehouse History
+                            Common::updateWarehouseHistory('order', $order, "add_edit");
 
-			// Updating Warehouse History
-			Common::updateWarehouseHistory('order', $newOrder, "add_edit");
-
-			// Notifying to Warehouse
-			Notify::send(str_replace('-', '_', $orderType)  . '_create', $newOrder);
-file_put_contents(storage_path('logs') . '/purchases.log', "[" . date('Y-m-d H:i:s') . "]uu : \n" . "\n\n", FILE_APPEND);
+                            // Notifying to Warehouse
+                            Notify::send(str_replace('-', '_', $orderType)  . '_create', $order);
+                        }
+                        
 			// Forget cache
 			Cache::forget($this->cacheKey);
 		});
 	}
+        
+
+        function excelToDateTime($serialDate)
+        {
+            // Excel base date (1899-12-30)
+            $baseDate = new DateTime('1899-12-30');
+
+            // Add the serial date as days
+            $interval = new DateInterval("P" . floor($serialDate) . "D");
+            $baseDate->add($interval);
+
+            // Convert fractional day to seconds (force integer)
+            $seconds = (int) round(($serialDate - floor($serialDate)) * 86400);
+
+            // Modify date with seconds
+            $baseDate->modify("+{$seconds} seconds");
+
+            return $baseDate->format('Y-m-d H:i:s');
+        }
+
 }
