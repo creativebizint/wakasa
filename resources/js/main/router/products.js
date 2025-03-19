@@ -241,6 +241,19 @@ export default [
                 }
             },
             
+            {
+                path: '/admin/warehouse',
+                component: () =>
+                    import('../views/product-manager/warehouses/index.vue'),
+                name: 'admin.warehouses.index',
+                meta: {
+                    requireAuth: true,
+                    menuParent: "app_configuration",
+                    menuKey: route => "warehouses",
+                    permission: "warehouses_view",
+                }
+            },
+            
         ],
     },
 ];

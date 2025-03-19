@@ -99,6 +99,22 @@ const fields = () => {
         },
     ];
 
+    const orderItemBarcode = [
+        {
+            title: "#",
+            dataIndex: "sn",
+        },
+        {
+            title: t("product.item_id"),
+            dataIndex: "product_item_id",
+        },
+        {
+            title: t("product.quantity"),
+            dataIndex: "unit_quantity",
+        },
+        
+    ];
+    
     const orderItemDetailsColumns = [
         {
             title: t("product.product"),
@@ -289,7 +305,7 @@ const fields = () => {
         },
       
     ];
-
+    
     return {
         initData,
         initPaymentData,
@@ -300,8 +316,9 @@ const fields = () => {
         pageObject,
         orderType,
         orderItemColumns,
+        orderItemBarcode,
         orderPaymentsColumns,
-        orderItemDetailsColumns
+        orderItemDetailsColumns,
     }
 }
 

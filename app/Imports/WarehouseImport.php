@@ -49,8 +49,7 @@ class WarehouseImport implements ToArray, WithHeadingRow, WithMultipleSheets
 
 				if (
 					!array_key_exists('code', $warehouse) || !array_key_exists('name', $warehouse) || !array_key_exists('store_code', $warehouse) ||
-					!array_key_exists('phone', $warehouse) || !array_key_exists('email', $warehouse) || !array_key_exists('address', $warehouse) || 
-					!array_key_exists('online_store', $warehouse) || !array_key_exists('margin', $warehouse)
+					!array_key_exists('phone', $warehouse) || !array_key_exists('email', $warehouse) || !array_key_exists('address', $warehouse) 
 					
 				) {
 					$errMessage = '[row ' . $currentRow . ']: Field missing from header.';
@@ -72,20 +71,6 @@ class WarehouseImport implements ToArray, WithHeadingRow, WithMultipleSheets
 					}
 				}
 
-				$storeCode = trim($warehouse['store_code']);
-				if ($storeCode == '') {
-                    $errMessage = '[row ' . $currentRow . ']: store_code Cannot Be Empty.';
-					Cache::put($this->cacheKey, $errMessage);
-					return;
-                } else {
-					$storeCodeCount = Store::where('code', $storeCode)->first();
-					if (!$storeCodeCount) {
-						$errMessage = '[row ' . $currentRow . ']: store_code *' . $storeCode . '* Not Found.';
-						Cache::put($this->cacheKey, $errMessage);
-						return;
-					}
-				}
-
 				$warehouseName = trim($warehouse['name']);
                 if ($warehouseName == '') {
                     $errMessage = '[row ' . $currentRow . ']: name Cannot Be Empty.';
@@ -96,11 +81,9 @@ class WarehouseImport implements ToArray, WithHeadingRow, WithMultipleSheets
 				$warehousePhone = trim($warehouse['phone']);
 				$warehouseEmail = trim($warehouse['email']);
 				$warehouseAddress = trim($warehouse['address']);
-				$warehouseIsOnlineStoreEnabled = trim($warehouse['online_store']) ? (int) trim($warehouse['online_store']) : 0;
-				$warehouseMargin = trim($warehouse['margin']) ? (int) trim($warehouse['margin']) : 0;
-                
-				$store = Store::where('code', $storeCode)->first();
-               
+				$warehouseIsOnlineStoreEnabled = 0;
+				
+				
 				$newWarehouse = new Warehouse();
 				$newWarehouse->code = $warehouseCode;
 				$newWarehouse->name = $warehouseName;
@@ -118,10 +101,8 @@ class WarehouseImport implements ToArray, WithHeadingRow, WithMultipleSheets
 				$newWarehouse->show_discount_tax_on_invoice = '1';
 				$newWarehouse->barcode_type = 'barcode';
 				$newWarehouse->company_id = company()->id;
-				$newWarehouse->store_id = $store->id;
 				$newWarehouse->online_store_enabled = $warehouseIsOnlineStoreEnabled;
-				$newWarehouse->margin = $warehouseMargin;
-                $newWarehouse->save();
+                                $newWarehouse->save();
 
 				// Fix - Issue fixed for variable type product
 				$allProducts = Product::select('id')
@@ -148,12 +129,6 @@ class WarehouseImport implements ToArray, WithHeadingRow, WithMultipleSheets
 					$productDetails->stock_quantitiy_alert = $defaultWarehouseProductDetails->stock_quantitiy_alert;
 					$productDetails->wholesale_price = $defaultWarehouseProductDetails->wholesale_price;
 					$productDetails->wholesale_quantity = $defaultWarehouseProductDetails->wholesale_quantity;
-					$productDetails->retail_counter_price = $defaultWarehouseProductDetails->retail_counter_price;
-					$productDetails->special_counter_price = $defaultWarehouseProductDetails->special_counter_price;
-					$productDetails->discount_counter_price = $defaultWarehouseProductDetails->discount_counter_price;
-					$productDetails->retail_online_price = $defaultWarehouseProductDetails->retail_online_price;
-					$productDetails->special_online_price = $defaultWarehouseProductDetails->special_online_price;
-					$productDetails->discount_online_price = $defaultWarehouseProductDetails->discount_online_price;
 					$productDetails->save();
 		
 					// Common::updateProductCustomFields($allProduct, $productDetails->warehouse_id);

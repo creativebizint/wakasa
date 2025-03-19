@@ -30,7 +30,7 @@
                                 @click="
                                                 () =>
                                                     $router.push({
-                                                        name: `admin.inventory_in.edit`,
+                                                        name: `admin.inventory_in.item`,
                                                         params: {
                                                             id: record.xid,
                                                         },

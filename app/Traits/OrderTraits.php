@@ -14,6 +14,7 @@ use App\Models\Unit;
 use App\Models\User;
 use App\Models\WarehouseStock;
 use App\Models\Warehouse;
+use App\Models\Barcode;
 use Carbon\Carbon;
 use Examyou\RestAPI\ApiResponse;
 use Examyou\RestAPI\Exceptions\ApiException;
@@ -101,6 +102,7 @@ trait OrderTraits
                     'sn'    =>  $sn,
                     'xid'    =>  Common::getHashFromId($allOrderIteam->product_id),
                     'item_id'    =>  $allOrderIteam->xid,
+                    'product_item_id'    =>  $allOrderIteam->product->item_id,
                     'name'    =>  $allOrderIteam->product->name,
                     'image'    =>  $allOrderIteam->product->image,
                     'image_url'    =>  $allOrderIteam->product->image_url,
@@ -395,4 +397,13 @@ trait OrderTraits
 
         return ApiResponse::make("Resource deleted successfully", null, $meta);
     }
+    
+    
+    public function barcode($xid){
+        $id = Common::getIdFromHash($xid);
+        $barcode = Barcode::where('order_item_id',$id)->get();
+        
+        return ['total' =>count($barcode), 'data' => $barcode];
+    }
+    
 };

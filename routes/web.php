@@ -160,6 +160,7 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         ApiRoute::post('stock-adjustment-order-items-data', ['as' => 'api.extra.stock-adjustment-order-items-data', 'uses' => 'StockAdjustmentController@getStockAdjustmentOrderItemData']);
         ApiRoute::get('picking-request', ['as' => 'api.pickingRequest.index', 'uses' => 'PickingRequestController@index']);
         
+        ApiRoute::get('inventory-detail/barcode/{id}', ['as' => 'api.inventory_in.barcode', 'uses' => 'PurchaseController@barcode']);
         
         ApiRoute::resource('floors', 'FloorController', $options, ['as' => 'api', 'except' => ['index']]);
         ApiRoute::resource('rows', 'RowController', $options, ['as' => 'api', 'except' => ['index']]);

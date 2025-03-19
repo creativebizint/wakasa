@@ -240,6 +240,7 @@
                             {{ $t("menu.rows") }}
                         </a-menu-item>
                     </a-sub-menu>
+                    
                     <a-menu-item
                             @click="
                                 () => {
@@ -255,7 +256,26 @@
                                 permsArray.includes('admin')
                             "
                         >
+                        <AppstoreOutlined />
                             {{ $t("menu.products") }}
+                    </a-menu-item>
+                    <a-menu-item
+                            @click="
+                                () => {
+                                    menuSelected();
+                                    $router.push({
+                                        name: 'admin.warehouses.index',
+                                    });
+                                }
+                            "
+                            key="warehouses"
+                            v-if="
+                                permsArray.includes('warehouses_view') ||
+                                permsArray.includes('admin')
+                            "
+                        >
+                        <ShopOutlined />
+                            {{ $t("menu.warehouses") }}
                     </a-menu-item>
                 </a-sub-menu>
                     
@@ -854,6 +874,7 @@ export default defineComponent({
             "subscription",
             "hrm",
             "order_fullfillment",
+            "app_configuration",
         ];
         const store = useStore();
         const route = useRoute();

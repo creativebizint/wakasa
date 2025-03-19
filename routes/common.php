@@ -33,6 +33,7 @@ Route::get('shelf-numbers/export', ['as' => 'api.shelfNumbers.export', 'uses' =>
 Route::get('stock-in/export', ['as' => 'api.stockIn.export', 'uses' => 'Api\ProductPlacementController@stockInExport']);
 Route::get('stock-out/export', ['as' => 'api.stockOut.export', 'uses' => 'Api\ProductPlacementController@stockOutExport']);
 Route::get('stock-listings/export', ['as' => 'api.stock-listings.export', 'uses' => 'Api\StockListingController@export']);
+Route::get('warehouse/export', ['as' => 'api.warehouse.export', 'uses' => 'Api\WarehouseController@export']);
 
 // If appType is saas version
 // Then we only define routes

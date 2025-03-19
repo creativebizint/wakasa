@@ -18,6 +18,10 @@ use App\Models\UserDetails;
 use App\Models\Warehouse;
 use Examyou\RestAPI\ApiResponse;
 use Examyou\RestAPI\Exceptions\ApiException;
+use App\Imports\WarehouseImport;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\WarehouseExport;
+use Illuminate\Support\Facades\Cache;
 
 class WarehouseController extends ApiBaseController
 {
@@ -165,5 +169,10 @@ class WarehouseController extends ApiBaseController
 
         return ApiResponse::make('Success', ['warehouse' => $defaultWarehouse]);
 
+    }
+    
+    public function export()
+    {
+            return Excel::download(new WarehouseExport, 'warehouses.xlsx');
     }
 }

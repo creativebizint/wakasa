@@ -44,7 +44,7 @@
                     </template>
                     {{ $t("menu.translations") }}
                 </a-menu-item>
-                <a-menu-item
+                <!-- <a-menu-item
                     key="warehouses"
                     v-if="
                         permsArray.includes('warehouses_view') ||
@@ -56,7 +56,7 @@
                         <ShopOutlined />
                     </template>
                     {{ $t("menu.warehouses") }}
-                </a-menu-item>
+                </a-menu-item> -->
                 <a-menu-item
                     key="roles"
                     v-if="

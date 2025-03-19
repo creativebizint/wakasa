@@ -275,6 +275,17 @@ const fields = () => {
       
     ];
 
+    const barcodeColumns = [
+        {
+            title: t("menu.barcode"),
+            dataIndex: "string",
+        },
+        {
+            title: t("common.action"),
+            dataIndex: "action",
+        },      
+    ];
+    
     return {
         initData,
         initPaymentData,
@@ -286,7 +297,8 @@ const fields = () => {
         orderType,
         orderItemColumns,
         orderPaymentsColumns,
-        orderItemDetailsColumns
+        orderItemDetailsColumns,
+        barcodeColumns
     }
 }
 

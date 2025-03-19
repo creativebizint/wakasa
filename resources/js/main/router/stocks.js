@@ -124,6 +124,32 @@ export default [
                 },
             },
             {
+                path: "inventory-in/item/:id",
+                component: () =>
+                    import("../views/stock-management/inventory/Item.vue"),
+                name: "admin.inventory_in.item",
+                meta: {
+                    requireAuth: true,
+                    menuParent: "stock_management",
+                    menuKey: (route) => "inventory_in",
+                    permission: (route) => "inventory_in_edit",
+                    orderType: "inventory_in",
+                },
+            },
+            {
+                path: "inventory-in/barcode/:id",
+                component: () =>
+                    import("../views/stock-management/barcode-registration/Barcode.vue"),
+                name: "admin.inventory_in.barcode",
+                meta: {
+                    requireAuth: true,
+                    menuParent: "stock_management",
+                    menuKey: (route) => "inventory_in",
+                    permission: (route) => "inventory_in_edit",
+                    orderType: "inventory_in",
+                },
+            },
+            {
                 path: "inventory-in/create",
                 component: () =>
                     import("../views/stock-management/inventory/Create.vue"),
