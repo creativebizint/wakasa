@@ -237,7 +237,7 @@
             </a-col>
         </a-row>
 
-        <a-row :gutter="[18, 18]" class="mt-30 mb-20">
+        <!--<a-row :gutter="[18, 18]" class="mt-30 mb-20">
             <a-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
                 <a-card :title="$t('payments.payments')">
                     <PaymentsChart :data="responseData" />
@@ -261,7 +261,7 @@
                     </template>
                 </a-card>
             </a-col>
-        </a-row>
+        </a-row>-->
 
         <a-row :gutter="[18, 18]" class="mt-30 mb-20">
             <a-col :xs="24" :sm="24" :md="12" :lg="16" :xl="16">
@@ -322,7 +322,7 @@
                                 <user-info :user="record.customer" />
                             </template>
                             <template v-if="column.dataIndex == 'total_amount'">
-                                {{ formatAmountCurrency(record.total_amount) }} <br />
+                                <!--{{ formatAmountCurrency(record.total_amount) }} <br />-->
                                 {{ $t("dashboard.total_sales") }} :
                                 {{ record.total_sales }}
                             </template>

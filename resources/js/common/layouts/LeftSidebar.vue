@@ -259,6 +259,26 @@
                         <AppstoreOutlined />
                             {{ $t("menu.products") }}
                     </a-menu-item>
+
+                    <a-menu-item
+                            @click="
+                                () => {
+                                    menuSelected();
+                                    $router.push({
+                                        name: 'admin.uom.index',
+                                    });
+                                }
+                            "
+                            key="uom"
+                            v-if="
+                                permsArray.includes('products_view') ||
+                                permsArray.includes('admin')
+                            "
+                        >
+                        <AppstoreOutlined />
+                            {{ $t("menu.uom") }}
+                    </a-menu-item>
+
                     <a-menu-item
                             @click="
                                 () => {

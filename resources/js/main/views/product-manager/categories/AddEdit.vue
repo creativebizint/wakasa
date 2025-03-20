@@ -10,34 +10,6 @@
             <a-row :gutter="16">
                 <a-col :xs="24" :sm="24" :md="24" :lg="24">
                     <a-form-item
-                        :label="$t('category.parent_category')"
-                        name="parent_id"
-                        :help="rules.parent_id ? rules.parent_id.message : null"
-                        :validateStatus="rules.parent_id ? 'error' : null"
-                    >
-                        <a-tree-select
-                            v-model:value="formData.parent_id"
-                            show-search
-                            style="width: 100%"
-                            :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
-                            :placeholder="
-                                $t('common.select_default_text', [
-                                    $t('category.category'),
-                                ])
-                            "
-                            :tree-data="allCategories"
-                            allow-clear
-                            tree-default-expand-all
-                        />
-                        <small class="small-text-message">
-                            {{ $t("messages.leave_blank_to_create_parent_category") }}
-                        </small>
-                    </a-form-item>
-                </a-col>
-            </a-row>
-            <a-row :gutter="16">
-                <a-col :xs="24" :sm="24" :md="24" :lg="24">
-                    <a-form-item
                         :label="$t('category.name')"
                         name="name"
                         :help="rules.name ? rules.name.message : null"
@@ -85,7 +57,6 @@
                         name="category_id"
                         :help="rules.category_id ? rules.category_id.message : null"
                         :validateStatus="rules.category_id ? 'error' : null"
-                        class="required"
                     >
                         <a-input
                             v-model:value="formData.category_id"

@@ -256,6 +256,7 @@ export default {
                     image: undefined,
                     image_url: undefined,
                     parent_id: null,
+                    category_id: null,
                 };
             }
 
@@ -270,6 +271,7 @@ export default {
 
         const editItem = (item) => {
             formData.value = {
+                category_id: item.category_id,
                 name: item.name,
                 slug: item.slug,
                 image: item.image,

@@ -58,11 +58,25 @@ export default [
                 name: "admin.products.index",
                 meta: {
                     requireAuth: true,
-                    menuParent: "product_manager",
+                    menuParent: "app_configuration",
                     menuKey: (route) => "products",
                     permission: "products_view",
                 },
             },
+            
+            {
+                path: "/admin/uom",
+                component: () =>
+                    import("../views/product-manager/uom/index.vue"),
+                name: "admin.uom.index",
+                meta: {
+                    requireAuth: true,
+                    menuParent: "app_configuration",
+                    menuKey: (route) => "uom",
+                    permission: "products_view",
+                },
+            },
+            
             {
                 path: '/admin/stock-listing',
                 component: () =>

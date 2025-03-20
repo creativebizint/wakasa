@@ -69,7 +69,7 @@
                     </template>
                     {{ $t("menu.roles") }}
                 </a-menu-item>
-                <a-menu-item
+                <!-- <a-menu-item
                     key="units"
                     v-if="
                         permsArray.includes('units_view') || permsArray.includes('admin')
@@ -80,7 +80,7 @@
                         <ApartmentOutlined />
                     </template>
                     {{ $t("menu.units") }}
-                </a-menu-item>
+                </a-menu-item> -->
                 <a-menu-item
                     key="custom_fields"
                     v-if="
