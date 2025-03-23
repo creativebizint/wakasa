@@ -62,6 +62,50 @@
                     </a-form-item>
                 </a-col>
             </a-row>
+
+            <a-row :gutter="16">
+                <a-col :xs="24" :sm="24" :md="12" :lg="12">
+                    <a-form-item
+                        :label="$t('barcode.status')"
+                        name="isactive"
+                        :help="
+                            rules.isactive
+                                ? rules.isactive.message
+                                : null
+                        "
+                        :validateStatus="rules.isactive ? 'error' : null"
+                        class="required"
+                    >
+                        <a-select
+                            v-model:value="formData.isactive"
+                            :placeholder="
+                                $t('common.select_default_text', [
+                                    $t('barcode.isactive'),
+                                ])
+                            "
+                        >
+                            <a-select-option
+                                :key="0"
+                                :value="0"
+                            >
+                                {{ $t('common.no') }}
+                            </a-select-option>
+                            <a-select-option
+                                :key="1"
+                                :value="1"
+                            >
+                                {{ $t('common.yes') }}
+                            </a-select-option>
+                            <a-select-option
+                                :key="-1"
+                                :value="-1"
+                            >
+                                {{ $t('common.not_in_use') }}
+                            </a-select-option>
+                        </a-select>
+                    </a-form-item>
+                </a-col>
+            </a-row>
             
         </a-form>
         <template #footer>

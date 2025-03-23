@@ -138,9 +138,11 @@
                         <template #bodyCell="{ column, text, record }">
                             <template v-if="column.dataIndex === 'isactive'">
                                 {{
-                                    record.isactive
-                                        ? $t("common.yes")
-                                        : $t("common.no")
+                                    record.isactive === -1 
+                                    ? $t("common.not_in_use") 
+                                    : record.isactive === 0 
+                                        ? $t("common.no") 
+                                        : $t("common.yes")
                                 }}
                             </template>
                             <template v-if="column.dataIndex === 'invoice_number'">
