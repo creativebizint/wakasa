@@ -18,6 +18,7 @@ const stockManagement = () => {
     const route = useRoute();
     const selectedProducts = ref([]);
     const selectedProductIds = ref([]);
+    const maximumBarcode = ref([]);
     const removedOrderItemsIds = ref([]);
     const state = reactive({
         orderSearchTerm: undefined,
@@ -71,7 +72,7 @@ const stockManagement = () => {
         }
         if (value != "") {
             state.productFetching = true;
-            let url = `search-product`;
+            let url = `search-barcode`;
 
             axiosAdmin
                 .post(url, {
@@ -100,20 +101,16 @@ const stockManagement = () => {
 
     const searchValueSelected = (value, option) => {
         const newProduct = option.product;
-        //console.log(newProduct);
         if (!includes(selectedProductIds.value, newProduct.xid)) {
             selectedProductIds.value.push(newProduct.xid);
 
             selectedProducts.value.push({
                 ...newProduct,
-                sn: selectedProducts.value.length + 1,
-                unit_price: formatAmount(newProduct.unit_price),
-                tax_amount: formatAmount(newProduct.tax_amount),
-                subtotal: formatAmount(newProduct.subtotal),
+                sn: selectedProducts.value.length + 1                
             });
             state.orderSearchTerm = undefined;
             state.products = [];
-            recalculateFinalTotal();
+            //recalculateFinalTotal();
 
             var audioObj = new Audio(appSetting.value.beep_audio_url);
             audioObj.play();
@@ -245,7 +242,7 @@ const stockManagement = () => {
         });
         selectedProducts.value = newResults;
 
-        recalculateFinalTotal();
+        //recalculateFinalTotal();
     };
 
     const recalculateFinalTotal = () => {
@@ -415,6 +412,7 @@ const stockManagement = () => {
         orderPageObject,
         selectedProducts,
         selectedProductIds,
+        maximumBarcode,
         formData,
         productsAmount,
         taxes,

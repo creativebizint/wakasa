@@ -26,6 +26,42 @@
                 </a-col>
             </a-row>
 
+            <a-row :gutter="16">
+                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                    <a-form-item
+                        :label="$t('barcode.reason')"
+                        name="reason"
+                        :help="rules.reason ? rules.reason.message : null"
+                        :validateStatus="rules.reason ? 'error' : null"
+                    >
+                        <a-input
+                            v-model:value="formData.reason"
+                            :placeholder="
+                                $t('common.placeholder_default_text', [$t('barcode.reason')])
+                            "
+                        />
+                    </a-form-item>
+                </a-col>
+            </a-row>
+
+            <a-row :gutter="16">
+                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                    <a-form-item
+                        :label="$t('barcode.comment')"
+                        name="name"
+                        :help="rules.comment ? rules.comment.message : null"
+                        :validateStatus="rules.comment ? 'error' : null"
+                        class="required"
+                    >
+                        <a-input
+                            v-model:value="formData.comment"
+                            :placeholder="
+                                $t('common.placeholder_default_text', [$t('barcode.comment')])
+                            "
+                        />
+                    </a-form-item>
+                </a-col>
+            </a-row>
             
         </a-form>
         <template #footer>

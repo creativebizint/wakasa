@@ -7,7 +7,7 @@
                 class="p-0"
             >
                 <template #extra>
-                    <a-button type="primary" :loading="loading" @click="onSubmit" block>
+                    <a-button type="primary" :loading="loading" @click="onSubmit" style="display: none">
                         <template #icon> <SaveOutlined /> </template>
                         {{ $t("common.save") }}
                     </a-button>
@@ -45,11 +45,36 @@
             showIcon
         />
 
+        <a-row :gutter="8">
+                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                    <a-form-item
+                        :label="$t('product.item_id')"
+                        name="item_id"
+                        :help="rules.discount ? rules.discount.message : null"
+                        :validateStatus="rules.discount ? 'error' : null"
+                    >
+                        <a-input-number
+                            v-model:value="formData.item_id"
+                            :placeholder="
+                                $t('common.placeholder_default_text', [
+                                    $t('product.item_id'),
+                                ])
+                            "
+                            min="0"
+                            style="width: 100%"
+                            :disabled="true"
+                        >
+
+                        </a-input-number>
+                    </a-form-item>
+                </a-col>
+            </a-row>
+                    
         <a-form layout="vertical">
             <a-row :gutter="16">
                 <a-col :xs="24" :sm="24" :md="24" :lg="24">
                     <a-form-item
-                        :label="$t('product.product')"
+                        :label="$t('menu.barcode')"
                         name="orderSearchTerm"
                         :help="rules.product_items ? rules.product_items.message : null"
                         :validateStatus="rules.product_items ? 'error' : null"
@@ -363,6 +388,7 @@ export default {
             route,
             selectedProducts,
             selectedProductIds,
+            maximumBarcode,
             formData,
             productsAmount,
             taxes,
@@ -417,38 +443,40 @@ export default {
                 selectedProductIds.value = orderResponseData.ids;
                 selectedProducts.value = orderResponseData.data;
                 const total_item = orderResponseData.total;
-console.log('dd',orderResponseData);
-console.log('xx',selectedProducts.value);
-                
+                maximumBarcode.value = orderResponseData.order_item.quantity;
+                formData.value = {
+                    item_id: orderResponseData.order_item.item_id,
+                };
             });
 
         });
 
         const onSubmit = () => {
-            console.log(selectedProducts.value);
-            console.log(console.log(selectedProducts.value.length));
-            if(total_item < selectedProducts.value.length){
-                alert('total scan barcode('+selectedProducts.value.length+') > total Item('+ total_item +')');
+            console.log('vv',maximumBarcode.value);
+            console.log('xxx',selectedProducts.value.length);
+            if(maximumBarcode.value < selectedProducts.value.length){
+                alert('total scan barcode('+selectedProducts.value.length+') > total Item('+ maximumBarcode.value +')');
                 return false;
             }
-return false;
+
             
             const newFormDataObject = {
                 ...formData.value,
-                total: formData.value.subtotal,
+                order_item_id: orderId,
                 total_items: selectedProducts.value.length,
                 product_items: selectedProducts.value,
                 removed_items: removedOrderItemsIds.value,
                 _method: "PUT",
             };
-
+console.log(newFormDataObject);
+return false;
             addEditRequestAdmin({
-                url: `${orderType.value}/${orderId}`,
+                url: `barcode/register`,
                 data: newFormDataObject,
                 successMessage: t(`${orderPageObject.value.langKey}.updated`),
                 success: (res) => {
                     router.push({
-                        name: `admin.inventory_in.index`,
+                        name: `admin.barcode_registration.index`,
                     });
                 },
             });

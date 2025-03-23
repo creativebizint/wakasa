@@ -402,8 +402,17 @@ trait OrderTraits
     public function barcode($xid){
         $id = Common::getIdFromHash($xid);
         $barcode = Barcode::where('order_item_id',$id)->get();
+        $selectProductIds = [];
+        foreach($barcode as $barcode_detail){
+            
+          $selectProductIds[] = Common::getHashFromId($barcode->id);  
+        }
+        $order_item = OrderItem::where('order_items.id',$id)
+                       ->join('products','products.id','order_items.product_id')
+                       ->select('order_items.id','order_items.quantity','products.item_id','order_items.order_id')
+                       ->first();
         
-        return ['total' =>count($barcode), 'data' => $barcode];
+        return ['total' =>count($barcode), 'data' => $barcode,'ids'=>$selectProductIds, 'order_item' => $order_item];
     }
     
 };

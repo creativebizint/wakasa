@@ -158,6 +158,11 @@
                                     {{ record.order_item.order.invoice_number }}
                                 </template>
                             </template>
+                            <template v-if="column.dataIndex === 'sales_order_number'">
+                                <template v-if="record.order_item_out">
+                                    {{ record.order_item_out.order.invoice_number }}
+                                </template>
+                            </template>
                             <template v-if="column.dataIndex === 'action'">
                                 <a-button
                                     v-if="
@@ -221,7 +226,7 @@ export default {
 
         const setUrlData = () => {
             crudVariables.tableUrl.value = {
-                url: "barcode?fields=id,xid,string,isactive,order_item,order_item:order{id,xid,invoice_number}",
+                url: "barcode?fields=id,xid,string,isactive,order_item,order_item:order{id,xid,invoice_number},order_item_out,order_item_out:order{id,xid,invoice_number},reason,comment",
             };
             crudVariables.table.filterableColumns = filterableColumns;
 

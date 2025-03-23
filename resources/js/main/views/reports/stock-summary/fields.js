@@ -33,24 +33,24 @@ const fields = () => {
                 return row.brand && row.brand.name ? row.brand.name : "-";
             },
         },
-        {
-            title: t("product.purchase_price"),
-            dataIndex: "purchase_price",
-            dbKey: "details.purchase_price",
-            dataFormat: (row) => {
-                return formatAmountCurrency(row.details.purchase_price);
-            },
-            sorter: true,
-        },
-        {
-            title: t("product.sales_price"),
-            dataIndex: "sales_price",
-            dbKey: "details.sales_price",
-            dataFormat: (row) => {
-                return formatAmountCurrency(row.details.sales_price);
-            },
-            sorter: true,
-        },
+//        {
+//            title: t("product.purchase_price"),
+//            dataIndex: "purchase_price",
+//            dbKey: "details.purchase_price",
+//            dataFormat: (row) => {
+//                return formatAmountCurrency(row.details.purchase_price);
+//            },
+//            sorter: true,
+//        },
+//        {
+//            title: t("product.sales_price"),
+//            dataIndex: "sales_price",
+//            dbKey: "details.sales_price",
+//            dataFormat: (row) => {
+//                return formatAmountCurrency(row.details.sales_price);
+//            },
+//            sorter: true,
+//        },
         {
             title: t("product.current_stock"),
             dataIndex: "current_stock",
@@ -64,10 +64,10 @@ const fields = () => {
 
     const summaryColumns = [
         ...columns,
-        {
-            title: t("product.stock_value"),
-            dataIndex: "stock_value",
-        },
+//        {
+//            title: t("product.stock_value"),
+//            dataIndex: "stock_value",
+//        },
     ];
 
     const exportColumns = [

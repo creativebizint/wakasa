@@ -21,6 +21,7 @@ use App\Models\Unit;
 use App\Models\Variation;
 use App\Models\Warehouse;
 use App\Models\Brand;
+use App\Models\Barcode;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Examyou\RestAPI\ApiResponse;
@@ -549,6 +550,21 @@ class ProductController extends ApiBaseController
 
         return ApiResponse::make('Fetched Successfully', $allProducs);
     }
+    
+    public function searchBarcode(Request $request)
+    {
+        $searchTerm = trim(strtolower($request->search_term));
+        
+        $barcodes = Barcode::select('string','id')
+            ->where(function ($query) use ($searchTerm) {
+                $query->where(DB::raw('LOWER(string)'), 'LIKE', "%$searchTerm%");
+            })->where('isactive',0)->get()->toArray();
+
+        
+
+        return ApiResponse::make('Fetched Successfully', $barcodes);
+    }
+    
     
     public function searchProductPlacement(Request $request)
     {

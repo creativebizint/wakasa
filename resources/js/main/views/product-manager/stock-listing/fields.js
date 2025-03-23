@@ -116,12 +116,12 @@ const fields = () => {
         permsArray.value.includes("purchase_price_view") ||
         permsArray.value.includes("admin")
     ) {
-        columns.push(
-            {
-                title: t("product.purchase_price"),
-                dataIndex: "purchase_price",
-            },
-        );
+//        columns.push(
+//            {
+//                title: t("product.purchase_price"),
+//                dataIndex: "purchase_price",
+//            },
+//        );
     }
 
     columns.push(

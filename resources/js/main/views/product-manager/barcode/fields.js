@@ -6,6 +6,8 @@ const fields = () => {
 
 	const initData = {
 		string: "",
+		comment: "",
+		reason: "",
 		isactive: "",
 	};
 
@@ -16,13 +18,28 @@ const fields = () => {
 			sorter:true
 		},
 		{
-			title: t("barcode.isactive"),
+			title: t("barcode.status"),
 			dataIndex: "isactive",
 			sorter:true
 		},
 		{
 			title: t("barcode.invoice_number"),
 			dataIndex: "invoice_number",
+			sorter:true
+		},
+		{
+			title: t("barcode.sales_order_number"),
+			dataIndex: "sales_order_number",
+			sorter:true
+		},
+                {
+			title: t("barcode.reason"),
+			dataIndex: "reason",
+			sorter:true
+		},
+                {
+			title: t("barcode.comment"),
+			dataIndex: "comment",
 			sorter:true
 		},
 		{

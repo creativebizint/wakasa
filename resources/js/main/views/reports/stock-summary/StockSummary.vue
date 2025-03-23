@@ -59,7 +59,7 @@
                     </template>
                     <template #summary>
                         <a-table-summary-row>
-                            <a-table-summary-cell :col-span="5"> </a-table-summary-cell>
+                            <a-table-summary-cell :col-span="3"> </a-table-summary-cell>
                             <a-table-summary-cell :col-span="1">
                                 <a-typography-text strong>
                                     {{ $t("common.total") }}
@@ -72,7 +72,7 @@
                                     </a-tooltip>
                                 </a-typography-text>
                             </a-table-summary-cell>
-                            <a-table-summary-cell :col-span="1">
+                            <!-- <a-table-summary-cell :col-span="1">
                                 {{ $t("product.by_purchase") }} :
                                 <a-typography-text strong>
                                     <a-tooltip>
@@ -89,7 +89,7 @@
                                         {{ formatAmountCurrency(totals.totalSalesPrice) }}
                                     </a-tooltip>
                                 </a-typography-text>
-                            </a-table-summary-cell>
+                            </a-table-summary-cell> -->
                         </a-table-summary-row>
                     </template>
                 </a-table>
