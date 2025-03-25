@@ -114,6 +114,8 @@ trait OrderTraits
                     'single_unit_price'    =>  $allOrderIteam->single_unit_price,
                     'subtotal'    =>  $allOrderIteam->subtotal,
                     'quantity'    =>  $allOrderIteam->quantity,
+                    'qr_scanned_in'    => Barcode::where('order_item_id',Common::getIdFromHash($allOrderIteam->xid))->count(),
+                    'qr_scanned_out'    => Barcode::where('order_item_out_id',Common::getIdFromHash($allOrderIteam->xid))->count(),
                     'tax_rate'    =>  $allOrderIteam->tax_rate,
                     'tax_type'    =>  $allOrderIteam->tax_type,
                     'x_unit_id'    =>  Common::getHashFromId($allOrderIteam->unit_id),
@@ -405,7 +407,7 @@ trait OrderTraits
         $selectProductIds = [];
         foreach($barcode as $barcode_detail){
             
-          $selectProductIds[] = Common::getHashFromId($barcode->id);  
+          $selectProductIds[] = Common::getHashFromId($barcode_detail->id);  
         }
         $order_item = OrderItem::where('order_items.id',$id)
                        ->join('products','products.id','order_items.product_id')

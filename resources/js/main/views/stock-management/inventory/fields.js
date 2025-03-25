@@ -99,7 +99,7 @@ const fields = () => {
         },
     ];
 
-    const orderItemBarcode = [
+    const orderItemBarcodeIn = [
         {
             title: "#",
             dataIndex: "sn",
@@ -111,6 +111,10 @@ const fields = () => {
         {
             title: t("product.quantity"),
             dataIndex: "unit_quantity",
+        },
+        {
+            title: t("product.qty_scanned"),
+            dataIndex: "qty_scanned",
         },
         
     ];
@@ -316,7 +320,7 @@ const fields = () => {
         pageObject,
         orderType,
         orderItemColumns,
-        orderItemBarcode,
+        orderItemBarcodeIn,
         orderPaymentsColumns,
         orderItemDetailsColumns,
     }

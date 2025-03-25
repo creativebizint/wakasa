@@ -39,7 +39,7 @@
                     <a-table
                         :row-key="(record) => record.xid"
                         :dataSource="selectedProducts"
-                        :columns="orderItemBarcode"
+                        :columns="orderItemBarcodeIn"
                         :pagination="false"
                     >
                         <template #bodyCell="{ column, record }">
@@ -60,6 +60,9 @@
                             </template>
                             <template v-if="column.dataIndex === 'unit_quantity'">
                                 {{record.quantity}}
+                            </template>
+                            <template v-if="column.dataIndex === 'qty_scanned'">
+                                {{record.qr_scanned_in}}
                             </template>
                         </template>
                     </a-table>
@@ -159,7 +162,7 @@ export default {
             permsArray,
             selectedWarehouse,
         } = common();
-        const { orderItemBarcode } = fields();
+        const { orderItemBarcodeIn } = fields();
         const {
             state,
             orderType,
@@ -340,7 +343,7 @@ export default {
             editItem,
             orderPageObject,
 
-            orderItemBarcode,
+            orderItemBarcodeIn,
 
             // Add Edit
             addEditVisible,
