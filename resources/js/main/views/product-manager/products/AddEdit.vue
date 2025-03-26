@@ -1037,6 +1037,10 @@
                 </a-col>
             </a-row>
             
+            <form-item-heading>
+                {{$t("product.packing")}}
+            </form-item-heading>
+
             <a-row :gutter="16">
                 <a-col :xs="24" :sm="24" :md="12" :lg="12">    
                     <a-form-item

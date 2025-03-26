@@ -277,6 +277,10 @@ const fields = () => {
 
     const barcodeColumns = [
         {
+            title: "#",
+            dataIndex: "sn",
+        },
+        {
             title: t("menu.barcode"),
             dataIndex: "string",
         },

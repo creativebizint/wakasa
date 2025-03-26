@@ -144,7 +144,7 @@ export default [
                 meta: {
                     requireAuth: true,
                     menuParent: "stock_management",
-                    menuKey: (route) => "barcode_registration,"
+                    menuKey: (route) => "barcode_registration",
                     permission: (route) => "inventory_in_edit",
                     orderType: "inventory_in",
                 },

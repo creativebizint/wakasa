@@ -32,8 +32,32 @@
     </AdminPageHeader>
 
     <a-card class="page-content-container">
+        <a-row :gutter="8">
+            <a-col :xs="24" :sm="24" :md="12" :lg="12">
+                <a-form-item
+                    :label="$t('stock.invoice_number')"
+                    name="invoice_number"
+                    :help="rules.invoice_number ? rules.invoice_number.message : null"
+                    :validateStatus="rules.invoice_number ? 'error' : null"
+                >
+                    <a-input-number
+                        v-model:value="formData.invoice_number"
+                        :placeholder="
+                            $t('common.placeholder_default_text', [
+                                $t('stock.invoice_number'),
+                            ])
+                        "
+                        min="0"
+                        style="width: 100%"
+                        :disabled="true"
+                    >
+
+                    </a-input-number>
+                </a-form-item>
+            </a-col>
+        </a-row>
+
         <a-form layout="vertical">
-            
             <a-row :gutter="16">
                 <a-col :xs="24" :sm="24" :md="24" :lg="24">
                     <a-table

@@ -69,6 +69,31 @@
                     </a-form-item>
                 </a-col>
             </a-row>
+
+        <a-row :gutter="8">
+                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                    <a-form-item
+                        :label="$t('product.total')"
+                        name="total_items"
+                        :help="rules.total_items ? rules.total_items.message : null"
+                        :validateStatus="rules.total_items ? 'error' : null"
+                    >
+                        <a-input-number
+                            v-model:value="formData.total_items"
+                            :placeholder="
+                                $t('common.placeholder_default_text', [
+                                    $t('common.total'),
+                                ])
+                            "
+                            min="0"
+                            style="width: 100%"
+                            :disabled="true"
+                        >
+
+                        </a-input-number>
+                    </a-form-item>
+                </a-col>
+            </a-row>
                     
         <a-form layout="vertical">
             <a-row :gutter="16">
@@ -109,10 +134,10 @@
                                     v-for="product in products"
                                     :key="product.xid"
                                     :value="product.xid"
-                                    :label="product.name"
+                                    :label="product.string"
                                     :product="product"
                                 >
-                                    => {{ product.name }}
+                                    => {{ product.string }}
                                 </a-select-option>
                             </a-select>
                         </span>
@@ -131,13 +156,6 @@
                             <template v-if="column.dataIndex === 'action'">
                                 <div v-if="editOrderDisable">-</div>
                                 <div v-else>
-                                    <a-button
-                                        type="primary"
-                                        @click="editItem(record)"
-                                        style="margin-left: 4px"
-                                    >
-                                        <template #icon><EditOutlined /></template>
-                                    </a-button>
                                     <a-button
                                         type="primary"
                                         @click="showDeleteConfirm(record)"
@@ -435,7 +453,7 @@ export default {
 
         onMounted(() => {
             const orderPromise = axiosAdmin.get(`inventory-detail/barcode/${orderId}`);
-            
+            alert(orderId);
             Promise.all([
                 orderPromise                
             ]).then(([orderResponse]) => {
@@ -446,14 +464,13 @@ export default {
                 maximumBarcode.value = orderResponseData.order_item.quantity;
                 formData.value = {
                     item_id: orderResponseData.order_item.item_id,
+                    total_items : orderResponseData.order_item.quantity
                 };
             });
 
         });
 
         const onSubmit = () => {
-            console.log('vv',maximumBarcode.value);
-            console.log('xxx',selectedProducts.value.length);
             if(maximumBarcode.value < selectedProducts.value.length){
                 alert('total scan barcode('+selectedProducts.value.length+') > total Item('+ maximumBarcode.value +')');
                 return false;
@@ -466,14 +483,13 @@ export default {
                 total_items: selectedProducts.value.length,
                 product_items: selectedProducts.value,
                 removed_items: removedOrderItemsIds.value,
-                _method: "PUT",
+                _method: "POST",
             };
-console.log(newFormDataObject);
-return false;
+
             addEditRequestAdmin({
-                url: `barcode/register`,
+                url: `inventory-detail/barcode/register`,
                 data: newFormDataObject,
-                successMessage: t(`${orderPageObject.value.langKey}.updated`),
+                successMessage: t(`barcode.updated`),
                 success: (res) => {
                     router.push({
                         name: `admin.barcode_registration.index`,

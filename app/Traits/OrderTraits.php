@@ -20,6 +20,7 @@ use Examyou\RestAPI\ApiResponse;
 use Examyou\RestAPI\Exceptions\ApiException;
 use Examyou\RestAPI\Exceptions\ResourceNotFoundException;
 use Vinkla\Hashids\Facades\Hashids;
+use Illuminate\Support\Facades\Request;
 
 trait OrderTraits
 {
@@ -415,6 +416,23 @@ trait OrderTraits
                        ->first();
         
         return ['total' =>count($barcode), 'data' => $barcode,'ids'=>$selectProductIds, 'order_item' => $order_item];
+    }
+    
+    public function barcodeRegister(Request $request){
+        $request = $request::all();        
+        $xorder_item_id = $request['order_item_id'];
+        $item_id = $request['item_id'];
+        $order_item_id = Common::getIdFromHash($xorder_item_id);
+        $loggedUser = user();
+        $user_id = Common::getIdFromHash($loggedUser->xid);
+        $product_items = $request['product_items'];
+        
+        foreach($product_items as $product_item){
+            Barcode::where('id',Common::getIdFromHash($product_item['xid']))->update(['isactive'=>'1','order_item_id' => $order_item_id,'item_id' => $item_id,'scanned_in_by'=> $user_id ]);
+        }
+        
+        
+        return ['total' =>count($product_items), 'message' => 'Barcode telah berhasil di scan'];
     }
     
 };
