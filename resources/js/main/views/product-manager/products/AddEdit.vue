@@ -253,7 +253,8 @@
                             </a-form-item>
                         </a-col>
                     </a-row>    
-                    <a-row :gutter="16">                        
+                    
+                    <a-row :gutter="16" :style="{ display: 'none' }">                        
                         <a-col :xs="24" :sm="24" :md="12" :lg="12">
                             <a-form-item
                                 :label="$t('product.slug')"
@@ -271,25 +272,7 @@
                                     "
                                 />
                             </a-form-item>
-                        </a-col>
-                        <a-col :xs="24" :sm="24" :md="12" :lg="12">
-                            <a-form-item
-                                :label="$t('product.priority')"
-                                name="priority"
-                                :help="rules.priority ? rules.priority.message : null"
-                                :validateStatus="rules.priority ? 'error' : null"
-                                class="required"
-                            >
-                                <a-input
-                                    v-model:value="formData.priority"
-                                    :placeholder="
-                                        $t('common.placeholder_default_text', [
-                                            $t('product.priority'),
-                                        ])
-                                    "
-                                />
-                            </a-form-item>
-                        </a-col>
+                        </a-col>                        
                     </a-row>
 
                     <a-row :gutter="16">
@@ -1038,7 +1021,7 @@
             </a-row>
             
             <form-item-heading>
-                {{$t("product.packing")}}
+                {{$t("product.package")}}
             </form-item-heading>
 
             <a-row :gutter="16">

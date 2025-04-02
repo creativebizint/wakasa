@@ -504,7 +504,7 @@ export default {
 
         onMounted(() => {
             getInitialData();
-            //setUrlData();
+            setUrlData();
 
             crudVariables.crudUrl.value = addEditUrl;
             crudVariables.langKey.value = "product";
@@ -545,6 +545,7 @@ export default {
                 page: 1,
             });
         };
+
         const getInitialData = () => {
             const categoriesPromise = axiosAdmin.get("categories?limit=10000");
             const brandsPromise = axiosAdmin.get("brands?limit=10000");

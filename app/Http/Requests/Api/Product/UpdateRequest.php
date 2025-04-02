@@ -51,15 +51,15 @@ class UpdateRequest extends FormRequest
             'unit_id'    => 'required'
         ];
 
-        if($this->product_type == 'single') {
-            $rules['purchase_price'] = 'required|gt:0';
-            $rules['sales_price'] = 'required||gt:0|gte:purchase_price';
-        }
+//        if($this->product_type == 'single') {
+//            $rules['purchase_price'] = 'required|gt:0';
+//            $rules['sales_price'] = 'required||gt:0|gte:purchase_price';
+//        }
 
         // If purchase or sales includes tax
-        if ($this->purchase_tax_type == 'inclusive' || $this->sales_tax_type == 'inclusive') {
-            $rules['tax_id'] = 'required';
-        }
+//        if ($this->purchase_tax_type == 'inclusive' || $this->sales_tax_type == 'inclusive') {
+//            $rules['tax_id'] = 'required';
+//        }
 
         return $rules;
     }
