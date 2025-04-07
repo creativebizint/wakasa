@@ -397,7 +397,7 @@ class ProductController extends ApiBaseController
         $orderType = $request->order_type;
         $warehouseId = $warehouse->id;
 
-        $products = Product::select('products.id', 'products.name', 'products.image', 'products.unit_id', 'products.product_type','products.product_type','products.description','products.item_code','products.item_id','products.subgroup2','products.text1','products.uom_sale_in','products.uom_buy_in')
+        $products = Product::select('products.id', 'products.name', 'products.image', 'products.unit_id', 'products.product_type','products.product_type','products.description','products.item_code','products.item_id','products.subgroup2','products.text1','products.uom_sale_in','products.uom_buy_in','products.kemasan_jual_qty')
             ->where(function ($query) use ($searchTerm) {
                 $query->where(DB::raw('LOWER(products.name)'), 'LIKE', "%$searchTerm%")
                     ->orWhere(DB::raw('LOWER(products.item_code)'), 'LIKE', "%$searchTerm%")
@@ -507,6 +507,7 @@ class ProductController extends ApiBaseController
 
                     //* ADDENDUM
                     'item_code'  =>  $product->item_code,
+                    'qty_bungkus'  =>  $product->kemasan_jual_qty,
                     'description'  =>  $product->description,
                     'subgroup2'  =>  $product->subgroup2,
                     'text1'  =>  $product->text1,

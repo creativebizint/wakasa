@@ -38,7 +38,7 @@
                             <QueueImport
                                 :pageTitle="importPageTitle"
                                 :sampleFileUrl="sampleFileUrl"
-                                :context="context"
+                                context="suppliers"
                                 bus="master"
                                 @onUploadSuccess="setUrlData"
                             />

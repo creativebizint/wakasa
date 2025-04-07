@@ -51,12 +51,81 @@
                         name="name"
                         :help="rules.comment ? rules.comment.message : null"
                         :validateStatus="rules.comment ? 'error' : null"
-                        class="required"
                     >
                         <a-input
                             v-model:value="formData.comment"
                             :placeholder="
                                 $t('common.placeholder_default_text', [$t('barcode.comment')])
+                            "
+                        />
+                    </a-form-item>
+                </a-col>
+            </a-row>
+
+            <a-row :gutter="16">
+                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                    <a-form-item
+                        :label="$t('barcode.invoice_number')"
+                        name="invoice_number"
+                        @input="logFormData"
+                        :help="rules.comment ? rules.comment.message : null"
+                        :validateStatus="rules.comment ? 'error' : null"
+                    >
+                        <a-input
+                            v-model:value="formData.order_item.order.invoice_number"
+                            :placeholder="
+                                $t('common.placeholder_default_text', [$t('barcode.invoice_number')])
+                            "
+                        />
+                    </a-form-item>
+                </a-col>
+            </a-row>
+            <a-row :gutter="16">
+                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                    <a-form-item
+                        :label="$t('product.item_id')"
+                        name="item_id"
+                        :help="rules.comment ? rules.comment.message : null"
+                        :validateStatus="rules.comment ? 'error' : null"
+                    >
+                        <a-input
+                            v-model:value="formData.item_id"
+                            :placeholder="
+                                $t('common.placeholder_default_text', [$t('product.item_id')])
+                            "
+                        />
+                    </a-form-item>
+                </a-col>
+            </a-row>
+            <a-row :gutter="16">
+                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                    <a-form-item
+                        :label="$t('barcode.qty_bungkus')"
+                        name="qty_bungkus"
+                        :help="rules.comment ? rules.comment.message : null"
+                        :validateStatus="rules.comment ? 'error' : null"
+                    >
+                        <a-input
+                            v-model:value="formData.qty_bungkus"
+                            :placeholder="
+                                $t('common.placeholder_default_text', [$t('barcode.qty_bungkus')])
+                            "
+                        />
+                    </a-form-item>
+                </a-col>
+            </a-row>
+            <a-row :gutter="16">
+                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                    <a-form-item
+                        :label="$t('barcode.nik')"
+                        name="nik"
+                        :help="rules.comment ? rules.comment.message : null"
+                        :validateStatus="rules.comment ? 'error' : null"
+                    >
+                        <a-input
+                            v-model:value="formData.nik"
+                            :placeholder="
+                                $t('common.placeholder_default_text', [$t('barcode.nik')])
                             "
                         />
                     </a-form-item>
@@ -88,13 +157,13 @@
                                 :key="0"
                                 :value="0"
                             >
-                                {{ $t('common.no') }}
+                                {{ $t('barcode.inactive') }}
                             </a-select-option>
                             <a-select-option
                                 :key="1"
                                 :value="1"
                             >
-                                {{ $t('common.yes') }}
+                                {{ $t('barcode.active') }}
                             </a-select-option>
                             <a-select-option
                                 :key="-1"
@@ -123,11 +192,12 @@
 </template>
 
 <script>
-import { defineComponent } from "vue";
+import { reactive,toRefs, defineComponent,watch } from "vue";
 import { PlusOutlined, LoadingOutlined, SaveOutlined } from "@ant-design/icons-vue";
 import apiAdmin from "../../../../common/composable/apiAdmin";
 import Upload from "../../../../common/core/ui/file/Upload.vue";
 import common from "../../../../common/composable/common";
+import axios from 'axios';
 
 export default defineComponent({
     props: [
@@ -146,26 +216,82 @@ export default defineComponent({
         Upload,
     },
     setup(props, { emit }) {
+        const formData = reactive({
+            ...props.formData,
+            order_item: {
+              order: {
+                invoice_number: props.formData?.order_item?.order?.invoice_number ?? ''
+              },
+              ...props.formData?.order_item // merge any existing order_item fields
+            }
+          });
+          console.log(formData);
         const { addEditRequestAdmin, loading, rules } = apiAdmin();
         const { slugify } = common();
-
+        
         const onSubmit = () => {
-            addEditRequestAdmin({
-                url: props.url,
-                data: props.formData,
-                successMessage: props.successMessage,
-                success: (res) => {
-                    emit("addEditSuccess", res.xid);
-                },
-            });
-        };
+    // clone the formData first
+    const payload = { ...formData };
 
+    // manually flatten the invoice_number
+    payload.invoice_number = formData.order_item?.order?.invoice_number ?? '';
+
+    // optionally remove nested object to avoid confusion on backend
+    delete payload.order_item;
+
+    addEditRequestAdmin({
+        url: props.url,
+        data: payload,
+        successMessage: props.successMessage,
+        success: (res) => {
+            emit("addEditSuccess", res.xid);
+        },
+    });
+};
+        
         const onClose = () => {
             rules.value = {};
             emit("closed");
         };
+        
+        watch(
+  () => props.formData,
+  (newVal) => {
+    Object.assign(formData, {
+      ...newVal,
+      order_item: {
+        order: {
+          invoice_number: newVal?.order_item?.order?.invoice_number ?? '',
+        },
+        ...newVal?.order_item,
+      },
+    });
+  },
+  { immediate: true, deep: true }
+);
+        
+        watch(() => props.formData?.item_id, async (newVal) => {
+        if (newVal) {
+          try {
+            const response = await axios.post('/api/v1/search-product', {
+              order_type :"purchases",
+              search_term :newVal
+            });
+            const qtyBungkus = response.data.data[0].qty_bungkus;
+            
+            if (qtyBungkus !== undefined) {
+              props.formData.qty_bungkus = qtyBungkus;
+              console.log('Updated qty_bungkus:', qtyBungkus);
+            }
+          } catch (error) {
+            console.error('Failed to fetch qty_bungkus:', error);
+          }
+        }
+      });
+
 
         return {
+            formData,
             loading,
             rules,
             onClose,

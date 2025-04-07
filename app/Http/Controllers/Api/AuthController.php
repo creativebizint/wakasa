@@ -512,6 +512,7 @@ class AuthController extends ApiBaseController
 
         // Total Sales
         $totalSalesAmount = Order::where('order_type', 'sales');
+        $totalPurchaseAmount = Order::where('order_type', 'purchases');
         // Total Expenses
         $totalExpenses = Expense::select('amount');
         // Payment Sent
@@ -522,6 +523,7 @@ class AuthController extends ApiBaseController
         // Warehouse Filter
         if ($warehouseId && $warehouseId != null) {
             $totalSalesAmount = $totalSalesAmount->where('orders.warehouse_id', $warehouseId);
+            $totalPurchaseAmount = $totalPurchaseAmount->where('orders.warehouse_id', $warehouseId);
             $totalExpenses = $totalExpenses->where('warehouse_id', $warehouseId);
         }
 
@@ -532,19 +534,26 @@ class AuthController extends ApiBaseController
             $endDate = $dates[1];
 
             $totalSalesAmount = $totalSalesAmount->whereBetween('orders.order_date', [$startDate, $endDate]);
+            $totalPurchaseAmount = $totalPurchaseAmount->whereBetween('orders.order_date', [$startDate, $endDate]);
             $totalExpenses = $totalExpenses->whereBetween('expenses.date', [$startDate, $endDate]);
             $paymentSent = $paymentSent->whereBetween('payments.date', [$startDate, $endDate]);
             $paymentReceived = $paymentReceived->whereBetween('payments.date', [$startDate, $endDate]);
         }
 
+        $totalQtySales = $totalSalesAmount->sum('total_quantity');
         $totalSalesAmount = $totalSalesAmount->sum('total');
+        $totalQtyPurchase = $totalPurchaseAmount->sum('total_quantity');
+        $totalPurchaseAmount = $totalPurchaseAmount->sum('total');
         $totalExpenses = $totalExpenses->sum('amount');
         $paymentSent = $paymentSent->sum('payments.amount');
         $paymentReceived = $paymentReceived->sum('payments.amount');
 
         return [
             'totalSales' => $totalSalesAmount,
+            'totalPurchase' => $totalPurchaseAmount,
             'totalExpenses' => $totalExpenses,
+            'totalQtySales' => $totalQtySales,
+            'totalQtyPurchase' => $totalQtyPurchase,
             'paymentSent' => $paymentSent,
             'paymentReceived' => $paymentReceived,
         ];

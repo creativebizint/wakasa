@@ -57,6 +57,7 @@ const crud = () => {
     };
 
     const editItem = (item) => {
+        console.log('value edit:',item);
         const itemDetails = {};
         var multiDimension = multiDimensalObjectColumns.value;
 
@@ -71,9 +72,16 @@ const crud = () => {
             }
         });
 
+        if (item?.order_item?.order) {
+            itemDetails.order_item = {
+                ...item.order_item,
+                order: { ...item.order_item.order }
+            };
+        }
+    
         itemDetails["_method"] = "PUT";
         formData.value = itemDetails;
-
+        
         viewData.value = item;
         addEditUrl.value = `${crudUrl.value}/${item.xid}`;
         addEditType.value = "edit";

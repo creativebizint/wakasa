@@ -71,8 +71,7 @@
                         <template #description>
                             <h2 v-if="responseData.stateData">
                                 {{
-                                        responseData.stateData.totalSales
-                                    
+                                    responseData.stateData.totalQtyPurchase
                                 }}
                             </h2>
                             <p>{{ $t("dashboard.total_stock_in") }}</p>
@@ -89,7 +88,7 @@
                             <h2 v-if="responseData.stateData">
                                 {{
                                     
-                                        responseData.stateData.totalExpenses
+                                        responseData.stockHistoryStatsData.totalSales
                                     
                                 }}
                             </h2>
@@ -467,6 +466,7 @@ export default {
             }
 
             Promise.all([dashboardPromise]).then(([dashboardResponse]) => {
+console.log('dddd',dashboardResponse.data); 
                 responseData.value = dashboardResponse.data;
             });
         });

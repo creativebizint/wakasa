@@ -11,7 +11,7 @@ class Barcode extends BaseModel
 {
     protected $table = 'barcode';
 
-    protected $default = ['id', 'xid', 'string','isactive','reason','comment'];
+    protected $default = ['id', 'xid', 'string','isactive','reason','comment','reg_bungkus_id','fk_reg_bungkus_id','nik','box_id','qty_bungkus'];
 
     protected $guarded = ['id', 'created_at', 'updated_at'];
 
@@ -36,5 +36,10 @@ class Barcode extends BaseModel
     public function order_item_out()
     {
         return $this->belongsTo(OrderItem::class, 'order_item_out_id', 'id');
+    }
+    
+    public function product()
+    {
+        return $this->belongsTo(Product::class, 'item_id', 'item_id');
     }
 }

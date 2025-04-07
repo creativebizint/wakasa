@@ -8,44 +8,83 @@ const fields = () => {
 		string: "",
 		comment: "",
 		reason: "",
+		item_id: "",
 		isactive: "",
+                kemasan_jual_qty: "",
+                nik: "",
+                invoice_number:"",
 	};
 
 	const columns = [
-		{
-			title: t("barcode.string"),
-			dataIndex: "string",
-			sorter:true
-		},
-		{
-			title: t("barcode.status"),
-			dataIndex: "isactive",
-			sorter:true
-		},
-		{
-			title: t("barcode.invoice_number"),
-			dataIndex: "invoice_number",
-			sorter:true
-		},
-		{
-			title: t("barcode.sales_order_number"),
-			dataIndex: "sales_order_number",
-			sorter:true
-		},
-                {
-			title: t("barcode.reason"),
-			dataIndex: "reason",
-			sorter:true
-		},
-                {
-			title: t("barcode.comment"),
-			dataIndex: "comment",
-			sorter:true
-		},
-		{
-			title: t("common.action"),
-			dataIndex: "action",
-		},
+            {
+                    title: t("barcode.string"),
+                    dataIndex: "string",
+                    sorter:true
+            },
+            {
+                    title: t("barcode.status"),
+                    dataIndex: "isactive",
+                    sorter:true
+            },
+            {
+                    title: t("product.item_id"),
+                    dataIndex: "item_id",
+                    sorter:true
+            },
+            {
+                    title: t("barcode.invoice_number"),
+                    dataIndex: "invoice_number",
+                    sorter:true
+            },
+            {
+                    title: t("barcode.sales_order_number"),
+                    dataIndex: "sales_order_number",
+                    sorter:true
+            },
+            {
+                    title: t("barcode.reason"),
+                    dataIndex: "reason",
+                    sorter:true
+            },
+            {
+                    title: t("barcode.comment"),
+                    dataIndex: "comment",
+                    sorter:true
+            },
+            {
+                    title: t("barcode.reg_bungkus_id"),
+                    dataIndex: "reg_bungkus_id",
+                    sorter:true
+            },
+            {
+                    title: t("barcode.fk_reg_bungkus_id"),
+                    dataIndex: "fk_reg_bungkus_id",
+                    sorter:true
+            },
+            {
+                    title: t("barcode.nik"),
+                    dataIndex: "nik",
+                    sorter:true
+            },
+            {
+                    title: t("barcode.box_id"),
+                    dataIndex: "box_id",
+                    sorter:true
+            },
+            {
+                    title: t("barcode.qty_bungkus"),
+                    dataIndex: "qty_bungkus",
+                    sorter:true
+            },
+            {
+                    title: t("barcode.kemasan_jual_qty"),
+                    dataIndex: "kemasan_jual_qty",
+                    sorter:true
+            },
+            {
+                    title: t("common.action"),
+                    dataIndex: "action",
+            },
 	];
 
 	const filterableColumns = [

@@ -50,8 +50,16 @@ const fields = () => {
             dataIndex: "name",
         },
         {
-            title: t("product.quantity"),
+            title: t("product.quantity_faktur"),
             dataIndex: "unit_quantity",
+        },
+        {
+            title: t("product.quantity_qr"),
+            dataIndex: "quantity_qr",
+        },
+        {
+            title: t("product.quantity_real"),
+            dataIndex: "quantity_real",
         },
         {
             title: t("product.shelf"),
@@ -109,7 +117,7 @@ const fields = () => {
             dataIndex: "product_item_id",
         },
         {
-            title: t("product.quantity"),
+            title: t("product.quantity_faktur"),
             dataIndex: "unit_quantity",
         },
         {

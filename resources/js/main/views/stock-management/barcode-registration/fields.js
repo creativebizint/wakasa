@@ -222,6 +222,11 @@ const fields = () => {
                 title: t(`stock.invoice_number`),
                 dataIndex: "invoice_number",
                 sorter:true
+            },
+            {
+                title: t(`stock.warehouse`),
+                dataIndex: "warehouse",
+                sorter:true
             }
         ];
 

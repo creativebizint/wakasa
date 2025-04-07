@@ -453,7 +453,6 @@ export default {
 
         onMounted(() => {
             const orderPromise = axiosAdmin.get(`inventory-detail/barcode/${orderId}`);
-            alert(orderId);
             Promise.all([
                 orderPromise                
             ]).then(([orderResponse]) => {
