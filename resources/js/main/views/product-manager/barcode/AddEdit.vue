@@ -89,7 +89,7 @@
                         :validateStatus="rules.comment ? 'error' : null"
                     >
                         <a-input
-                            v-model:value="formData.item_id"
+                            v-model:value="formData.item_id" @blur="onItemIdBlur"
                             :placeholder="
                                 $t('common.placeholder_default_text', [$t('product.item_id')])
                             "
@@ -225,7 +225,7 @@ export default defineComponent({
               ...props.formData?.order_item // merge any existing order_item fields
             }
           });
-          console.log(formData);
+          console.log('data',formData);
         const { addEditRequestAdmin, loading, rules } = apiAdmin();
         const { slugify } = common();
         
@@ -269,26 +269,34 @@ export default defineComponent({
   },
   { immediate: true, deep: true }
 );
-        
-        watch(() => props.formData?.item_id, async (newVal) => {
-        if (newVal) {
-          try {
-            const response = await axios.post('/api/v1/search-product', {
-              order_type :"purchases",
-              search_term :newVal
-            });
-            const qtyBungkus = response.data.data[0].qty_bungkus;
-            
-            if (qtyBungkus !== undefined) {
-              props.formData.qty_bungkus = qtyBungkus;
-              console.log('Updated qty_bungkus:', qtyBungkus);
-            }
-          } catch (error) {
-            console.error('Failed to fetch qty_bungkus:', error);
-          }
-        }
-      });
 
+const onItemIdBlur = async () => {
+    const newVal = formData.item_id;
+    if (newVal) {
+        try {
+            console.log('Searching product on blur...');
+            const response = await axios.post('/api/v1/search-product', {
+                order_type: "purchases",
+                search_term: newVal
+            });
+            const total_product = response.data.data.length;
+            console.log(total_product);
+            if(total_product == 0){
+               formData.item_id = '';
+               formData.qty_bungkus = '';
+               alert('Item Id tidak ditemukan');
+            }
+            const qtyBungkus = response.data.data[0]?.qty_bungkus;
+
+            if (qtyBungkus !== undefined) {
+                formData.qty_bungkus = qtyBungkus;
+                console.log('Updated qty_bungkus:', qtyBungkus);
+            }
+        } catch (error) {
+            console.error('Failed to fetch qty_bungkus:', error);
+        }
+    }
+};
 
         return {
             formData,
@@ -297,7 +305,7 @@ export default defineComponent({
             onClose,
             onSubmit,
             slugify,
-
+            onItemIdBlur,
             drawerWidth: window.innerWidth <= 991 ? "90%" : "45%",
         };
     },

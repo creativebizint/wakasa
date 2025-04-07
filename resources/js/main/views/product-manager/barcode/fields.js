@@ -13,6 +13,7 @@ const fields = () => {
                 kemasan_jual_qty: "",
                 nik: "",
                 invoice_number:"",
+                qty_bungkus:"",
 	};
 
 	const columns = [

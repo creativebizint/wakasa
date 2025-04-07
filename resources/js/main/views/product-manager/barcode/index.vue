@@ -141,8 +141,8 @@
                                     record.isactive === -1 
                                     ? $t("common.not_in_use") 
                                     : record.isactive === 0 
-                                        ? $t("common.no") 
-                                        : $t("common.yes")
+                                        ? $t("barcode.inactive") 
+                                        : $t("barcode.active")
                                 }}
                             </template>
                             <template v-if="column.dataIndex === 'invoice_number'">
