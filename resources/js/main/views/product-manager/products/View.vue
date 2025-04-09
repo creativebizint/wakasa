@@ -167,15 +167,9 @@
                                         }}
                                     </a-descriptions-item>
                                     
-                                    <a-descriptions-item :label="$t('product.priority')">
-                                    {{ product.priority }}
-                                    </a-descriptions-item>
-
                                     <a-descriptions-item :label="$t('product.minimum_purchase_quantity')">
                                     {{ product.minimum_purchase_qty }}
                                     </a-descriptions-item>
-                                    <br>
-                                    <br>
                                     <a-descriptions-item :label="$t('product.subgroup1')">
                                     {{ product.subgroup1 }}
                                     </a-descriptions-item>
@@ -211,7 +205,19 @@
                                     <a-descriptions-item :label="$t('product.notes')">
                                     {{ product.notes }}
                                     </a-descriptions-item>
-                                    
+                                    <br>
+                                    <a-descriptions-item :label="$t('product.kemasan_jual_packing')">
+                                        {{ product.kemasan_jual_packing }}
+                                    </a-descriptions-item>
+                                    <a-descriptions-item :label="$t('product.kemasan_jual_qty')">
+                                        {{ product.kemasan_jual_qty }}
+                                    </a-descriptions-item>
+                                    <a-descriptions-item :label="$t('product.kemasan_jual_weight')">
+                                        {{ product.kemasan_jual_weight }}
+                                    </a-descriptions-item>
+                                    <a-descriptions-item :label="$t('product.intruksi_packing')">
+                                        {{ product.intruksi_packing }}
+                                    </a-descriptions-item>
                                 </template>
                             </a-descriptions>
                         </a-col>

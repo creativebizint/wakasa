@@ -358,7 +358,7 @@
                                     {{record.text1}}
                                 </template>
                                 <template v-if="column.dataIndex === 'sat'">
-                                    {{record.unit_buy_in.short_name}}
+                                    {{record.unit_buy_in != null ? record.unit_buy_in.short_name : ''}}
                                 </template>
                                 <template v-if="column.dataIndex === 'single_unit_price'">
                                     {{ formatAmountCurrency(record.single_unit_price) }}

@@ -157,4 +157,8 @@ class Product extends BaseModel
     {
         return $this->belongsTo(Warehouse::class);
     }
+    public function uomKemasanJualUnit()
+    {
+        return $this->belongsTo(Unit::class, 'kemasan_jual_unit', 'id');
+    }
 }

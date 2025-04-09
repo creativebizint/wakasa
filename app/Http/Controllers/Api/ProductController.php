@@ -29,6 +29,7 @@ use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use Vinkla\Hashids\Facades\Hashids;
 use Illuminate\Support\Str;
+use Examyou\RestAPI\Exceptions\ApiException;
 
 class ProductController extends ApiBaseController
 {
@@ -84,7 +85,7 @@ class ProductController extends ApiBaseController
         $request = request();
         $loggedUser = user();
         $warehouse = warehouse();
-
+        
         $product->user_id = $loggedUser->id;
         $product->warehouse_id = $loggedUser->hasRole('admin') && $request->warehouse_id != '' ? $request->warehouse_id : $warehouse->id;
 
@@ -118,7 +119,7 @@ class ProductController extends ApiBaseController
                 $newVariantProduct->warehouse_id = $product->warehouse_id;
                 $newVariantProduct->product_type = 'single';
                 $newVariantProduct->name = trim($fullName, ',');
-                $newVariantProduct->slug = Str::slug($newVariantProduct->name, '-');
+                $newVariantProduct->slug = Str::slug($newVariantProduct->name, '-').'-'.date('His');
                 $newVariantProduct->barcode_symbology = $product->barcode_symbology;
                 $newVariantProduct->item_code = $allVariation['item_code'];
                 $newVariantProduct->parent_item_code = $product->item_code;
@@ -225,10 +226,10 @@ class ProductController extends ApiBaseController
         if ($loggedUser->hasRole('admin') && $request->warehouse_id != '') {
             $product->warehouse_id = $request->warehouse_id;
         }
-
-        $product->uom_sale_in = $this->getIdFromHash($request->uom_sale_in);
-        $product->uom_buy_in = $this->getIdFromHash($request->uom_buy_in);
-        $product->kemasan_jual_unit = $this->getIdFromHash($request->kemasan_jual_unit);
+        file_put_contents(storage_path('logs') . '/product.log', "[" . date('Y-m-d H:i:s') . "]test 1 : \n" . print_r($request->uom_buy_in,1) . "\n\n", FILE_APPEND);
+        $product->uom_sale_in = isset($request->uom_sale_in) && is_string($request->uom_sale_in) ? $this->getIdFromHash($request->uom_sale_in) : 1;
+        $product->uom_buy_in = isset($request->uom_buy_in) && is_string($request->uom_buy_in) ? $this->getIdFromHash($request->uom_buy_in) : 1;
+        $product->kemasan_jual_unit = isset($request->kemasan_jual_unit) && is_string($request->kemasan_jual_unit) ? $this->getIdFromHash($request->kemasan_jual_unit) : 1;
             
         return $product;
     }
