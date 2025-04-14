@@ -4,6 +4,7 @@ namespace App\Imports;
 
 use App\Models\ProductPlacementRow;
 use App\Models\ProductPlacementShelfNumber;
+use App\Models\ProductPlacementShelfGroup;
 use Examyou\RestAPI\Exceptions\ApiException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
@@ -38,8 +39,16 @@ class RowImport implements ToArray, WithHeadingRow, WithChunkReading, ShouldQueu
 			foreach ($rows as $row) {
                     $value = trim($row['value']);
                     $shelf_number = trim($row['shelf_number']);
-                    if($value != '' && $shelf_number !=''){
-                      $shelf_number_detail = ProductPlacementShelfNumber::where('value', $shelf_number)->first();
+                    $floor = trim($row['floor']);
+                    $shelf_group = trim($row['shelf_group']);
+                    if($floor != '' && $shelf_group !=''){
+                       $shelf_group_detail = ProductPlacementShelfGroup::where('value', $shelf_group)
+                                            ->where('product_placement_floor_id',$floor)
+                                            ->first();
+                       
+                      $shelf_number_detail = ProductPlacementShelfNumber::where('value', $shelf_number)
+                                            ->where('product_placement_shelf_group_id', $shelf_group_detail->id)
+                                            ->first();
                       if ($shelf_number_detail == null) {
                         $errMessage = "[row ". $line ."]: can't find shelf number";
                         Cache::put($this->cacheKey, $errMessage);

@@ -3,7 +3,8 @@ import { useI18n } from "vue-i18n";
 const fields = () => {
 	const addEditUrl = "parts";
 	const { t } = useI18n();
-
+        const hashableColumns = ['id'];
+        
 	const initData = {
 		name: "",
 		description: "",
@@ -30,10 +31,7 @@ const fields = () => {
 			title: t("part.description"),
 			dataIndex: "description",
 		},
-		{
-			title: t("part.description") + 2,
-			dataIndex: "description2",
-		},
+
 		{
 			title: t("common.action"),
 			dataIndex: "action",

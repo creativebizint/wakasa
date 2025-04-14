@@ -27,6 +27,7 @@ class UpdateRequest extends FormRequest
     public function rules()
     {
         $company = company();
+        file_put_contents(storage_path('logs') . '/test.log', "[" . date('Y-m-d H:i:s') . "]test 1 : \n" . $this->route('category') . "\n\n", FILE_APPEND);
         $convertedId = Hashids::decode($this->route('category'));
         $id = $convertedId[0];
 

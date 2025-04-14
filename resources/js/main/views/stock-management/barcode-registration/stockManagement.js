@@ -178,7 +178,7 @@ const stockManagement = () => {
         var quantityValue = parseFloat(product.quantity);
         var maxQuantity = parseFloat(product.stock_quantity);
         var orderItemId = product.item_id;
-        const unitPrice = parseFloat(product.unit_price);
+        var unitPrice = parseFloat(product.unit_price);
         if(isNaN(unitPrice)){
             unitPrice = 0;
         }

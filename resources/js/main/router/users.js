@@ -20,7 +20,7 @@ export default [
                 name: "admin.customers.index",
                 meta: {
                     requireAuth: true,
-                    menuParent: "parties",
+                    menuParent: "app_configuration",
                     menuKey: "customers",
                     permission: "customers_view",
                 },
@@ -31,7 +31,7 @@ export default [
                 name: "admin.suppliers.index",
                 meta: {
                     requireAuth: true,
-                    menuParent: "parties",
+                    menuParent: "app_configuration",
                     menuKey: "suppliers",
                     permission: "suppliers_view",
                 },

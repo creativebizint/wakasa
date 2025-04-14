@@ -120,7 +120,7 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
 
         ApiRoute::resource('brands', 'BrandController', $options);
         ApiRoute::resource('barcode', 'BarcodeController', $options);
-        ApiRoute::resource('parts', 'PartController', $options);
+        ApiRoute::resource('parts', 'PartController', $options, ['as' => 'api', 'except' => ['index']]);
         ApiRoute::resource('categories', 'CategoryController', ['as' => 'api', 'except' => ['index', 'show']]);
         ApiRoute::resource('variations', 'VariationController', ['as' => 'api', 'except' => ['index']]);
         ApiRoute::resource('order-payments', 'OrderPaymentController', ['as' => 'api', 'only' => ['index', 'store']]);

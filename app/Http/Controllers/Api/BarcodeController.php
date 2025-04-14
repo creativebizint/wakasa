@@ -67,7 +67,7 @@ class BarcodeController extends ApiBaseController
             $barcode->order_item_id = $order->id;  
           }
         }
-        file_put_contents(storage_path('logs') . '/barcode.log', "[" . date('Y-m-d H:i:s') . "]test 1 : \n" . print_r($barcode,1) . "\n\n", FILE_APPEND);
+        //file_put_contents(storage_path('logs') . '/barcode.log', "[" . date('Y-m-d H:i:s') . "]test 1 : \n" . print_r($barcode,1) . "\n\n", FILE_APPEND);
         return $barcode;
     }
 }

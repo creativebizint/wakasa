@@ -2,8 +2,8 @@
 
 namespace App\Imports;
 
+use App\Models\ProductPlacementFloor;
 use App\Models\ProductPlacementShelfGroup;
-use App\Models\ProductPlacementShelfNumber;
 use Examyou\RestAPI\Exceptions\ApiException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
@@ -13,7 +13,7 @@ use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Str;
 
-class ShelfNumberImport implements ToArray, WithHeadingRow, WithChunkReading, ShouldQueue
+class ShelfGroupImport implements ToArray, WithHeadingRow, WithChunkReading, ShouldQueue
 {
     protected $cacheKey;
     protected $userId;
@@ -29,40 +29,38 @@ class ShelfNumberImport implements ToArray, WithHeadingRow, WithChunkReading, Sh
         return 100;
     }
 
-	public function array(array $rows)
+	public function array(array $shelf_groups)
 	{
 
-		DB::transaction(function () use ($rows) {
+		DB::transaction(function () use ($shelf_groups) {
             $errMessage = "";
+
                   $line = 2;
-			foreach ($rows as $row) {
-                    $value = trim($row['value']);
-                    $shelf_group = trim($row['shelf_group']);
-                    $floor = trim($row['floor']);
-                    if($value != '' && $shelf_group !='' && $floor != ''){
-                      $shelf_group_detail = ProductPlacementShelfGroup::where('value', $shelf_group)
-                                            ->where('product_placement_floor_id',$floor)
-                                            ->first();
-                      if ($shelf_group_detail == null) {
-                        $errMessage = "[row ". $line ."]: can't find shelf group";
+			foreach ($shelf_groups as $shelf_group) {
+                    $value = trim($shelf_group['value']);
+                    $floor = trim($shelf_group['floor']);
+                    if($value != '' && $floor !=''){
+                      $floor_detail = ProductPlacementFloor::where('value', $floor)->first();
+                      if ($floor_detail == null) {
+                        $errMessage = "[row ". $line ."]: can't find floor";
                         Cache::put($this->cacheKey, $errMessage);
                         return;
                       }
 
-                      $data_ = new ProductPlacementShelfNumber();
+                      $data_ = new ProductPlacementShelfGroup();
                       $data_->value = $value;
-                      $data_->product_placement_shelf_group_id = $shelf_group_detail->id;
+                      $data_->product_placement_floor_id = $floor_detail->id;
                       $data_->save();
                       
                     }
                     else{
-                      $errMessage = "[row ". $line ."]: value or Shelf Group is empty";
+                      $errMessage = '[row '. $line .']: value or floor is empty';
                       Cache::put($this->cacheKey, $errMessage);
                       return;
                     }
                     $line++;
-                    
                   }
+                  
                   // Forget cache
 			Cache::forget($this->cacheKey);
 		});

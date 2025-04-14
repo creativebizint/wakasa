@@ -12,6 +12,7 @@ use App\Models\ProductDetails;
 use App\Models\StockHistory;
 use App\Models\Unit;
 use App\Models\User;
+use App\Models\Product;
 use App\Models\WarehouseStock;
 use App\Models\Warehouse;
 use App\Models\Barcode;
@@ -41,6 +42,12 @@ trait OrderTraits
 
             $query = $query->whereRaw('orders.order_date >= ?', [$startDate])
                 ->whereRaw('orders.order_date <= ?', [$endDate]);
+        }
+        
+        if ($request->has('item_id') && $request->item_id != "") {
+            $product = Product::where('item_id','like','%'.$request->item_id.'%')->select('id')->first();
+            $query = $query->join('order_items','order_items.order_id','=','orders.id')
+                ->where('order_items.product_id','=',$product->id);
         }
 
         // Can see only order of warehouses which is assigned to him

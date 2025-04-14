@@ -32,13 +32,13 @@ class UpdateRequest extends FormRequest
 
         $rules = [
             'name'    => 'required',
-            'slug'    => [
-                'required',
-                Rule::unique('brands', 'slug')->where(function ($query) use ($company, $id) {
-                    return $query->where('company_id', $company->id)
-                        ->where('id', '!=', $id);
-                })
-            ],
+//            'slug'    => [
+//                'required',
+//                Rule::unique('brands', 'slug')->where(function ($query) use ($company, $id) {
+//                    return $query->where('company_id', $company->id)
+//                        ->where('id', '!=', $id);
+//                })
+//            ],
         ];
 
         return $rules;

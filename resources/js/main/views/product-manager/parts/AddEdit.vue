@@ -73,28 +73,9 @@
                         name="code"
                         :help="rules.description ? rules.code.message : null"
                         :validateStatus="rules.description ? 'error' : null"
-                        class="required"
                     >
                         <a-input
                             v-model:value="formData.description"
-                            :placeholder="
-                                $t('common.placeholder_default_text', [$t('brand.description')])
-                            "
-                        />
-                    </a-form-item>
-                </a-col>
-            </a-row>
-
-            <a-row :gutter="16">
-                <a-col :xs="24" :sm="24" :md="24" :lg="24">
-                    <a-form-item
-                        :label="$t('brand.description')"
-                        name="code"
-                        :help="rules.description ? rules.code.message : null"
-                        :validateStatus="rules.description ? 'error' : null"
-                    >
-                        <a-input
-                            v-model:value="formData.description2"
                             :placeholder="
                                 $t('common.placeholder_default_text', [$t('brand.description')])
                             "

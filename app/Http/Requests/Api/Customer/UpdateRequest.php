@@ -33,13 +33,13 @@ class UpdateRequest extends FormRequest
         $customer = Customer::find($id);
 
         $rules = [
-            'phone'    => [
-                'required', 'numeric',
-                Rule::unique('users', 'phone')->where(function ($query) use ($company) {
-                    return $query->where('user_type', 'customers')
-                        ->where('company_id', $company->id);
-                })->ignore($id)
-            ],
+//            'phone'    => [
+//                'required', 'numeric',
+//                Rule::unique('users', 'phone')->where(function ($query) use ($company) {
+//                    return $query->where('user_type', 'customers')
+//                        ->where('company_id', $company->id);
+//                })->ignore($id)
+//            ],
             // 'email'    => [
             //     'required', 'email',
             //     Rule::unique('users', 'email')->where(function ($query) {

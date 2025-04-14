@@ -713,10 +713,13 @@ export default {
             const tableFilter = props.filters;
 
             const filterString = calculateOrderFilterString(tableFilter);
-
+console.log('tableFilter: ',tableFilter);
             var extraFilterObject = {};
             if (tableFilter.dates) {
                 extraFilterObject.dates = tableFilter.dates;
+            }
+            if (tableFilter.item_id) {
+                extraFilterObject.item_id = tableFilter.item_id;
             }
             if (tableFilter.transfer_type) {
                 extraFilterObject.transfer_type = tableFilter.transfer_type;

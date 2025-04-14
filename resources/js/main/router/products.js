@@ -28,7 +28,7 @@ export default [
                 },
             },
             {
-                path: "/admin/barcode",
+                path: "/admin/qrcode",
                 component: () =>
                     import("../views/product-manager/barcode/index.vue"),
                 name: "admin.barcode.index",

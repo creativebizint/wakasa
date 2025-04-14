@@ -118,6 +118,8 @@
                 //additional
                 'floor_sample_file': "{{ asset('files/sample_floors.xlsx') }}",
                 'floor_export_url': "{{ route('api.floors.export') }}",
+                'shelf_group_sample_file': "{{ asset('files/sample_shelf_groups.xlsx') }}",
+                'shelf_group_export_url': "{{ route('api.shelfGroups.export') }}",
                 'row_sample_file': "{{ asset('files/sample_rows.xlsx') }}",
                 'row_export_url': "{{ route('api.rows.export') }}",
                 'shelf_number_sample_file': "{{ asset('files/sample_shelf_numbers.xlsx') }}",

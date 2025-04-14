@@ -27,7 +27,7 @@
                 </a-col>
             </a-row>
 
-            <a-row :gutter="16">
+            <a-row :gutter="16" :style="{ display: 'none' }">
                 <a-col :xs="24" :sm="24" :md="24" :lg="24">
                     <a-form-item
                         :label="$t('brand.slug')"
@@ -72,7 +72,6 @@
                         name="code"
                         :help="rules.description ? rules.code.message : null"
                         :validateStatus="rules.description ? 'error' : null"
-                        class="required"
                     >
                         <a-input
                             v-model:value="formData.description"
@@ -91,7 +90,6 @@
                         name="code"
                         :help="rules.description ? rules.code.message : null"
                         :validateStatus="rules.description ? 'error' : null"
-                        class="required"
                     >
                         <a-input
                             v-model:value="formData.description2"
@@ -110,7 +108,6 @@
                         name="code"
                         :help="rules.description ? rules.code.message : null"
                         :validateStatus="rules.description ? 'error' : null"
-                        class="required"
                     >
                         <a-input
                             v-model:value="formData.description3"

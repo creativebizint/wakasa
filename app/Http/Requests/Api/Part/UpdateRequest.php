@@ -5,6 +5,7 @@ namespace App\Http\Requests\Api\Part;
 use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 use Vinkla\Hashids\Facades\Hashids;
+use Examyou\RestAPI\ApiResponse;
 
 class UpdateRequest extends FormRequest
 {
@@ -27,18 +28,18 @@ class UpdateRequest extends FormRequest
     public function rules()
     {
         $company = company();
-        $convertedId = Hashids::decode($this->route('brand'));
+        $convertedId = Hashids::decode($this->route('part'));
         $id = $convertedId[0];
 
         $rules = [
             'name'    => 'required',
-            'slug'    => [
-                'required',
-                Rule::unique('brands', 'slug')->where(function ($query) use ($company, $id) {
-                    return $query->where('company_id', $company->id)
-                        ->where('id', '!=', $id);
-                })
-            ],
+//            'slug'    => [
+//                'required',
+//                Rule::unique('brands', 'slug')->where(function ($query) use ($company, $id) {
+//                    return $query->where('company_id', $company->id)
+//                        ->where('id', '!=', $id);
+//                })
+//            ],
         ];
 
         return $rules;
