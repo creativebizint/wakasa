@@ -30,7 +30,9 @@
                                 @click="
                                                 () =>
                                                     $router.push({
-                                                        name: `admin.inventory_in.item`,
+                                                        name: orderType.value === 'inventory_in' 
+                                                                ? 'admin.inventory_in.item' 
+                                                                : 'admin.placement_in.item',
                                                         params: {
                                                             id: record.xid,
                                                         },

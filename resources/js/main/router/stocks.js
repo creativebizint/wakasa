@@ -149,6 +149,49 @@ export default [
                     orderType: "inventory_in",
                 },
             },
+            
+            {
+                path: "/admin/place-in/item/:id",
+                component: () =>
+                    import("../views/stock-management/product-placement/Item.vue"),
+                name: "admin.placement_in.item",
+                meta: {
+                    requireAuth: true,
+                    menuParent: "product_placement",
+                    menuKey: (route) => "placement_in",
+                    permission: (route) => "product_placement_view",
+                    orderType: "placement_in",
+                },
+            },
+            
+            {
+                path: "/admin/place-in/barcode/:id",
+                component: () =>
+                    import("../views/stock-management/product-placement/Barcode.vue"),
+                name: "admin.placement_in.barcode",
+                meta: {
+                    requireAuth: true,
+                    menuParent: "product_placement",
+                    menuKey: (route) => "placement_in",
+                    permission: (route) => "product_placement_view",
+                    orderType: "placement_in",
+                },
+            },
+            
+            {
+                path: "/admin/product-placement/place-in",
+                component: () =>
+                    import("../views/stock-management/product-placement/index.vue"),
+                name: "admin.product_placement.placement_in",
+                meta: {
+                    requireAuth: true,
+                    menuParent: "product_placement",
+                    menuKey: (route) => "placement_in",
+                    permission: (route) => "product_placement_view",
+                    orderType: "placement_in",
+                },
+            },
+            
             {
                 path: "inventory-in/create",
                 component: () =>

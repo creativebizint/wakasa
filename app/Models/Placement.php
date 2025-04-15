@@ -13,7 +13,7 @@ class Placement extends BaseModel
 {
     protected $table = 'placements';
 
-    protected $default = ['xid', 'x_company_id', 'x_warehouse_id', 'floor','shelf_number','row'];
+    protected $default = ['xid', 'x_company_id', 'x_warehouse_id', 'row'];
 
     protected $guarded = ['id'];
 
@@ -21,7 +21,7 @@ class Placement extends BaseModel
 
     protected $appends = ['xid', 'x_company_id', 'x_warehouse_id'];
 
-    protected $filterable = ['id', 'invoice_number', 'warehouse_id', 'floor', 'shelf_number', 'row'];
+    protected $filterable = ['id', 'invoice_number', 'warehouse_id', 'row'];
 
     protected $hashableGetterFunctions = [
         'getXWarehouseIdAttribute' => 'warehouse_id',

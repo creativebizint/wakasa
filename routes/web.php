@@ -161,6 +161,7 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         ApiRoute::post('stock-adjustment-order-items-data', ['as' => 'api.extra.stock-adjustment-order-items-data', 'uses' => 'StockAdjustmentController@getStockAdjustmentOrderItemData']);
         ApiRoute::get('picking-request', ['as' => 'api.pickingRequest.index', 'uses' => 'PickingRequestController@index']);
         
+        ApiRoute::get('scanned/barcode/{id}', ['as' => 'api.inventory_in.barcode', 'uses' => 'PurchaseController@scannedBarcode']);
         ApiRoute::get('inventory-detail/barcode/{id}', ['as' => 'api.inventory_in.barcode', 'uses' => 'PurchaseController@barcode']);
         ApiRoute::post('inventory-detail/barcode/register', ['as' => 'api.inventory_in.barcode', 'uses' => 'PurchaseController@barcodeRegister']);
         
@@ -169,8 +170,9 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         ApiRoute::resource('shelf-groups', 'ShelfGroupController', $options, ['as' => 'api', 'except' => ['index']]);
         ApiRoute::resource('shelf-numbers', 'ShelfNumberController', $options, ['as' => 'api', 'except' => ['index']]);
         ApiRoute::get('default-warehouse', ['as' => 'api.warehouses.default-warehouse', 'uses' => 'WarehouseController@getDefaultWarehouse']);
-        ApiRoute::resource('inventory_in', 'PurchaseController', $options);
+        ApiRoute::resource('inventory_in', 'PurchaseController', $options);        
         ApiRoute::resource('inventory_out', 'SalesController', $options);
+        ApiRoute::resource('placement_in', 'PurchaseController', $options);
     });
 });
 

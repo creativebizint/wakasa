@@ -42,4 +42,11 @@ class Barcode extends BaseModel
     {
         return $this->belongsTo(Product::class, 'item_id', 'item_id');
     }
+    
+    const STATUS_OPEN = 1;
+    const STATUS_SCANNED = 2;
+    const STATUS_IN = 3;
+    const STATUS_SO = 4;
+    const STATUS_DO = 5;
+  
 }

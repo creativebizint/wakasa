@@ -13,7 +13,13 @@ use App\Models\StockHistory;
 use App\Models\Unit;
 use App\Models\User;
 use App\Models\Product;
+use App\Models\ProductPlacementRow;
+use App\Models\ProductPlacement;
+use App\Models\Placement;
+use App\Models\PlacementItem;
 use App\Models\WarehouseStock;
+use App\Models\ScannedHistory;
+use App\Models\ScannedHistoryItems;
 use App\Models\Warehouse;
 use App\Models\Barcode;
 use Carbon\Carbon;
@@ -22,6 +28,7 @@ use Examyou\RestAPI\Exceptions\ApiException;
 use Examyou\RestAPI\Exceptions\ResourceNotFoundException;
 use Vinkla\Hashids\Facades\Hashids;
 use Illuminate\Support\Facades\Request;
+use DB;
 
 trait OrderTraits
 {
@@ -122,7 +129,7 @@ trait OrderTraits
                     'single_unit_price'    =>  $allOrderIteam->single_unit_price,
                     'subtotal'    =>  $allOrderIteam->subtotal,
                     'quantity'    =>  $allOrderIteam->quantity,
-                    'qr_scanned_in'    => Barcode::where('order_item_id',Common::getIdFromHash($allOrderIteam->xid))->count(),
+                    'qr_scanned_in'    => $allOrderIteam->quantity_scanned,
                     'qr_scanned_out'    => Barcode::where('order_item_out_id',Common::getIdFromHash($allOrderIteam->xid))->count(),
                     'tax_rate'    =>  $allOrderIteam->tax_rate,
                     'tax_type'    =>  $allOrderIteam->tax_type,
@@ -409,6 +416,36 @@ trait OrderTraits
     }
     
     
+    public function scannedBarcode($xid){
+        $id = Common::getIdFromHash($xid);
+        $barcode = Barcode::where('order_item_id',$id)
+                    ->where('isactive',1)
+                    ->where('status','>=',Barcode::STATUS_IN)
+                    ->get();
+        $selectProductIds = [];
+        foreach($barcode as $barcode_detail){            
+          $selectProductIds[] = Common::getHashFromId($barcode_detail->id);  
+        }
+        $order_item = OrderItem::where('order_items.id',$id)
+                       ->join('products','products.id','order_items.product_id')
+                       ->select('order_items.id','order_items.quantity','products.item_id','order_items.order_id','quantity_scanned')
+                       ->first();
+        
+        $barcode_in = Barcode::where('order_item_id',$id)
+                        ->where('item_id',$order_item->item_id)
+                        ->where('status','>=',Barcode::STATUS_IN)
+                        ->selectRaw("sum(qty_bungkus) as total_in")
+                        ->groupBy('item_id','order_item_id')
+                        ->first();
+        if($barcode_in == null){
+            $order_item->quantity_in = 0;
+        }
+        else{
+            $order_item->quantity_in = $barcode_in->total_in;
+        }
+        
+        return ['total' =>count($barcode), 'data' => $barcode,'ids'=>$selectProductIds, 'order_item' => $order_item];
+    }
     public function barcode($xid){
         $id = Common::getIdFromHash($xid);
         $barcode = Barcode::where('order_item_id',$id)->get();
@@ -419,27 +456,141 @@ trait OrderTraits
         }
         $order_item = OrderItem::where('order_items.id',$id)
                        ->join('products','products.id','order_items.product_id')
-                       ->select('order_items.id','order_items.quantity','products.item_id','order_items.order_id')
+                       ->select('order_items.id','order_items.quantity','products.item_id','order_items.order_id','quantity_scanned')
                        ->first();
+        
+        $barcode_in = Barcode::where('order_item_id',$id)
+                        ->where('item_id',$order_item->item_id)
+                        ->where('status','>=',Barcode::STATUS_IN)
+                        ->selectRaw("sum(qty_bungkus) as total_in")
+                        ->groupBy('item_id','order_item_id')
+                        ->first();
+        if($barcode_in == null){
+            $order_item->quantity_in = 0;
+        }
+        else{
+            $order_item->quantity_in = $barcode_in->total_in;
+        }
         
         return ['total' =>count($barcode), 'data' => $barcode,'ids'=>$selectProductIds, 'order_item' => $order_item];
     }
     
     public function barcodeRegister(Request $request){
-        $request = $request::all();        
-        $xorder_item_id = $request['order_item_id'];
-        $item_id = $request['item_id'];
-        $order_item_id = Common::getIdFromHash($xorder_item_id);
-        $loggedUser = user();
-        $user_id = Common::getIdFromHash($loggedUser->xid);
-        $product_items = $request['product_items'];
-        
-        foreach($product_items as $product_item){
-            Barcode::where('id',Common::getIdFromHash($product_item['xid']))->update(['isactive'=>'1','order_item_id' => $order_item_id,'item_id' => $item_id,'scanned_in_by'=> $user_id ]);
+        $message = '';
+        DB::beginTransaction();
+        try{
+            $request = $request::all();        
+            $xorder_item_id = $request['order_item_id'];
+            $item_id = $request['item_id'];
+            $row = isset($request['row']) ? $request['row'] : '';
+            $order_item_id = Common::getIdFromHash($xorder_item_id);
+            $loggedUser = user();
+            $user_id = Common::getIdFromHash($loggedUser->xid);
+            $product_items = $request['product_items'];
+
+            $order = OrderItem::where('id',$order_item_id)->first();
+            
+            if($row != ''){
+                //place in
+                $company = company();
+                $warehouse = warehouse();
+                $row_detail = ProductPlacementRow::where('value',$row)->first();
+                
+                if($row_detail == null){
+                    throw new ApiException('Rak tidak teregistrasi: '.$row);
+                }
+                
+                $placement = new Placement();
+                $placement->company_id = $company->id;
+                $placement->invoice_number = '';
+                $placement->unique_id = Common::generateOrderUniqueId();
+                $placement->invoice_type = "product-placement";
+                $placement->placement_type = "in";
+                $placement->placement_date = date('Y-m-d H:i:s');
+                $placement->warehouse_id = $warehouse->id;
+                $placement->notes = '';
+                $placement->staff_user_id = $loggedUser->id;
+                $placement->user_id = $loggedUser->id;
+                $placement->total_items = count($product_items);
+                $placement->total_quantity = 0;
+                $placement->save();
+
+                $type = 'product-placement-in';
+                $placement->invoice_number = Common::getTransactionNumber($type);
+                $placement->save();
+                $total_qty = 0;
+                foreach($product_items as $product_item){
+                    $placement_item = new PlacementItem();
+                    $placement_item->placement_id = $placement->id;
+                    $placement_item->barcode_id = Common::getIdFromHash($product_item['xid']);
+                    $placement_item->row = $row_detail->id;
+                    $placement_item->save();
+                    
+                    $product_placement = new ProductPlacement();
+                    $product_placement->placement_id = $placement->id;
+                    $product_placement->barcode_id = Common::getIdFromHash($product_item['xid']);
+                    $product_placement->row = $row_detail->id;
+                    $product_placement->warehouse_id = $warehouse->id;
+                    $product_placement->save();
+                    
+                    $total_qty += $product_item['qty_bungkus'];                     
+                    Barcode::where('id',Common::getIdFromHash($product_item['xid']))->update(['status' => Barcode::STATUS_IN ]);
+                }
+                
+
+                $placement->total_quantity = $total_qty;
+                $placement->save();
+                
+                $message = 'Masukkan produk ke rak telah berhasil';
+            }
+            else{
+                //scan only
+                $scannedHistory_last = ScannedHistory::where('order_id',$order->id)
+                                ->where('order_item_id', $order_item_id)
+                                ->orderBy('id','desc')
+                                ->select('batch')
+                                ->first();
+
+                if($scannedHistory_last == null){
+                    $batch = 1;
+                }
+                else{
+                    $batch = $scannedHistory_last->batch+1;
+                }
+                
+                $scanned_history = new ScannedHistory();
+                $scanned_history->batch = $batch;
+                $scanned_history->staff_user_id = $user_id;
+                $scanned_history->order_id = $order->id;
+                $scanned_history->order_item_id = $order_item_id;
+                $scanned_history->save();
+
+                $scanned_history_items = new ScannedHistoryItems();
+                $total_scanned = 0;
+                foreach($product_items as $product_item){
+                    $scanned_history_items->scanned_history_id = $scanned_history->id;
+                    $scanned_history_items->barcode_id = Common::getIdFromHash($product_item['xid']);
+                    $scanned_history_items->qty = $product_item['qty_bungkus'];
+                    $scanned_history_items->save();
+                    Barcode::where('id',Common::getIdFromHash($product_item['xid']))->update(['isactive'=>'1','order_item_id' => $order_item_id,'item_id' => $item_id,'scanned_in_by'=> $user_id, 'status' => Barcode::STATUS_SCANNED ]);
+                    $total_scanned += $product_item['qty_bungkus'];
+                }
+                $scanned_history->qty_scanned = $total_scanned;
+                $scanned_history->save();
+
+                //calculate total scanned
+                $all_scanned = ScannedHistory::where('order_id',$order->id)
+                                    ->where('order_item_id', $order_item_id)->selectRaw("sum(qty_scanned) as total")->first();
+                OrderItem::where('id',$order_item_id)->update(['quantity_scanned'=>$all_scanned->total]);
+
+                $message = 'Barcode telah berhasil di scan';
+            }
+        } catch (\Exception $ex) {
+            DB::rollback();
+            throw new ApiException($ex->getMessage());
         }
-        
-        
-        return ['total' =>count($product_items), 'message' => 'Barcode telah berhasil di scan'];
+        DB::commit();
+        return ['total' =>count($product_items), 'message' => $message];
     }
     
 };

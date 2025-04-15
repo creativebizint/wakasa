@@ -1,7 +1,18 @@
 <template>
     <AdminPageHeader>
         <template #header>
-            <a-page-header :title="$t(`menu.stock_in`)" class="p-0" /> {{ $t(`menu.stock_in`) }}
+            <a-page-header
+                :title="$t(`menu.placement_in`)"
+                @back="() => $router.go(-1)"
+                class="p-0"
+            >
+                <template #extra>
+                    <a-button type="primary" :loading="loading" @click="onSubmit" style="display: none">
+                        <template #icon> <SaveOutlined /> </template>
+                        {{ $t("common.save") }}
+                    </a-button>
+                </template>
+            </a-page-header>
         </template>
         <template #breadcrumb>
             <a-breadcrumb separator="-" style="font-size: 12px">
@@ -11,344 +22,159 @@
                     </router-link>
                 </a-breadcrumb-item>
                 <a-breadcrumb-item>
-                    <router-link :to="{ name: 'admin.stock_management.index' }">
-                        {{ $t(`menu.stock_management`) }}
+                    <router-link :to="{ name: 'admin.inventory_in.index' }">
+                    {{
+                       $t(`menu.inventory_in`)
+                    }}
                     </router-link>
-                </a-breadcrumb-item>                
+                </a-breadcrumb-item>
+                
                 <a-breadcrumb-item>
-                    {{ $t(`menu.stock_in`) }}
-                </a-breadcrumb-item>                
+                    {{ $t("menu.barcode") }}
+                </a-breadcrumb-item>
             </a-breadcrumb>
         </template>
     </AdminPageHeader>
 
-    <admin-page-table-content>
-        <a-card class="page-content-container mt-20 mb-20">
-            <a-form layout="vertical">
-                <a-row :gutter="16">
-                    <a-col :xs="24" :sm="24" :md="6" :lg="6">
-                        <a-form-item
-                            :label="$t(`stock_in.invoice_number`)"
-                            name="invoice_number"
-                            :help="
-                                rules.invoice_number ? rules.invoice_number.message : null
+    <a-card class="page-content-container">
+        <a-alert
+            v-if="editOrderDisable"
+            :description="$t('messages.not_able_to_edit_order')"
+            type="warning"
+            class="mb-30"
+            showIcon
+        />
+
+        <a-row :gutter="8">
+                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                    <a-form-item
+                        :label="$t('product.item_id')"
+                        name="item_id"
+                        :help="rules.discount ? rules.discount.message : null"
+                        :validateStatus="rules.discount ? 'error' : null"
+                    >
+                        <a-input-number
+                            v-model:value="formData.item_id"
+                            :placeholder="
+                                $t('common.placeholder_default_text', [
+                                    $t('product.item_id'),
+                                ])
                             "
-                            :validateStatus="rules.invoice_number ? 'error' : null"
+                            min="0"
+                            style="width: 100%"
+                            :disabled="true"
                         >
-                            <a-input
-                                v-model:value="formData.invoice_number"
-                                :placeholder="
-                                    $t('common.placeholder_default_text', [
-                                        $t('stock_in.invoice_number'),
-                                    ])
-                                "
-                            />
-                            <small class="small-text-message">
-                                {{ $t("stock_in.invoice_number_blank") }}
-                            </small>
-                        </a-form-item>
-                    </a-col>
 
+                        </a-input-number>
+                    </a-form-item>
+                </a-col>
+            </a-row>
 
-                    <!--* ADDENDUM -->
-                    <a-col :xs="24" :sm="24" :md="4" :lg="4" :xl="4">
-                        <WarehouseSearch
-                            :labelPrefix="warehouseSearchLabelPrefix"
-                            :orderPageObject="allWarehouses"
-                            :rules="rules"
-                            :warehousesList="[]"
-                            :editOrderDisable="false"
-                            @onSuccess="(outputWarehouse) => (formData.warehouse_id = outputWarehouse)"
-                        />
-                    </a-col>
+        <a-row :gutter="8">
+                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                    <a-form-item
+                        :label="$t('product.quantity_faktur')"
+                        name="total_items"
+                        :help="rules.total_items ? rules.total_items.message : null"
+                        :validateStatus="rules.total_items ? 'error' : null"
+                    >
+                        <a-input-number
+                            v-model:value="formData.total_items"
+                            :placeholder="
+                                $t('common.placeholder_default_text', [
+                                    $t('common.total'),
+                                ])
+                            "
+                            min="0"
+                            style="width: 100%"
+                            :disabled="true"
+                        >
+
+                        </a-input-number>
+                    </a-form-item>
+                </a-col>
+            </a-row>
+            <a-row :gutter="8">
+                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                    <a-form-item
+                        :label="$t('barcode.quantity_scanned')"
+                        name="total_items_scanned"
+                        :help="rules.total_items ? rules.total_items.message : null"
+                        :validateStatus="rules.total_items ? 'error' : null"
+                    >
+                        <a-input-number
+                            v-model:value="formData.total_items_scanned"
+                            min="0"
+                            style="width: 100%"
+                            :disabled="true"
+                        >
+
+                        </a-input-number>
+                    </a-form-item>
+                </a-col>
+            </a-row>
                     
-                    <a-col :xs="24" :sm="24" :md="2" :lg="2" :xl="2">
-                        <a-form-item
-                            :label="$t(`stock_in.floor`)"
-                            name="floor"
-                            :help="
-                                rules.floor ? rules.floor.message : null
-                            "
-                            :validateStatus="rules.floor ? 'error' : null"
-                            class="required"
-                        >
+        <a-form layout="vertical">
+            <a-row :gutter="16">
+                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                    <a-form-item
+                        :label="$t('menu.barcode')"
+                        name="orderSearchTerm"
+                        :help="rules.product_items ? rules.product_items.message : null"
+                        :validateStatus="rules.product_items ? 'error' : null"
+                    >
+                        <span style="display: flex">
                             <a-select
-                                v-model:value="formData.floor"
-                                :placeholder="
-                                    $t('common.select_default_text', [$t('stock_management.floor')])
-                                "
-                                :allowClear="true"
-                                style="width: 100%"
-                                optionFilterProp="title"
+                                :value="null"
+                                :searchValue="orderSearchTerm"
                                 show-search
-                                @change="getShelfGroup"
-                                required
+                                :filter-option="false"
+                                :placeholder="$t('product.search_scan_product')"
+                                style="width: 100%"
+                                :not-found-content="productFetching ? undefined : null"
+                                @search="
+                                    (searchedValue) => {
+                                        orderSearchTerm = searchedValue;
+                                        fetchProducts(searchedValue);
+                                    }
+                                "
+                                size="large"
+                                option-label-prop="label"
+                                @focus="products = []"
+                                @select="searchValueSelected"
+                                :disabled="editOrderDisable"
+                                @inputKeyDown="inputValueChanged"
                             >
+                                <template #suffixIcon><SearchOutlined /></template>
+                                <template v-if="productFetching" #notFoundContent>
+                                    <a-spin size="small" />
+                                </template>
                                 <a-select-option
-                                    v-for="data in floors"
-                                    :key="data.xid"
-                                    :title="data.floor"
-                                    :value="data.xid                                                                                                                                    "
+                                    v-for="product in products"
+                                    :key="product.xid"
+                                    :value="product.xid"
+                                    :label="product.string"
+                                    :product="product"
                                 >
-                                    {{ data.floor }}
+                                    => {{ product.string }}
                                 </a-select-option>
                             </a-select>
-                        </a-form-item>    
-                    </a-col>
-                    
-                    
-                    <a-col :xs="24" :sm="24" :md="4" :lg="4" :xl="4">
-                        <a-form-item
-                            :label="$t(`stock_in.shelf_group`)"
-                            name="shelf_group"
-                            :help="
-                                rules.shelf_group ? rules.shelf_group.message : null
-                            "
-                            :validateStatus="rules.shelf_group ? 'error' : null"
-                            class="required"
-                        >
-                            <a-select
-                                v-model:value="formData.shelf_group"
-                                :placeholder="
-                                    $t('common.select_default_text', [$t('stock_management.shelf_group')])
-                                "
-                                :allowClear="true"
-                                style="width: 100%"
-                                optionFilterProp="title"
-                                show-search
-                                @change="getShelfNumber" required
-                            >
-                                <a-select-option
-                                    v-for="data in shelfGroups"
-                                    :key="data.xid"
-                                    :title="data.shelf_group"
-                                    :value="data.xid"
-                                >
-                                    {{ data.shelf_group }}
-                                </a-select-option>
-                            </a-select>
-                        </a-form-item>
-                    </a-col>
-
-                    <a-col :xs="24" :sm="24" :md="4" :lg="4" :xl="4">
-                        <a-form-item
-                            :label="$t(`stock_in.shelf_number`)"
-                            name="shelf_number"
-                            :help="
-                                rules.shelf_number ? rules.shelf_number.message : null
-                            "
-                            :validateStatus="rules.shelf_number ? 'error' : null"
-                            class="required"
-                        >
-                            <a-select
-                                v-model:value="formData.shelf_number"
-                                :placeholder="
-                                    $t('common.select_default_text', [$t('stock_management.shelf_number')])
-                                "
-                                :allowClear="true"
-                                style="width: 100%"
-                                optionFilterProp="title"
-                                show-search
-                                @change="getShelfRow"
-                            >
-                                <a-select-option
-                                    v-for="data in shelfNumbers"
-                                    :key="data.xid"
-                                    :title="data.shelf_number"
-                                    :value="data.xid" required
-                                >
-                                    {{ data.shelf_number }}
-                                </a-select-option>
-                            </a-select>
-                        </a-form-item>
-                    </a-col>
-
-                    <a-col :xs="24" :sm="24" :md="2" :lg="2" :xl="2">
-                        <a-form-item
-                            :label="$t(`stock_in.row`)"
-                            name="row"
-                            :help="
-                                rules.row ? rules.row.message : null
-                            "
-                            :validateStatus="rules.row ? 'error' : null"
-                            class="required"
-                        >
-                            <a-select
-                                v-model:value="formData.row"
-                                :placeholder="
-                                    $t('common.select_default_text', [$t('stock_management.row')])
-                                "
-                                :allowClear="true"
-                                style="width: 100%"
-                                optionFilterProp="title"
-                                show-search
-                                @change="setUrlData" required
-                            >
-                                <a-select-option
-                                    v-for="data in rows"
-                                    :key="data.xid"
-                                    :title="data.row"
-                                    :value="data.xid"
-                                >
-                                    {{ data.row }}
-                                </a-select-option>
-                            </a-select>
-                        </a-form-item>
-                    </a-col>
-
-
-            
-                    <a-col :xs="24" :sm="24" :md="6" :lg="6">
-                        <a-form-item
-                            :label="$t(`stock_in.placement_date`)"
-                            name="placement_date"
-                            :help="rules.placement_date ? rules.placement_date.message : null"
-                            :validateStatus="rules.placement_date ? 'error' : null"
-                            class="required"
-                        >
-                            <DateTimePicker
-                                :dateTime="formData.placement_date"
-                                @dateTimeChanged="
-                                    (changedDateTime) =>
-                                        (formData.placement_date = changedDateTime)
-                                "
-                            />
-                        </a-form-item>
-                    </a-col>
-                </a-row>
-                <a-row :gutter="16">
-                    <a-col :xs="24" :sm="24" :md="24" :lg="24">
-                        <a-form-item
-                            :label="$t('product.product')"
-                            name="orderSearchTerm"
-                            :help="
-                                rules.product_items ? rules.product_items.message : null
-                            "
-                            :validateStatus="rules.product_items ? 'error' : null"
-                        >
-                            <span style="display: flex">
-                                <a-select
-                                    :value="null"
-                                    :searchValue="orderSearchTerm"
-                                    show-search
-                                    :filter-option="false"
-                                    :placeholder="$t('product.search_scan_product')"
-                                    style="width: 100%"
-                                    :not-found-content="
-                                        productFetching ? undefined : null
-                                    "
-                                    @search="
-                                        (searchedValue) => {
-                                            orderSearchTerm = searchedValue;
-                                            fetchProducts(searchedValue);
-                                        }
-                                    "
-                                    size="large"
-                                    option-label-prop="label"
-                                    @focus="products = []"
-                                    @select="searchValueSelected"
-                                    @inputKeyDown="inputValueChanged"
-                                >
-                                    <template #suffixIcon><SearchOutlined /></template>
-                                    <template v-if="productFetching" #notFoundContent>
-                                        <a-spin size="small" />
-                                    </template>
-                                    <a-select-option
-                                        v-for="product in products"
-                                        :key="product.xid"
-                                        :value="product.xid"
-                                        :label="product.name"
-                                        :product="product"
-                                    >
-                                        => {{ product.name }} [{{ product.color.name }}]
-                                    </a-select-option>
-                                </a-select>
-                                <!-- <ProductAddButton size="large" /> -->
-                            </span>
-                        </a-form-item>
-                    </a-col>
-                </a-row>
-
-                <a-row :gutter="16">
-                    <a-col :xs="24" :sm="24" :md="24" :lg="24">
-                        <a-table
-                            :row-key="(record) => record.xid"
-                            :dataSource="selectedProducts"
-                            :columns="orderItemColumns"
-                            :pagination="false"
-                        >
-                            <template #bodyCell="{ column, record }">
-                                <template v-if="column.dataIndex === 'name'">
-                                    {{ record.name }} <br />
-                                    <small>
-                                        <a-typography-text code>
-                                            {{ $t("product.avl_qty") }}
-                                            {{
-                                                orderPageObject.type == 'purchases' 
-                                                ? `${(record.product_stock_quantity - record.placement_qty)}${record.unit_short_name}`
-                                                : `(${(record.stock_quantity - record.placement_qty)})${record.unit_short_name}`
-                                            }}
-                                        </a-typography-text>
-                                    </small>
-                                </template>
-                                <template v-if="column.dataIndex === 'brand'">
-                                    {{ record.brand ? record.brand.name : '-' }}
-                                </template>
-                                <template v-if="column.dataIndex === 'category'">
-                                    {{ record.category ? record.category.name : '-' }}
-                                </template>
-                                <template v-if="column.dataIndex === 'group'">
-                                    {{ record.group ? record.group.name : '-'}}
-                                </template>
-                                <template v-if="column.dataIndex === 'color'">
-                                    {{ record.color ? record.color.name : '-' }}
-                                </template>
-                                <template v-if="column.dataIndex === 'unit_quantity'">
-                                    <a-input-number
-                                        id="inputNumber"
-                                        v-model:value="record.quantity"
-                                        @change="quantityChanged(record)"
-                                        :min="0"
-                                    />
-                                </template>
-                                <template v-if="column.dataIndex === 'single_unit_price'">
-                                    {{ formatAmountCurrency(record.single_unit_price) }}
-                                </template>
-                                <template v-if="column.dataIndex === 'retail_counter_price'">
-                                    {{ formatAmountCurrency(record.retail_counter_price) }}
-                                </template>
-                                <template v-if="column.dataIndex === 'special_counter_price'">
-                                    {{ formatAmountCurrency(record.special_counter_price) }}
-                                </template>
-                                <template v-if="column.dataIndex === 'discount_counter_price'">
-                                    {{ record.discount_counter_price + (record.discount_counter_price == 'SP' ? '' : '%') }}
-                                </template>
-                                <template v-if="column.dataIndex === 'retail_online_price'">
-                                    {{ formatAmountCurrency(record.retail_online_price) }}
-                                </template>
-                                <template v-if="column.dataIndex === 'special_online_price'">
-                                    {{ formatAmountCurrency(record.special_online_price) }}
-                                </template>
-                                <template v-if="column.dataIndex === 'discount_online_price'">
-                                    {{ record.discount_online_price + (record.discount_online_price == 'SP' ? '' : '%') }}
-                                </template>
-                                <!-- <template v-if="column.dataIndex === 'total_discount'">
-                                    {{ formatAmountCurrency(record.total_discount) }}
-                                </template>
-                                <template v-if="column.dataIndex === 'total_tax'">
-                                    {{ formatAmountCurrency(record.total_tax) }}
-                                </template> -->
-                                <template v-if="column.dataIndex === 'subtotal'">
-                                    {{ formatAmountCurrency(record.subtotal) }}
-                                </template>
-                                <template v-if="column.dataIndex === 'action'">
-                                    <!-- <a-button
-                                        type="primary"
-                                        @click="editItem(record)"
-                                        style="margin-left: 4px"
-                                    >
-                                        <template #icon><EditOutlined /></template>
-                                    </a-button> -->
+                        </span>
+                    </a-form-item>
+                </a-col>
+            </a-row>
+            <a-row :gutter="16">
+                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                    <a-table
+                        :row-key="(record) => record.xid"
+                        :dataSource="selectedProducts"
+                        :columns="barcodeColumns"
+                        :pagination="false"
+                    >
+                        <template #bodyCell="{ column, record }">                            
+                            <template v-if="column.dataIndex === 'action'">
+                                <div v-if="editOrderDisable">-</div>
+                                <div v-else>
                                     <a-button
                                         type="primary"
                                         @click="showDeleteConfirm(record)"
@@ -356,62 +182,177 @@
                                     >
                                         <template #icon><DeleteOutlined /></template>
                                     </a-button>
-                                </template>
+                                </div>
                             </template>
-                            <template #summary>
-                                <a-table-summary-row>
-                                    <a-table-summary-cell
-                                        :col-span="4"
-                                    ></a-table-summary-cell>
-                                    <a-table-summary-cell>
-                                        {{ $t("product.total_qty") }}
-                                    </a-table-summary-cell>
-                                    <a-table-summary-cell :col-span="2">
-                                        {{
-                                           productsAmount.totalqty
-                                        }}
-                                    </a-table-summary-cell>
-                                </a-table-summary-row>
-                            </template>
-                        </a-table>
-                    </a-col>
-                </a-row>
+                        </template>
+                        
+                    </a-table>
+                </a-col>
+            </a-row>
 
-                <a-row :gutter="16" class="mt-30">
-                    <a-col :xs="24" :sm="24" :md="16" :lg="16">
-                        <a-row :gutter="16">
-                            <a-col :xs="24" :sm="24" :md="24" :lg="24">
-                                <a-form-item
-                                    :label="$t('stock.notes')"
-                                    name="notes"
-                                    :help="rules.notes ? rules.notes.message : null"
-                                    :validateStatus="rules.notes ? 'error' : null"
-                                >
-                                    <a-textarea
-                                        v-model:value="formData.notes"
-                                        :placeholder="$t('stock.notes')"
-                                        :auto-size="{ minRows: 2, maxRows: 3 }"
-                                    />
-                                </a-form-item>
-                            </a-col>
-                        </a-row>
-                    </a-col>
-                </a-row>
-                <a-row :gutter="16" class="mt-20 mb-20">
-                    <a-button
-                        type="primary"
-                        :loading="loading"
-                        @click="onSubmit"
-                        block
+            <a-row :gutter="16" class="mt-30">
+                <a-col :xs="24" :sm="24" :md="8" :lg="8">
+                    <a-row :gutter="16" class="mt-20 mb-20">
+                        <a-button
+                            type="primary"
+                            :loading="loading"
+                            @click="onSubmit"
+                            block
+                        >
+                            <template #icon> <SaveOutlined /> </template>
+                            {{ $t("common.save") }}
+                        </a-button>
+                    </a-row>
+                </a-col>
+            </a-row>
+        </a-form>
+    </a-card>
+
+    <a-modal
+        :open="addEditVisible"
+        :closable="false"
+        :centered="true"
+        :title="addEditPageTitle"
+        @ok="onAddEditSubmit"
+    >
+        <a-form layout="vertical">
+            <a-row :gutter="16">
+                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                    <a-form-item
+                        :label="$t('product.unit_price')"
+                        name="unit_price"
+                        :help="
+                            addEditRules.unit_price
+                                ? addEditRules.unit_price.message
+                                : null
+                        "
+                        :validateStatus="addEditRules.unit_price ? 'error' : null"
                     >
-                        <template #icon> <SaveOutlined /> </template>
-                        {{ $t("common.save") }}
-                    </a-button>
-                </a-row>
-            </a-form>
-        </a-card>
-    </admin-page-table-content>
+                        <a-input-number
+                            v-model:value="addEditFormData.unit_price"
+                            :placeholder="
+                                $t('common.placeholder_default_text', [
+                                    $t('product.unit_price'),
+                                ])
+                            "
+                            min="0"
+                            style="width: 100%"
+                        >
+                            <template #addonBefore>
+                                {{ appSetting.currency.symbol }}
+                            </template>
+                        </a-input-number>
+                    </a-form-item>
+                </a-col>
+            </a-row>
+            <a-row :gutter="16">
+                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                    <a-form-item
+                        :label="$t('product.discount')"
+                        name="discount_rate"
+                        :help="
+                            addEditRules.discount_rate
+                                ? addEditRules.discount_rate.message
+                                : null
+                        "
+                        :validateStatus="addEditRules.discount_rate ? 'error' : null"
+                    >
+                        <a-input-number
+                            v-model:value="addEditFormData.discount_rate"
+                            :placeholder="
+                                $t('common.placeholder_default_text', [
+                                    $t('product.discount'),
+                                ])
+                            "
+                            min="0"
+                            style="width: 100%"
+                        >
+                            <template #addonAfter>%</template>
+                        </a-input-number>
+                    </a-form-item>
+                </a-col>
+            </a-row>
+
+            <a-row :gutter="16">
+                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                    <a-form-item
+                        :label="$t('product.tax')"
+                        name="tax_id"
+                        :help="addEditRules.tax_id ? addEditRules.tax_id.message : null"
+                        :validateStatus="addEditRules.tax_id ? 'error' : null"
+                    >
+                        <span style="display: flex">
+                            <a-select
+                                v-model:value="addEditFormData.tax_id"
+                                :placeholder="
+                                    $t('common.select_default_text', [$t('product.tax')])
+                                "
+                                :allowClear="true"
+                                optionFilterProp="title"
+                                show-search
+                            >
+                                <a-select-option
+                                    v-for="tax in taxes"
+                                    :key="tax.xid"
+                                    :value="tax.xid"
+                                    :title="tax.name"
+                                >
+                                    {{ tax.name }} ({{ tax.rate }}%)
+                                </a-select-option>
+                            </a-select>
+                            <TaxAddButton @onAddSuccess="taxAdded" />
+                        </span>
+                    </a-form-item>
+                </a-col>
+            </a-row>
+            <a-row :gutter="16">
+                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                    <a-form-item
+                        :label="$t('product.tax_type')"
+                        name="tax_type"
+                        :help="
+                            addEditRules.tax_type ? addEditRules.tax_type.message : null
+                        "
+                        :validateStatus="addEditRules.tax_type ? 'error' : null"
+                    >
+                        <a-select
+                            v-model:value="addEditFormData.tax_type"
+                            :placeholder="
+                                $t('common.select_default_text', [$t('product.tax_type')])
+                            "
+                            :allowClear="true"
+                        >
+                            <a-select-option
+                                v-for="taxType in taxTypes"
+                                :key="taxType.key"
+                                :value="taxType.key"
+                            >
+                                {{ taxType.value }}
+                            </a-select-option>
+                        </a-select>
+                    </a-form-item>
+                </a-col>
+            </a-row>
+        </a-form>
+        <template #footer>
+            <a-button
+                key="submit"
+                type="primary"
+                :loading="addEditFormSubmitting"
+                @click="onAddEditSubmit"
+            >
+                <template #icon>
+                    <SaveOutlined />
+                </template>
+                {{ $t("common.update") }}
+            </a-button>
+            <a-button key="back" @click="onAddEditClose">
+                {{ $t("common.cancel") }}
+            </a-button>
+        </template>
+    </a-modal>
 </template>
+
 <script>
 import { onMounted, ref, toRefs } from "vue";
 import {
@@ -422,20 +363,22 @@ import {
     ExclamationCircleOutlined,
     SearchOutlined,
     SaveOutlined,
-    LoadingOutlined,
+    BarcodeOutlined,
 } from "@ant-design/icons-vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import apiAdmin from "../../../../common/composable/apiAdmin";
-import stockManagement from "./stockManagement";
 import common from "../../../../common/composable/common";
-import fields from "./fields_in";
+import stockManagement from "./stockManagement";
+import fields from "./fields";
 import TaxAddButton from "../../settings/taxes/AddButton.vue";
 import WarehouseAddButton from "../../settings/warehouses/AddButton.vue";
 import ProductAddButton from "../../product-manager/products/AddButton.vue";
 import DateTimePicker from "../../../../common/components/common/calendar/DateTimePicker.vue";
 import AdminPageHeader from "../../../../common/layouts/AdminPageHeader.vue";
 import UserSearch from "./UserSearch.vue";
+
+//* ADDENDUM
 import WarehouseSearch from "./WarehouseSearch.vue";
 
 export default {
@@ -447,7 +390,7 @@ export default {
         ExclamationCircleOutlined,
         SearchOutlined,
         SaveOutlined,
-        LoadingOutlined,
+        BarcodeOutlined,
 
         TaxAddButton,
         WarehouseAddButton,
@@ -455,6 +398,8 @@ export default {
         DateTimePicker,
         AdminPageHeader,
         UserSearch,
+
+        //* ADDENDUM
         WarehouseSearch,
     },
     setup() {
@@ -471,25 +416,21 @@ export default {
             purchaseReturnStatus,
             permsArray,
             selectedWarehouse,
-            
-            //* ADDENDUM
-            allWarehouses,
         } = common();
-        const { orderItemColumns } = fields();
-        const warehouseId = ref([]);
-        const floors = ref([]);
-        const shelfGroups = ref([]);
-        const shelfNumbers = ref([]);
-        const rows = ref([]);
+        const { barcodeColumns } = fields();
         const {
             state,
             orderType,
             orderPageObject,
+            route,
             selectedProducts,
+            selectedProductIds,
+            maximumBarcode,
             formData,
             productsAmount,
             taxes,
 
+            setTaxes,
             recalculateValues,
             fetchProducts,
             searchValueSelected,
@@ -507,97 +448,75 @@ export default {
             addEditPageTitle,
             onAddEditSubmit,
             onAddEditClose,
+            removedOrderItemsIds,
 
+            calculateProductAmount,
             inputValueChanged,
         } = stockManagement();
         const { t } = useI18n();
         const warehouses = ref([]);
         const allUnits = ref([]);
+        const users = ref([]);
+        const orderId = route.params.id;
         const router = useRouter();
         const allOrderStatus = ref([]);
         const taxUrl = "taxes?limit=10000";
         const unitUrl = "units?limit=10000";
         const warehouseUrl = `warehouses?filters=id ne "${selectedWarehouse.value.xid}"&hashable=${selectedWarehouse.value.xid}&limit=10000`;
+        const editOrderDisable = ref(false);
+
+        const userSearchLabelPrefix = ref([]);
         const warehouseSearchLabelPrefix = ref([]);
+        const userWarehouses = ref([]);
+
 
         onMounted(() => {
-            const taxesPromise = axiosAdmin.get(taxUrl);
-            const unitsPromise = axiosAdmin.get(unitUrl);
-            const warehousesPromise = axiosAdmin.get(warehouseUrl);
+            const orderPromise = axiosAdmin.get(`inventory-detail/barcode/${orderId}`);
+            Promise.all([
+                orderPromise                
+            ]).then(([orderResponse]) => {
+                const orderResponseData = orderResponse;
+                selectedProductIds.value = orderResponseData.ids;
+                selectedProducts.value = orderResponseData.data;
+                const total_item = orderResponseData.total;
+                maximumBarcode.value = orderResponseData.order_item.quantity;
+                formData.value = {
+                    item_id: orderResponseData.order_item.item_id,
+                    total_items : orderResponseData.order_item.quantity,
+                    total_items_scanned : orderResponseData.order_item.quantity_scanned == null ? 0 : orderResponseData.order_item.quantity_scanned
+                };
+            });
 
-            Promise.all([taxesPromise, unitsPromise, warehousesPromise]).then(
-                ([taxResponse, unitResponse, warehousesResponse]) => {
-                    taxes.value = taxResponse.data;
-                    allUnits.value = unitResponse.data;
-                    warehouses.value = warehousesResponse.data;
-                }
-            );
-            orderType.value = 'product-placement';
-
-            warehouseSearchLabelPrefix.value = "to";
-            getFloor();
         });
 
         const onSubmit = () => {
+            if(maximumBarcode.value < selectedProducts.value.length){
+                alert('total scan barcode('+selectedProducts.value.length+') > total Item('+ maximumBarcode.value +')');
+                return false;
+            }
 
+            
             const newFormDataObject = {
                 ...formData.value,
-                order_type: 'product-placement',
-                total: formData.value.subtotal,
+                order_item_id: orderId,
                 total_items: selectedProducts.value.length,
                 product_items: selectedProducts.value,
+                removed_items: removedOrderItemsIds.value,
+                _method: "POST",
             };
 
             addEditRequestAdmin({
-                url: orderType.value,
+                url: `inventory-detail/barcode/register`,
                 data: newFormDataObject,
-                successMessage: t(`stock_in.created`),
+                successMessage: t(`barcode.updated`),
                 success: (res) => {
                     router.push({
-                        name: `admin.stock_management.index`,
+                        name: `admin.barcode_registration.index`,
                     });
                 },
             });
         };
 
-        const getFloor = () => {
-            var selectedWarehouseId = warehouseId.value;
-            const floorsPromise = axiosAdmin.get("product-placement/floor");
-            Promise.all([floorsPromise]).then(
-                ([floorsResponse]) => {
-                    floors.value = floorsResponse.data;
-                }
-            );
-        }
-        
-        const getShelfGroup = () => {
-            var floor = formData.value.floor;
-            const shelfGroupsPromise = axiosAdmin.get("product-placement/"+floor+"/shelf-group");
-            Promise.all([shelfGroupsPromise]).then(
-                ([shelfGroupsResponse]) => {
-                    shelfGroups.value = shelfGroupsResponse.data;
-                }
-            );
-        }
-        const getShelfNumber = () => {
-            var shelf_group = formData.value.shelf_group;
-            const shelfNumbersPromise = axiosAdmin.get("product-placement/"+shelf_group+"/shelf-number");
-            Promise.all([shelfNumbersPromise]).then(
-                ([shelfNumbersResponse]) => {
-                    shelfNumbers.value = shelfNumbersResponse.data;
-                }
-            );
-        }
-        const getShelfRow = () => {
-            var shelf_number = formData.value.shelf_number;
-            const rowsPromise = axiosAdmin.get("product-placement/"+shelf_number+"/row");
-            Promise.all([rowsPromise]).then(
-                ([rowsResponse]) => {
-                    rows.value = rowsResponse.data;
-                }
-            );
-        }
-        
         const unitAdded = () => {
             axiosAdmin.get(unitUrl).then((response) => {
                 allUnits.value = response.data;
@@ -610,23 +529,19 @@ export default {
             });
         };
 
-        const warehouseAdded = () => {
-            axiosAdmin.get(warehouseUrl).then((response) => {
-                warehouses.value = response.data;
-            });
+
+        const formatOrderDate = (dayjs) => {
+            // return dayjs.format(dateFormat);
+            return "YYYY-MM-DD hh:mm:ss a";
         };
 
         return {
             ...toRefs(state),
-            warehouseId,
-            floors,
-            shelfGroups,
-            shelfNumbers,
-            rows,
             formData,
             productsAmount,
-            rules,
             loading,
+            rules,
+            users,
             warehouses,
             taxes,
             onSubmit,
@@ -642,7 +557,7 @@ export default {
             editItem,
             orderPageObject,
 
-            orderItemColumns,
+            barcodeColumns,
 
             // Add Edit
             addEditVisible,
@@ -652,22 +567,17 @@ export default {
             addEditPageTitle,
             onAddEditSubmit,
             onAddEditClose,
+
             allOrderStatus,
             taxTypes,
             permsArray,
 
-            unitAdded,
-            taxAdded,
-            warehouseAdded,
-            warehouseSearchLabelPrefix,
 
-            //* ADDENDUM
-            allWarehouses,
+            editOrderDisable,
             inputValueChanged,
-            getFloor,
-            getShelfGroup,
-            getShelfRow,
-            getShelfNumber,
+
+            //addition
+            userWarehouses,
         };
     },
 };

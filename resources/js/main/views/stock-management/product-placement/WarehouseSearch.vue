@@ -1,6 +1,10 @@
 <template>
     <a-form-item
-        :label="(labelPrefix ? ($t(`common.${labelPrefix}`)) : '') + ' ' + $t('warehouse.warehouse')"
+        :label="
+            (labelPrefix ? $t(`common.${labelPrefix}`) : '') +
+            ' ' +
+            $t('warehouse.warehouse')
+        "
         name="warehouse_id"
         :help="rules.warehouse_id ? rules.warehouse_id.message : null"
         :validateStatus="rules.warehouse_id ? 'error' : null"
@@ -51,7 +55,14 @@ import { SearchOutlined } from "@ant-design/icons-vue";
 import { debounce } from "lodash-es";
 
 export default defineComponent({
-    props: ["orderPageObject", "rules", "warehousesList", "editOrderDisable", "labelPrefix"],
+    props: [
+        "orderPageObject",
+        "orderType",
+        "rules",
+        "warehousesList",
+        "editOrderDisable",
+        "labelPrefix",
+    ],
     emits: ["onSuccess"],
     components: {
         SearchOutlined,
@@ -79,30 +90,16 @@ export default defineComponent({
             }
         }, 300);
 
-        const fetchProductsIn = debounce((value) => {
-            state.products = [];
-
-            if (value != "") {
-                const newValue = value.trim();
-                state.productFetching = true;
-                const filterString = `name lk "${newValue}%" or (phone lk "${newValue}%")`;
-                let url = `warehouses?fields=id,xid,name,phone&filters=${encodeURIComponent(filterString)}`;
-
-                axiosAdmin.get(url).then((response) => {
-                    state.products = response.data;
-                    state.productFetching = false;
-                });
-            }
-        }, 300);
-
         const searchValueSelected = (value, option) => {
             emit("onSuccess", value);
-            warehouseChanged(value)
+            warehouseChanged(value);
         };
 
         //* ADDENDUM
         const warehouseChanged = (selectedWarehouseId) => {
-            axiosAdmin.post("change-warehouse", { warehouse_id: selectedWarehouseId })
+            axiosAdmin.post("change-warehouse", {
+                warehouse_id: selectedWarehouseId,
+            });
         };
 
         watch(
@@ -111,16 +108,15 @@ export default defineComponent({
                 state.products = [newVal];
                 state.orderSearchTerm = newVal.xid;
 
-                warehouseChanged(newVal.xid)
-            }
+                warehouseChanged(newVal.xid);
+            },
         );
 
         return {
             ...toRefs(state),
             fetchProducts,
-            fetchProductsIn,
             searchValueSelected,
-            warehouseChanged
+            warehouseChanged,
         };
     },
 });

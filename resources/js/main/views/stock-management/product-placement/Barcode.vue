@@ -113,12 +113,49 @@
                     </a-form-item>
                 </a-col>
             </a-row>
-                    
+            <a-row :gutter="8">
+                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                    <a-form-item
+                        :label="$t('barcode.quantity_in')"
+                        name="total_items_in"
+                        :help="rules.total_items ? rules.total_items.message : null"
+                        :validateStatus="rules.total_items ? 'error' : null"
+                    >
+                        <a-input-number
+                            v-model:value="formData.total_items_in"
+                            min="0"
+                            style="width: 100%"
+                            :disabled="true"
+                        >
+
+                        </a-input-number>
+                    </a-form-item>
+                </a-col>
+            </a-row>
+            <a-row :gutter="8">
+                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                    <a-form-item
+                        :label="$t('stock_in.row')"
+                        name="row"
+                    >
+                        <a-input
+                            v-model:value="formData.row"
+                            min="0"
+                            style="width: 50%"
+                        >
+
+                        </a-input>
+                    </a-form-item>
+                </a-col>
+            </a-row>
+            
+            
+            
         <a-form layout="vertical">
             <a-row :gutter="16">
                 <a-col :xs="24" :sm="24" :md="24" :lg="24">
                     <a-form-item
-                        :label="$t('menu.barcode')"
+                        :label="$t('menu.placement_in')"
                         name="orderSearchTerm"
                         :help="rules.product_items ? rules.product_items.message : null"
                         :validateStatus="rules.product_items ? 'error' : null"
@@ -471,19 +508,20 @@ export default {
 
 
         onMounted(() => {
-            const orderPromise = axiosAdmin.get(`inventory-detail/barcode/${orderId}`);
+            const orderPromise = axiosAdmin.get(`scanned/barcode/${orderId}`);
             Promise.all([
                 orderPromise                
             ]).then(([orderResponse]) => {
                 const orderResponseData = orderResponse;
                 selectedProductIds.value = orderResponseData.ids;
-                selectedProducts.value = orderResponseData.data;
+                selectedProducts.value = [];
                 const total_item = orderResponseData.total;
                 maximumBarcode.value = orderResponseData.order_item.quantity;
                 formData.value = {
                     item_id: orderResponseData.order_item.item_id,
                     total_items : orderResponseData.order_item.quantity,
-                    total_items_scanned : orderResponseData.order_item.quantity_scanned == null ? 0 : orderResponseData.order_item.quantity_scanned
+                    total_items_scanned : orderResponseData.order_item.quantity_scanned == null ? 0 : orderResponseData.order_item.quantity_scanned,
+                    total_items_in : orderResponseData.order_item.quantity_in == null ? 0 : orderResponseData.order_item.quantity_in
                 };
             });
 
@@ -508,10 +546,10 @@ export default {
             addEditRequestAdmin({
                 url: `inventory-detail/barcode/register`,
                 data: newFormDataObject,
-                successMessage: t(`barcode.updated`),
+                successMessage: t(`messages.success`),
                 success: (res) => {
                     router.push({
-                        name: `admin.barcode_registration.index`,
+                        name: `admin.product_placement.placement_in`,
                     });
                 },
             });

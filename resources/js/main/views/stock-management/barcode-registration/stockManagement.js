@@ -73,15 +73,19 @@ const stockManagement = () => {
         if (value != "") {
             state.productFetching = true;
             let url = `search-barcode`;
-
+            let item_id = formData.value.item_id;
+            
             axiosAdmin
                 .post(url, {
                     order_type: order_type,
                     search_term: value,
+                    item_id: item_id,
                     warehouse_id: formData.value.warehouse_id,
                 })
                 .then((response) => {
-                    if (response.data.length == 1) {
+                    if (response.data.length == 0) {
+                        message.error(t("common.qrcode is not found for item_id") + ' ' +item_id);
+                    } else if (response.data.length == 1) {
                         searchValueSelected("", { product: response.data[0] });
                     } else {
                         state.products = response.data;
@@ -106,12 +110,15 @@ const stockManagement = () => {
 
             selectedProducts.value.push({
                 ...newProduct,
-                sn: selectedProducts.value.length + 1                
+                sn: selectedProducts.value.length + 1,                
+                qty_bungkus: newProduct.qty_bungkus            
             });
             state.orderSearchTerm = undefined;
             state.products = [];
             //recalculateFinalTotal();
-
+            var total_scanned = formData.value.total_items_scanned == '' ? 0 : formData.value.total_items_scanned;
+            formData.value.total_items_scanned =  total_scanned + newProduct.qty_bungkus;
+            
             var audioObj = new Audio(appSetting.value.beep_audio_url);
             audioObj.play();
         } else {

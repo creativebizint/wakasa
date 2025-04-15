@@ -13,7 +13,7 @@ class ProductPlacement extends BaseModel
 {
     protected $table = 'product_placements';
 
-    protected $default = ['xid', 'x_product_id', 'x_warehouse_id', 'x_unit_id', 'floor','shelf_group','shelf_number','row'];
+    protected $default = ['xid', 'x_product_id', 'x_warehouse_id', 'x_unit_id', 'row'];
 
     protected $guarded = ['id'];
 
@@ -21,7 +21,7 @@ class ProductPlacement extends BaseModel
 
     protected $appends = ['xid', 'x_product_id', 'x_warehouse_id', 'x_unit_id'];
 
-    protected $filterable = ['id', 'product_id', 'product_placements.warehouse_id', 'floor', 'shelf_group', 'shelf_number', 'row', 'products.name', 'products.item_code'];
+    protected $filterable = ['id', 'product_id', 'product_placements.warehouse_id', 'row', 'products.name', 'products.item_id'];
     
     protected $hashableGetterFunctions = [
         'getXWarehouseIdAttribute' => 'warehouse_id',

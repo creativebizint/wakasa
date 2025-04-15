@@ -41,8 +41,8 @@
                     </span>
                 </a-select-option>
             </a-select>
-            <SupplierAddButton v-if="orderPageObject.userType == 'suppliers'" />
-            <CustomerAddButton v-else />
+            <!-- <SupplierAddButton v-if="orderPageObject.userType == 'suppliers'" />
+            <CustomerAddButton v-else /> -->
         </span>
     </a-form-item>
 </template>
@@ -55,7 +55,7 @@ import SupplierAddButton from "../../users/SupplierAddButton.vue";
 import CustomerAddButton from "../../users/CustomerAddButton.vue";
 
 export default defineComponent({
-    props: ["orderPageObject", "rules", "usersList", "editOrderDisable"],
+    props: ["orderPageObject", "rules", "usersList", "editOrderDisable", "labelPrefix"],
     emits: ["onSuccess"],
     components: {
         SearchOutlined,
@@ -71,6 +71,24 @@ export default defineComponent({
         });
 
         const fetchProducts = debounce((value) => {
+            state.products = [];
+
+            if (value != "") {
+                const newValue = value.trim();
+                state.productFetching = true;
+                const filterString = `name lk "${newValue}%" or (phone lk "${newValue}%")`;
+                let url = `${
+                    props.orderPageObject.userType
+                }?fields=id,xid,name,phone&filters=${encodeURIComponent(filterString)}`;
+
+                axiosAdmin.get(url).then((response) => {
+                    state.products = response.data;
+                    state.productFetching = false;
+                });
+            }
+        }, 300);
+
+        const fetchProductsIn = debounce((value) => {
             state.products = [];
 
             if (value != "") {

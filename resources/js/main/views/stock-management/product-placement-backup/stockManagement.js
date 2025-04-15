@@ -6,19 +6,11 @@ import { debounce, find, includes } from "lodash-es";
 import common from "../../../../common/composable/common";
 
 const stockManagement = () => {
-    const {
-        formatAmount,
-        orderType,
-        orderPageObject,
-        selectedWarehouse,
-        dayjs,
-        appSetting,
-    } = common();
+    const { formatAmount, orderType, orderPageObject, selectedWarehouse, dayjs, appSetting } = common();
     const { t } = useI18n();
     const route = useRoute();
     const selectedProducts = ref([]);
     const selectedProductIds = ref([]);
-    const maximumBarcode = ref([]);
     const removedOrderItemsIds = ref([]);
     const state = reactive({
         orderSearchTerm: undefined,
@@ -27,13 +19,10 @@ const stockManagement = () => {
     });
 
     const formData = ref({
-        order_type: route.params.type,
+        order_type: 'product-placement',
         invoice_number: "",
-        order_date: dayjs().utc().format("YYYY-MM-DDTHH:mm:ssZ"),
-        warehouse_id:
-            orderType.value == "stock-transfers"
-                ? undefined
-                : selectedWarehouse.value.xid,
+        placement_date: dayjs().utc().format("YYYY-MM-DDTHH:mm:ssZ"),
+        warehouse_id: undefined,
         user_id: undefined,
         terms_condition: selectedWarehouse.value.terms_condition,
         notes: "",
@@ -44,11 +33,16 @@ const stockManagement = () => {
         discount: 0,
         shipping: 0,
         subtotal: 0,
+        floor: undefined,
+        shelf_group: undefined,
+        shelf_number: undefined,
+        row: undefined,
     });
     const taxes = ref([]);
     const productsAmount = ref({
         subtotal: 0,
         tax: 0,
+        totalqty: 0,
     });
 
     // AddEdit
@@ -62,40 +56,103 @@ const stockManagement = () => {
         fetchAllSearchedProduct(value);
     }, 300);
 
+    const fetchProductsIn = debounce((value) => {
+        fetchAllSearchedProductIn(value);
+    }, 300);
+    
+    const findProduct = debounce((value) => {
+        fetchAllProduct(value);
+    }, 300);
+    
     const fetchAllSearchedProduct = (value) => {
         state.products = [];
-        if(orderPageObject.value.type == 'inventory_out'){
-            var order_type = 'sales';
-        }
-        else{
-            var order_type = 'purchases';
-        }
-        if (value != "") {
+
+        if (value.trim().length > 3) {
             state.productFetching = true;
-            let url = `search-barcode`;
-            let item_id = formData.value.item_id;
-            
+            let url = 'search-product';
+
             axiosAdmin
                 .post(url, {
-                    order_type: order_type,
+                    order_type: 'product-placement',
                     search_term: value,
-                    isactive:1,
-                    item_id: item_id,
                     warehouse_id: formData.value.warehouse_id,
                 })
                 .then((response) => {
-                    if (response.data.length == 0) {
-                        message.error(t("common.qrcode is not found for item_id") + ' ' +item_id);
-                    } else if (response.data.length == 1) {
-                        searchValueSelected("", { product: response.data[0] });
+                    if (response.data.length == 1) {
+                        searchValueSelected('', { product: response.data[0] });
                     } else {
                         state.products = response.data;
                     }
                     state.productFetching = false;
                 });
-        }
-    };
 
+        }
+    }
+
+    const fetchAllSearchedProductIn = (value) => {
+        state.products = [];
+
+        if (value.trim().length > 3) {
+            state.productFetching = true;
+            let url = 'search-product-placement';
+
+            var data = {
+                    order_type: 'product-placement',
+                    search_term: value,
+                    warehouse_id: formData.value.warehouse_id,
+                    floor: formData.value.floor,
+                    shelf_group: formData.value.shelf_group,
+                    shelf_number: formData.value.shelf_number,
+                    row: formData.value.row,
+                };
+            axiosAdmin
+                .post(url, data)
+                .then((response) => {
+                    console.log(response);
+                    if(typeof response.data === 'undefined'){
+                        return false;
+                    }
+                    if (response.data.length == 1) {
+                        searchValueSelected('', { product: response.data[0] });
+                    } else {
+                        state.products = response.data;
+                    }
+                    state.productFetching = false;
+                });
+
+        }
+    }
+
+    const fetchAllProduct = (value) => {
+        state.products = [];
+
+        if (value.trim().length > 3) {
+            state.productFetching = true;
+            let url = 'search-product-placement';
+
+            var data = {    
+                    order_type: 'product-placement',
+                    search_term: value,
+                    warehouse_id: formData.value.warehouse_id,
+                    floor: formData.value.floor,
+                    shelf_group: formData.value.shelf_group,
+                    shelf_number: formData.value.shelf_number,
+                    row: formData.value.row,
+                };
+            axiosAdmin
+                .post(url, data)
+                .then((response) => {
+                    console.log(response);
+                    if(typeof response.data === 'undefined'){
+                        return false;
+                    }
+                    state.products = response.data;
+                    state.productFetching = false;
+                });
+
+        }
+    }
+    
     const inputValueChanged = (keydownEvent) => {
         nextTick(() => {
             if (keydownEvent.keyCode == 13) {
@@ -103,36 +160,48 @@ const stockManagement = () => {
             }
         });
     };
+    
+    const checkProductInChanged = (keydownEvent) => {
+        nextTick(() => {
+            if (keydownEvent.keyCode == 13) {
+                fetchAllSearchedProductIn(keydownEvent.target.value);
+            }
+        });
+    };
 
     const searchValueSelected = (value, option) => {
+        console.log('msk',value);
+        console.log('opt',option);
         const newProduct = option.product;
+
         if (!includes(selectedProductIds.value, newProduct.xid)) {
             selectedProductIds.value.push(newProduct.xid);
 
             selectedProducts.value.push({
                 ...newProduct,
-                sn: selectedProducts.value.length + 1,                
-                qty_bungkus: newProduct.qty_bungkus            
+                sn: selectedProducts.value.length + 1,
+                unit_price: formatAmount(newProduct.unit_price),
+                tax_amount: formatAmount(newProduct.tax_amount),
+                subtotal: formatAmount(newProduct.subtotal),
             });
+            console.log(selectedProducts);
             state.orderSearchTerm = undefined;
             state.products = [];
-            //recalculateFinalTotal();
-            var total_scanned = formData.value.total_items_scanned == '' ? 0 : formData.value.total_items_scanned;
-            formData.value.total_items_scanned =  total_scanned + newProduct.qty_bungkus;
-            
+            recalculateFinalTotal();
+
             var audioObj = new Audio(appSetting.value.beep_audio_url);
             audioObj.play();
-        } else {
+            
+        } 
+        else {
             const newProductSelection = find(selectedProducts.value, [
                 "xid",
                 newProduct.xid,
             ]);
 
-            if (
-                newProductSelection &&
-                (newProductSelection.quantity <
-                    newProductSelection.stock_quantity ||
-                    newProductSelection.product_type == "service")
+            if (orderPageObject.value.type == 'purchases' ||
+               (newProductSelection &&
+                newProductSelection.quantity < newProductSelection.stock_quantity)
             ) {
                 const newResults = [];
                 var foundRecord = {};
@@ -164,47 +233,39 @@ const stockManagement = () => {
                 message.error(t("common.out_of_stock"));
             }
         }
+        
+        
+        var checkbox = document.querySelectorAll('input[type="checkbox"]');
 
-        // const isProductAlreadyAdded = find(selectedProducts.value, ['xid', newProduct.xid]);
-
-        // if (isProductAlreadyAdded == undefined) {
-        //     selectedProductIds.value.push(newProduct.xid);
-
-        //     selectedProducts.value.push({
-        //         ...newProduct,
-        //         sn: selectedProducts.value.length + 1,
-        //         unit_price: formatAmount(newProduct.unit_price),
-        //         tax_amount: formatAmount(newProduct.tax_amount),
-        //         subtotal: formatAmount(newProduct.subtotal),
-        //     });
-        // }
-
-        // recalculateFinalTotal();
+        checkbox.forEach(span => {
+        var relatedDivElement = span.parentElement.querySelector('input');
+            relatedDivElement.addEventListener('change', function() {
+                var checkedCheckboxes = document.querySelectorAll('input[type="checkbox"]:checked:not([aria-label="Select all"])');
+                var totalChecked = checkedCheckboxes.length;
+                document.querySelector('#inputNumber').value = totalChecked;
+            });
+        })          
     };
 
+    const searchSelectedValue = (value, option) => {
+        
+    };
+    
     const recalculateValues = (product) => {
         var quantityValue = parseFloat(product.quantity);
         var maxQuantity = parseFloat(product.stock_quantity);
         var orderItemId = product.item_id;
-        var unitPrice = parseFloat(product.unit_price);
-        if(isNaN(unitPrice)){
-            unitPrice = 0;
-        }
-        console.log('unit price:',unitPrice);
+        const unitPrice = parseFloat(product.unit_price);
+
         // Check if entered quantity value is greater
-        if (product.product_type != "service") {
-            quantityValue =
-                quantityValue > maxQuantity &&
-                    (orderPageObject.value.type == "sales" ||
-                        orderPageObject.value.type == "purchase-returns")
-                    ? maxQuantity
-                    : quantityValue;
-        }
+        quantityValue =
+            quantityValue > maxQuantity && (orderPageObject.value.type == "sales" || orderPageObject.value.type == "purchase-returns")
+                ? maxQuantity
+                : quantityValue;
 
         // Discount Amount
         const discountRate = product.discount_rate;
-        const totalDiscount =
-            discountRate > 0 ? (discountRate / 100) * unitPrice : 0;
+        const totalDiscount = discountRate > 0 ? ((discountRate / 100) * (unitPrice)) : 0;
         const totalPriceAfterDiscount = unitPrice - totalDiscount;
 
         var taxAmount = 0;
@@ -214,9 +275,8 @@ const stockManagement = () => {
         // Tax Amount
         if (product.tax_rate > 0) {
             if (product.tax_type == "inclusive") {
-                singleUnitPrice =
-                    (totalPriceAfterDiscount * 100) / (100 + product.tax_rate);
-                taxAmount = singleUnitPrice * (product.tax_rate / 100);
+                singleUnitPrice = (totalPriceAfterDiscount * 100) / (100 + product.tax_rate);
+                taxAmount = (singleUnitPrice) * (product.tax_rate / 100);
             } else {
                 taxAmount = totalPriceAfterDiscount * (product.tax_rate / 100);
                 subtotal = totalPriceAfterDiscount + taxAmount;
@@ -231,7 +291,7 @@ const stockManagement = () => {
             quantity: quantityValue,
             total_tax: taxAmount * quantityValue,
             max_quantity: maxQuantity,
-            single_unit_price: singleUnitPrice,
+            single_unit_price: singleUnitPrice
         };
 
         return newObject;
@@ -241,6 +301,25 @@ const stockManagement = () => {
         const newResults = [];
 
         selectedProducts.value.map((selectedProduct) => {
+            var quantity = selectedProduct.quantity;
+            var spanElements = document.querySelectorAll('span.ant-checkbox');
+            var i = 0;
+            spanElements.forEach(span => {
+            if(i==0){
+                i++;
+            }else if(i<=quantity){
+                var relatedDivElement = span.parentElement.querySelector('span');
+                // Add the desired class to the related <div>
+                relatedDivElement.classList.add('ant-checkbox-checked');
+                i++;
+            }
+            else{
+                var relatedDivElement = span.parentElement.querySelector('span');
+                // Add the desired class to the related <div>
+                relatedDivElement.classList.remove('ant-checkbox-checked');
+            }
+            });
+            
             if (selectedProduct.xid == record.xid) {
                 const newValueCalculated = recalculateValues(record);
                 newResults.push(newValueCalculated);
@@ -250,51 +329,38 @@ const stockManagement = () => {
         });
         selectedProducts.value = newResults;
 
-        //recalculateFinalTotal();
+        recalculateFinalTotal();
     };
 
     const recalculateFinalTotal = () => {
         let total = 0;
+        let totalqty = 0;
         let taxAmount = 0;
         selectedProducts.value.map((selectedProduct) => {
             total += selectedProduct.subtotal;
+            totalqty += selectedProduct.quantity;
         });
-        const discountAmount =
-            formData.value.discount != ""
-                ? parseFloat(formData.value.discount)
-                : 0;
-        const taxRate =
-            formData.value.tax_rate && formData.value.tax_rate != ""
-                ? parseFloat(formData.value.tax_rate)
-                : 0;
+        const discountAmount = formData.value.discount != "" ? parseFloat(formData.value.discount) : 0;
+        const taxRate = formData.value.tax_rate != "" ? parseFloat(formData.value.tax_rate) : 0;
 
         selectedProducts.value.map((selectedProduct) => {
             taxAmount += selectedProduct.total_tax;
         });
         productsAmount.value.subtotal = total;
         productsAmount.value.tax = taxAmount;
+        productsAmount.value.totalqty = totalqty;
 
         total = total - discountAmount;
 
-        var tax = 0;
-        if(taxRate != 0 && taxRate != ''){
-            alert('masuk:',typeof taxRate);
-            tax = total * (taxRate / 100);
-        }
-        
-        var shipping  = typeof formData.value.shipping != 'undefined' ? formData.value.shipping : 0;
-        console.log('shipping',shipping);
-        total = total + parseFloat(shipping);
+        const tax = total * (taxRate / 100);
 
-    
-        total = formatAmount(total + tax);
-        if(isNaN(total)){
-            total = 0;
-        }
-        formData.value.subtotal = total;
+        total = total + parseFloat(formData.value.shipping);
 
+        formData.value.subtotal = formatAmount(total + tax);
         formData.value.tax_amount = formatAmount(tax);
         formData.value.discount = discountAmount;
+
+
     };
 
     const calculateProductAmount = () => {
@@ -309,33 +375,23 @@ const stockManagement = () => {
         });
         productsAmount.value.subtotal = total;
         productsAmount.value.tax = taxAmount;
-    };
+    }
 
     const showDeleteConfirm = (product) => {
         // Delete selected product and rearrange SN
         const newResults = [];
         let counter = 1;
         selectedProducts.value.map((selectedProduct) => {
-            if (
-                product.item_id &&
-                product.item_id != "" &&
-                product.item_id != null &&
-                product.item_id == selectedProduct.item_id &&
-                selectedProduct.item_id != null
-            ) {
-                removedOrderItemsIds.value = [
-                    ...removedOrderItemsIds.value,
-                    selectedProduct.item_id,
-                ];
+
+            if (product.item_id && product.item_id != "" && product.item_id != null && product.item_id == selectedProduct.item_id && selectedProduct.item_id != null) {
+                removedOrderItemsIds.value = [...removedOrderItemsIds.value, selectedProduct.item_id];
             }
 
             if (selectedProduct.xid != product.xid) {
                 newResults.push({
                     ...selectedProduct,
                     sn: counter,
-                    single_unit_price: formatAmount(
-                        selectedProduct.single_unit_price
-                    ),
+                    single_unit_price: formatAmount(selectedProduct.single_unit_price),
                     tax_amount: formatAmount(selectedProduct.tax_amount),
                     subtotal: formatAmount(selectedProduct.subtotal),
                 });
@@ -346,11 +402,9 @@ const stockManagement = () => {
         selectedProducts.value = newResults;
 
         // Remove deleted product id from lists
-        const filterProductIdArray = selectedProductIds.value.filter(
-            (newId) => {
-                return newId != product.xid;
-            }
-        );
+        const filterProductIdArray = selectedProductIds.value.filter((newId) => {
+            return newId != product.xid;
+        });
         selectedProductIds.value = filterProductIdArray;
         recalculateFinalTotal();
     };
@@ -382,10 +436,7 @@ const stockManagement = () => {
             (tax) => tax.xid == addEditFormData.value.tax_id
         );
 
-        const taxType =
-            addEditFormData.value.tax_type != undefined
-                ? addEditFormData.value.tax_type
-                : "exclusive";
+        const taxType = addEditFormData.value.tax_type != undefined ? addEditFormData.value.tax_type : 'exclusive';
 
         const newData = {
             ...record[0],
@@ -393,7 +444,7 @@ const stockManagement = () => {
             unit_price: parseFloat(addEditFormData.value.unit_price),
             tax_id: addEditFormData.value.tax_id,
             tax_rate: selecteTax[0] ? selecteTax[0].rate : 0,
-            tax_type: taxType,
+            tax_type: taxType
         };
         quantityChanged(newData);
         onAddEditClose();
@@ -404,15 +455,6 @@ const stockManagement = () => {
         addEditVisible.value = false;
     };
 
-    // watch(route, (newVal, oldVal) => {
-    //     console.log(newVal.params.type);
-    //     orderType.value = newVal.params.type;
-    //     formData.value = {
-    //         ...formData.value,
-    //         order_type: newVal.params.type,
-    //     };
-    // });
-
     return {
         state,
         route,
@@ -420,12 +462,13 @@ const stockManagement = () => {
         orderPageObject,
         selectedProducts,
         selectedProductIds,
-        maximumBarcode,
         formData,
         productsAmount,
         taxes,
 
+        findProduct,
         fetchProducts,
+        fetchProductsIn,
         searchValueSelected,
         recalculateValues,
         quantityChanged,
@@ -446,7 +489,9 @@ const stockManagement = () => {
 
         calculateProductAmount,
         inputValueChanged,
+        checkProductInChanged,
     };
+
 };
 
 export default stockManagement;

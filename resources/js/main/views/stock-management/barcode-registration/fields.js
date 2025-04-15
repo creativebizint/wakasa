@@ -135,7 +135,7 @@ const fields = () => {
 
     const pageObject = computed(() => {
         var pageObjectDetails = {};
-
+        
         if (orderType.value == "purchases") {
             pageObjectDetails = {
                 type: "purchases",
@@ -145,7 +145,7 @@ const fields = () => {
                 permission: "purchases",
             };
         }
-        else if (orderType.value == "inventory_in") {
+        else if (orderType.value == "inventory_in" || orderType.value == "placement_in") {
             pageObjectDetails = {
                 type: "inventory_in",
                 langKey: "inventory_in",
@@ -288,6 +288,10 @@ const fields = () => {
         {
             title: t("menu.barcode"),
             dataIndex: "string",
+        },
+        {
+            title: t("barcode.qty_bungkus"),
+            dataIndex: "qty_bungkus",
         },
         {
             title: t("common.action"),

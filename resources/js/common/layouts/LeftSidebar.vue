@@ -497,6 +497,38 @@
                         </a-menu-item>
                     </a-sub-menu>
 
+                    <a-sub-menu
+                        key="product_placement"
+                        v-if="
+                            permsArray.includes('product_placement_view') ||
+                            permsArray.includes('admin')
+                        "
+                    >
+                        <template #title>
+                            <span>
+                                <ClusterOutlined />
+                                <span>{{ $t("menu.product_placement") }}</span>
+                            </span>
+                        </template>
+                        
+                        <a-menu-item
+                            @click="
+                                () => {
+                                    menuSelected();
+                                    $router.push({
+                                        name: 'admin.product_placement.placement_in',
+                                    });
+                                }
+                            "
+                            key="placement_in"
+                            v-if="
+                                permsArray.includes('placement_in_view') ||
+                                permsArray.includes('admin')
+                            "
+                        >
+                            <span>{{ $t("menu.placement_in") }}</span>
+                        </a-menu-item>
+                    </a-sub-menu>
 
                     <a-sub-menu
                         key="order_fullfillment"

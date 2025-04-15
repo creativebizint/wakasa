@@ -1,9 +1,9 @@
 <template>
     <a-form-item
-        :label="$t(`${orderPageObject.langKey}.user`)"
-        name="user_id"
-        :help="rules.user_id ? rules.user_id.message : null"
-        :validateStatus="rules.user_id ? 'error' : null"
+        :label="(labelPrefix ? ($t(`common.${labelPrefix}`)) : '') + ' ' + $t('warehouse.warehouse')"
+        name="warehouse_id"
+        :help="rules.warehouse_id ? rules.warehouse_id.message : null"
+        :validateStatus="rules.warehouse_id ? 'error' : null"
         class="required"
     >
         <span style="display: flex">
@@ -13,7 +13,7 @@
                 :filter-option="false"
                 :placeholder="
                     $t('common.select_default_text', [
-                        $t(`${orderPageObject.langKey}.user`),
+                        $t('warehouse.warehouse'),
                     ])
                 "
                 style="width: 100%"
@@ -28,21 +28,19 @@
                     <a-spin size="small" />
                 </template>
                 <a-select-option
-                    v-for="user in products"
-                    :key="user.xid"
-                    :value="user.xid"
-                    :label="user.name"
-                    :product="user"
+                    v-for="warehouse in products"
+                    :key="warehouse.xid"
+                    :value="warehouse.xid"
+                    :label="warehouse.name"
+                    :product="warehouse"
                 >
-                    {{ user.name }}
-                    <span v-if="user.phone && user.phone != ''">
+                    {{ warehouse.name }}
+                    <span v-if="warehouse.phone && warehouse.phone != ''">
                         <br />
-                        {{ user.phone }}
+                        {{ warehouse.phone }}
                     </span>
                 </a-select-option>
             </a-select>
-            <SupplierAddButton v-if="orderPageObject.userType == 'suppliers'" />
-            <CustomerAddButton v-else />
         </span>
     </a-form-item>
 </template>
@@ -51,17 +49,12 @@
 import { defineComponent, watch, ref, toRefs, reactive } from "vue";
 import { SearchOutlined } from "@ant-design/icons-vue";
 import { debounce } from "lodash-es";
-import SupplierAddButton from "../../users/SupplierAddButton.vue";
-import CustomerAddButton from "../../users/CustomerAddButton.vue";
 
 export default defineComponent({
-    props: ["orderPageObject", "rules", "usersList", "editOrderDisable"],
+    props: ["orderPageObject", "rules", "warehousesList", "editOrderDisable", "labelPrefix"],
     emits: ["onSuccess"],
     components: {
         SearchOutlined,
-
-        SupplierAddButton,
-        CustomerAddButton,
     },
     setup(props, { emit }) {
         const state = reactive({
@@ -77,9 +70,23 @@ export default defineComponent({
                 const newValue = value.trim();
                 state.productFetching = true;
                 const filterString = `name lk "${newValue}%" or (phone lk "${newValue}%")`;
-                let url = `${
-                    props.orderPageObject.userType
-                }?fields=id,xid,name,phone&filters=${encodeURIComponent(filterString)}`;
+                let url = `warehouses?fields=id,xid,name,phone&filters=${encodeURIComponent(filterString)}`;
+
+                axiosAdmin.get(url).then((response) => {
+                    state.products = response.data;
+                    state.productFetching = false;
+                });
+            }
+        }, 300);
+
+        const fetchProductsIn = debounce((value) => {
+            state.products = [];
+
+            if (value != "") {
+                const newValue = value.trim();
+                state.productFetching = true;
+                const filterString = `name lk "${newValue}%" or (phone lk "${newValue}%")`;
+                let url = `warehouses?fields=id,xid,name,phone&filters=${encodeURIComponent(filterString)}`;
 
                 axiosAdmin.get(url).then((response) => {
                     state.products = response.data;
@@ -90,20 +97,30 @@ export default defineComponent({
 
         const searchValueSelected = (value, option) => {
             emit("onSuccess", value);
+            warehouseChanged(value)
+        };
+
+        //* ADDENDUM
+        const warehouseChanged = (selectedWarehouseId) => {
+            axiosAdmin.post("change-warehouse", { warehouse_id: selectedWarehouseId })
         };
 
         watch(
-            () => props.usersList,
+            () => props.warehousesList,
             (newVal, oldVal) => {
                 state.products = [newVal];
                 state.orderSearchTerm = newVal.xid;
+
+                warehouseChanged(newVal.xid)
             }
         );
 
         return {
             ...toRefs(state),
             fetchProducts,
+            fetchProductsIn,
             searchValueSelected,
+            warehouseChanged
         };
     },
 });

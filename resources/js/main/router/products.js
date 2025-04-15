@@ -166,67 +166,67 @@ export default [
                 }
             },
             
-            {
-                path: '/admin/stock-management/in',
-                component: ()=>
-                import('../views/stock-management/product-placement/in.vue'),
-                name: 'admin.stock_management.in',
-                meta: {
-                    requireAuth: true,
-                    menuParent: "stock_management",
-                    menuKey: route => "stock_management_in",
-                    permission: "stock_managements_view",
-                }
-            },
-            {
-                path: '/admin/stock-management/out',
-                component: ()=>
-                import('../views/stock-management/product-placement/out.vue'),
-                name: 'admin.stock_management.out',
-                meta: {
-                    requireAuth: true,
-                    menuParent: "stock_management",
-                    menuKey: route => "stock_management_out",
-                    permission: "stock_managements_view",
-                }
-            },
+//            {
+//                path: '/admin/stock-management/in',
+//                component: ()=>
+//                import('../views/stock-management/product-placement/in.vue'),
+//                name: 'admin.stock_management.in',
+//                meta: {
+//                    requireAuth: true,
+//                    menuParent: "stock_management",
+//                    menuKey: route => "stock_management_in",
+//                    permission: "stock_managements_view",
+//                }
+//            },
+//            {
+//                path: '/admin/stock-management/out',
+//                component: ()=>
+//                import('../views/stock-management/product-placement/out.vue'),
+//                name: 'admin.stock_management.out',
+//                meta: {
+//                    requireAuth: true,
+//                    menuParent: "stock_management",
+//                    menuKey: route => "stock_management_out",
+//                    permission: "stock_managements_view",
+//                }
+//            },
             
-            {
-                path: '/admin/stock-management',
-                component: () =>
-                    import('../views/stock-management/product-placement/index.vue'),
-                name: 'admin.stock_management.index',
-                meta: {
-                    requireAuth: true,
-                    menuParent: "stock_management",
-                    menuKey: route => "product_placement",
-                    permission: "stock_managements_view",
-                }
-            },
-            {
-                path: '/admin/stock-management/in-history',
-                component:  () =>
-                    import('../views/stock-management/product-placement/in_history.vue'),
-                name: 'admin.stock_management.in_history',
-                meta: {
-                    requireAuth: true,
-                    menuParent: "stock_management",
-                    menuKey: route => "in_history",
-                    permission: "products_view",
-                }
-            },
-            {
-                path: '/admin/stock-management/out-history',
-                component:  () =>
-                    import('../views/stock-management/product-placement/out_history.vue'),
-                name: 'admin.stock_management.out_history',
-                meta: {
-                    requireAuth: true,
-                    menuParent: "order_fullfillment",
-                    menuKey: route => "out_history",
-                    permission: "products_view",
-                }
-            },
+//            {
+//                path: '/admin/stock-management',
+//                component: () =>
+//                    import('../views/stock-management/product-placement/index.vue'),
+//                name: 'admin.stock_management.index',
+//                meta: {
+//                    requireAuth: true,
+//                    menuParent: "stock_management",
+//                    menuKey: route => "product_placement",
+//                    permission: "stock_managements_view",
+//                }
+//            },
+//            {
+//                path: '/admin/stock-management/in-history',
+//                component:  () =>
+//                    import('../views/stock-management/product-placement/in_history.vue'),
+//                name: 'admin.stock_management.in_history',
+//                meta: {
+//                    requireAuth: true,
+//                    menuParent: "stock_management",
+//                    menuKey: route => "in_history",
+//                    permission: "products_view",
+//                }
+//            },
+//            {
+//                path: '/admin/stock-management/out-history',
+//                component:  () =>
+//                    import('../views/stock-management/product-placement/out_history.vue'),
+//                name: 'admin.stock_management.out_history',
+//                meta: {
+//                    requireAuth: true,
+//                    menuParent: "order_fullfillment",
+//                    menuKey: route => "out_history",
+//                    permission: "products_view",
+//                }
+//            },
             
             {
                 path: '/admin/order-fullfillment/picking-request',
