@@ -674,6 +674,25 @@
                         <BuildOutlined />
                         <span>{{ $t("menu.stock_listing") }}</span>
                     </a-menu-item>
+                    
+                    <a-menu-item
+                        @click="
+                            () => {
+                                menuSelected();
+                                $router.push({
+                                    name: 'admin.placement_listing.index',
+                                });
+                            }
+                        "
+                        key="placement_listing"
+                        v-if="
+                            permsArray.includes('placement_listings_view') ||
+                            permsArray.includes('admin')
+                        "
+                    >
+                        <BuildOutlined />
+                        <span>{{ $t("menu.placement_listing") }}</span>
+                    </a-menu-item>
 
                     <a-sub-menu
                         v-if="

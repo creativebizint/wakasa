@@ -164,7 +164,7 @@ export default {
             sampleFileUrl.value =
                 window.config[orderType.value+`_sample_file`];
         });
-console.log('sss:',orderPageObject.value);
+
         const fetchUsers = () => {
             const usersPromise = axiosAdmin.get(
                 `suppliers?limit=10000`
@@ -194,6 +194,7 @@ console.log('sss:',orderPageObject.value);
             (newVal, oldVal) => {
                 if (
                     newVal == "purchases" ||
+                    newVal == "place_in" ||
                     newVal == "inventory_in" ||
                     newVal == "inventory_out" ||
                     newVal == "purchase-returns" ||

@@ -90,6 +90,18 @@ export default [
                 }
             },
             {
+                path: '/admin/placement-listing',
+                component: () =>
+                    import("../views/product-manager/placement-listing/index.vue"),
+                name: 'admin.placement_listing.index',
+                meta: {
+                    requireAuth: true,
+                    menuParent: "master",
+                    menuKey: (route) => "placement_listing",
+                    permission: "placement_listings_view",
+                }
+            },
+            {
                 path: "/admin/variations",
                 component: () =>
                     import("../views/product-manager/variations/index.vue"),

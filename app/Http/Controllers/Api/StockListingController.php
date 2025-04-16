@@ -12,6 +12,7 @@ use App\Models\StockAdjustment;
 use App\Exports\StockListingExport;
 use Examyou\RestAPI\ApiResponse;
 use Maatwebsite\Excel\Facades\Excel;
+use DB;
 
 class StockListingController extends ApiBaseController
 {
@@ -68,6 +69,77 @@ class StockListingController extends ApiBaseController
 
         if ($request->has('color_id') && $request->color_id != null && $request->color_id != "" && $request->color_id != "undefined") {
             $query = $query->where('products.color_id', Common::getIdFromHash($request->color_id));
+        }
+
+       if ($request->has('stock_listing_date') && $request->stock_listing_date != null && $request->stock_listing_date != "" && $request->stock_listing_date != "undefined") {
+            $parsedDate = explode(' ', $request->stock_listing_date);
+            $products = $query->get();
+
+            foreach ($products as $product) {
+                $item = Common::getProductStockChanges($warehouseId, $product->id, null, $parsedDate[0]);
+                if ($item['calculated_stock'] > 0) {
+                    $product->current_stock = $item['calculated_stock'];
+                    $results[] = $product;
+                }
+            }            
+        } else {
+            $results = $query->get()->toArray();
+        }
+                
+        $meta = ['paging'=>['total'=> count($results)],'time'=>round(microtime(true) - $processingStartTime, 3)];
+
+        return ApiResponse::make(null, $results, $meta);
+    }
+    
+    public function placementListing()
+    {
+        $processingStartTime = microtime(true);
+
+        $request = request();
+        $warehouseId = $request->warehouse_id ? Common::getIdFromHash($request->warehouse_id) : null;
+        $results = [];
+
+        $query = Product::leftJoin('brands', 'products.brand_id', 'brands.id')
+                ->leftJoin('categories', 'products.category_id', 'categories.id')
+                ->join('units', 'products.unit_id', 'units.id')
+                ->join('product_details', 'product_details.product_id', '=', 'products.id')
+                ->join('barcode', 'barcode.item_id', '=', 'products.item_id')
+                ->join('product_placements', 'product_placements.barcode_id', '=', 'barcode.id')
+                ->join('warehouses', 'product_details.warehouse_id', '=', 'warehouses.id')
+                ->whereNull('products.parent_id')
+                ->where('products.product_type', 'single')
+                ->where('product_details.current_stock', '>', 0);
+
+        if ($warehouseId) {
+            $query = $query->where('product_details.warehouse_id', $warehouseId);
+        }
+                
+        $query = $query->select('products.id', 'products.item_code', 'products.item_id', 'products.name', 'product_details.purchase_price', 'product_details.current_stock', 'product_details.opening_stock',
+                    'brands.name as brand_name', 'categories.name as category_name', 'warehouses.name as warehouse_name','product_placements.row',DB::Raw("sum(barcode.qty_bungkus) as qty_bungkus"))
+                ->orderBy('products.name', 'asc')
+                ->orderBy('product_details.product_id', 'asc');
+
+        if ($request->has('searchTerm') && $request->searchTerm != null && $request->searchTerm != "" && $request->searchTerm != "undefined") {
+            $searchTerm = $request->searchTerm;
+            $query = $query->where(
+                function ($query) use ($searchTerm) {
+                    $query->where('products.name', 'LIKE', "%$searchTerm%")
+                        ->orWhere('products.item_code', trim($searchTerm))
+                        ->orWhere('products.parent_item_code', trim($searchTerm));
+                }
+            );
+        }
+        
+        if ($request->has('brand_id') && $request->brand_id != null && $request->brand_id != "" && $request->brand_id != "undefined") {
+            $query = $query->where('products.brand_id', Common::getIdFromHash($request->brand_id));
+        }
+
+        if ($request->has('category_id') && $request->category_id != null && $request->category_id != "" && $request->category_id != "undefined") {
+            $query = $query->where('products.category_id', Common::getIdFromHash($request->category_id));
+        }
+
+        if ($request->has('group_id') && $request->group_id != null && $request->group_id != "" && $request->group_id != "undefined") {
+            $query = $query->where('products.group_id', Common::getIdFromHash($request->group_id));
         }
 
        if ($request->has('stock_listing_date') && $request->stock_listing_date != null && $request->stock_listing_date != "" && $request->stock_listing_date != "undefined") {

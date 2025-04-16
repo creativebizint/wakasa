@@ -33,6 +33,7 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
     ApiRoute::get('shelf-groups', ['as' => 'api.shelfGroups.index', 'uses' => 'ShelfGroupController@index']);
     ApiRoute::get('shelf-numbers', ['as' => 'api.shelfNumbers.index', 'uses' => 'ShelfNumberController@index']);
     ApiRoute::get('stock-listing', ['as' => 'api.stock-listing.index', 'uses' => 'StockListingController@stockListing']);
+    ApiRoute::get('placement-listing', ['as' => 'api.placement-listing.index', 'uses' => 'StockListingController@placementListing']);
     ApiRoute::get('stock-changes', ['as' => 'api.stock-changes.index', 'uses' => 'StockHistoryController@stockChanges']);
     
     //import
