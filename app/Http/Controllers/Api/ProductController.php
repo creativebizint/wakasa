@@ -519,7 +519,7 @@ class ProductController extends ApiBaseController
                     'group' => $group,
                     'color' => $color,
                     'product_stock_quantity' => $stockQuantity,
-                    'placement_qty' => ProductPlacement::where('product_id', $this->getIdFromHash($product->xid))->count(),
+                    //'placement_qty' => ProductPlacement::where('product_id', $this->getIdFromHash($product->xid))->count(),
                     'purchase_price' => $productDetails->purchase_price,
                     'retail_counter_price' => $productDetails->retail_counter_price,
                     'special_counter_price' => $productDetails->special_counter_price,

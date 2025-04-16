@@ -137,7 +137,7 @@ export default [
                 },
             },
             {
-                path: "inventory-in/barcode/:id",
+                path: "/inventory-in/barcode/:id",
                 component: () =>
                     import("../views/stock-management/barcode-registration/Barcode.vue"),
                 name: "admin.inventory_in.barcode",

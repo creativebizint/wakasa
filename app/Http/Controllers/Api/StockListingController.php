@@ -105,6 +105,7 @@ class StockListingController extends ApiBaseController
                 ->join('product_details', 'product_details.product_id', '=', 'products.id')
                 ->join('barcode', 'barcode.item_id', '=', 'products.item_id')
                 ->join('product_placements', 'product_placements.barcode_id', '=', 'barcode.id')
+                ->join('product_placement_row', 'product_placements.row', '=', 'product_placement_row.id')
                 ->join('warehouses', 'product_details.warehouse_id', '=', 'warehouses.id')
                 ->whereNull('products.parent_id')
                 ->where('products.product_type', 'single')
@@ -115,9 +116,10 @@ class StockListingController extends ApiBaseController
         }
                 
         $query = $query->select('products.id', 'products.item_code', 'products.item_id', 'products.name', 'product_details.purchase_price', 'product_details.current_stock', 'product_details.opening_stock',
-                    'brands.name as brand_name', 'categories.name as category_name', 'warehouses.name as warehouse_name','product_placements.row',DB::Raw("sum(barcode.qty_bungkus) as qty_bungkus"))
+                    'brands.name as brand_name', 'categories.name as category_name', 'warehouses.name as warehouse_name','product_placement_row.value as row',DB::Raw("sum(barcode.qty_bungkus) as qty_bungkus"))
                 ->orderBy('products.name', 'asc')
-                ->orderBy('product_details.product_id', 'asc');
+                ->orderBy('product_details.product_id', 'asc')
+                ->groupBy('product_placement_row.value','products.name');
 
         if ($request->has('searchTerm') && $request->searchTerm != null && $request->searchTerm != "" && $request->searchTerm != "undefined") {
             $searchTerm = $request->searchTerm;

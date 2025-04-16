@@ -27,17 +27,26 @@
                     <template #bodyCell="{ column, record }">
                         <template v-if="column.dataIndex === 'invoice_number'">
                             <a-typography-link 
-                                @click="
-                                                () =>
-                                                    $router.push({
-                                                        name: orderType.value === 'inventory_in' 
-                                                                ? 'admin.inventory_in.item' 
-                                                                : 'admin.placement_in.item',
-                                                        params: {
-                                                            id: record.xid,
-                                                        },
-                                                    })
-                                            ">
+            @click="
+                () => {
+                    //console.log('orderType in click handler:', orderType.value);
+                    //console.log('props.orderType in click handler:', props.orderType);
+                    const routeName = props.orderType === 'inventory_in'
+                        ? 'admin.inventory_in.item'
+                        : 'admin.placement_in.item';
+                    //console.log('routeName:', routeName);
+                    if (routeName) {
+                        $router.push({
+                            name: routeName,
+                            params: {
+                                id: record.xid,
+                            },
+                        });
+                    } else {
+                        console.warn('Invalid orderType:', orderType.value, 'props.orderType:', props.orderType);
+                    }
+                }
+            ">
                                 {{ record.invoice_number }}
                             </a-typography-link>
                         </template>
@@ -563,8 +572,16 @@ export default {
             default: false,
         },
         orderType: {
-            default: "",
-        },
+            type: String,
+            default: '',
+            validator: (value) => {
+                if (value && !['inventory_in', 'place_in'].includes(value)) {
+                    console.warn(`Invalid orderType: ${value}. Expected 'inventory_in' or 'place_in'.`);
+                    return false;
+                }
+                return true;
+            },
+        },        
         filters: {
             default: {},
         },
@@ -698,6 +715,7 @@ export default {
         };
 
         const initialSetup = () => {
+            console.log('props.orderType:', props.orderType);
             orderType.value = props.orderType;
             if (props.perPageItems) {
                 datatableVariables.table.pagination.pageSize =
@@ -1166,6 +1184,8 @@ console.log('tableFilter: ',tableFilter);
             userView,
 
             printInvoicePDF,
+            props, // Make props available
+            orderType, // Ensure orderType is available
         };
     },
 };
