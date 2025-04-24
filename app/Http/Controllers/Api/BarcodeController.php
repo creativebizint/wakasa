@@ -17,6 +17,7 @@ use App\Models\OrderItem;
 use Examyou\RestAPI\ApiResponse;
 use Maatwebsite\Excel\Facades\Excel;
 use Examyou\RestAPI\Exceptions\ApiException;
+use App\Classes\Common;
 
 class BarcodeController extends ApiBaseController
 {
@@ -67,6 +68,8 @@ class BarcodeController extends ApiBaseController
             $barcode->order_item_id = $order->id;  
           }
         }
+        $barcode->box_id = Common::generateOrderUniqueId();
+        $barcode->reg_bungkus_id = Common::generateOrderUniqueId();
         //file_put_contents(storage_path('logs') . '/barcode.log', "[" . date('Y-m-d H:i:s') . "]test 1 : \n" . print_r($barcode,1) . "\n\n", FILE_APPEND);
         return $barcode;
     }

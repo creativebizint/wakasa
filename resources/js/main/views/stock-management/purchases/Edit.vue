@@ -6,12 +6,12 @@
                 @back="() => $router.go(-1)"
                 class="p-0"
             >
-                <template #extra>
+                <!-- <template #extra>
                     <a-button type="primary" :loading="loading" @click="onSubmit" block>
                         <template #icon> <SaveOutlined /> </template>
                         {{ $t("common.save") }}
                     </a-button>
-                </template>
+                </template> -->
             </a-page-header>
         </template>
         <template #breadcrumb>
@@ -57,11 +57,15 @@
 
         <a-form layout="vertical">
             <a-row :gutter="16">
-                <a-col :xs="24" :sm="24" :md="8" :lg="8">
+                <a-col :xs="24" :sm="24" :md="6" :lg="6">
                     <a-form-item
                         :label="$t(`stock.invoice_number`)"
                         name="invoice_number"
-                        :help="rules.invoice_number ? rules.invoice_number.message : null"
+                        :help="
+                            rules.invoice_number
+                                ? rules.invoice_number.message
+                                : null
+                        "
                         :validateStatus="rules.invoice_number ? 'error' : null"
                     >
                         <a-input
@@ -76,16 +80,27 @@
                     </a-form-item>
                 </a-col>
                 <a-col
-                    v-if="orderPageObject.type == 'stock-transfers'"
+                    v-if="
+                        orderPageObject.type == 'stock-transfers' ||
+                        orderPageObject.type == 'stock-transfer-returns'
+                    "
                     :xs="24"
                     :sm="24"
-                    :md="8"
-                    :lg="8"
+                    :md="6"
+                    :lg="6"
                 >
                     <a-form-item
-                        :label="$t(`${orderPageObject.langKey}.warehouse`)"
+                        :label="
+                            $t('common.to') +
+                            ' ' +
+                            $t(`${orderPageObject.langKey}.warehouse`)
+                        "
                         name="warehouse_id"
-                        :help="rules.warehouse_id ? rules.warehouse_id.message : null"
+                        :help="
+                            rules.warehouse_id
+                                ? rules.warehouse_id.message
+                                : null
+                        "
                         :validateStatus="rules.warehouse_id ? 'error' : null"
                         class="required"
                     >
@@ -94,16 +109,17 @@
                                 v-model:value="formData.warehouse_id"
                                 :placeholder="
                                     $t('common.select_default_text', [
-                                        $t(`${orderPageObject.langKey}.warehouse`),
+                                        $t(
+                                            `${orderPageObject.langKey}.warehouse`
+                                        ),
                                     ])
                                 "
                                 :allowClear="true"
                                 optionFilterProp="title"
                                 show-search
-                                :disabled="editOrderDisable"
                             >
                                 <a-select-option
-                                    v-for="warehouse in warehouses"
+                                    v-for="warehouse in toWarehouses"
                                     :key="warehouse.xid"
                                     :value="warehouse.xid"
                                     :title="warehouse.name"
@@ -111,59 +127,97 @@
                                     {{ warehouse.name }}
                                 </a-select-option>
                             </a-select>
-                            <WarehouseAddButton @onAddSuccess="warehouseAdded" />
                         </span>
                     </a-form-item>
                 </a-col>
-                <a-col v-else :xs="24" :sm="24" :md="8" :lg="8">
+
+                <a-col v-else :xs="24" :sm="24" :md="6" :lg="6">
                     <UserSearch
+                        :labelPrefix="userSearchLabelPrefix"
                         :orderPageObject="orderPageObject"
                         :rules="rules"
                         :usersList="users"
                         :editOrderDisable="editOrderDisable"
-                        @onSuccess="(outputUser) => (formData.user_id = outputUser)"
+                        @onSuccess="
+                            (outputUser) => (formData.user_id = outputUser)
+                        "
                     />
-                    <!-- <a-form-item
-                        :label="$t(`${orderPageObject.langKey}.user`)"
-                        name="user_id"
-                        :help="rules.user_id ? rules.user_id.message : null"
-                        :validateStatus="rules.user_id ? 'error' : null"
+                </a-col>
+
+                <!--* ADDENDUM -->
+                <a-col
+                    v-if="
+                        orderPageObject.type == 'stock-transfers' ||
+                        orderPageObject.type == 'stock-transfer-returns'
+                    "
+                    :xs="24"
+                    :sm="24"
+                    :md="6"
+                    :lg="6"
+                >
+                    <a-form-item
+                        :label="
+                            $t('common.from') +
+                            ' ' +
+                            $t(`${orderPageObject.langKey}.warehouse`)
+                        "
+                        name="warehouse_id"
+                        :help="
+                            rules.warehouse_id
+                                ? rules.warehouse_id.message
+                                : null
+                        "
+                        :validateStatus="rules.warehouse_id ? 'error' : null"
+                        class="required"
                     >
                         <span style="display: flex">
                             <a-select
-                                v-model:value="formData.user_id"
+                                v-model:value="formData.from_warehouse_id"
                                 :placeholder="
                                     $t('common.select_default_text', [
-                                        $t(`${orderPageObject.langKey}.user`),
+                                        $t(
+                                            `${orderPageObject.langKey}.warehouse`
+                                        ),
                                     ])
                                 "
                                 :allowClear="true"
                                 optionFilterProp="title"
                                 show-search
+                                @select="fromWarehouseChanged"
                                 :disabled="editOrderDisable"
                             >
                                 <a-select-option
-                                    v-for="user in users"
-                                    :key="user.xid"
-                                    :value="user.xid"
-                                    :title="user.name"
+                                    v-for="warehouse in fromWarehouses"
+                                    :key="warehouse.xid"
+                                    :value="warehouse.xid"
+                                    :title="warehouse.name"
                                 >
-                                    {{ user.name }}
-                                    <span v-if="user.phone && user.phone != ''">
-                                        <br />
-                                        {{ user.phone }}
-                                    </span>
+                                    {{ warehouse.name }}
                                 </a-select-option>
                             </a-select>
-                            <SupplierAddButton
-                                v-if="orderPageObject.userType == 'suppliers'"
-                                @onAddSuccess="userAdded"
-                            />
-                            <CustomerAddButton v-else @onAddSuccess="userAdded" />
                         </span>
-                    </a-form-item> -->
+                    </a-form-item>
                 </a-col>
-                <a-col :xs="24" :sm="24" :md="8" :lg="8">
+
+                <a-col v-else :xs="24" :sm="24" :md="6" :lg="6">
+                    <WarehouseSearch
+                        :labelPrefix="warehouseSearchLabelPrefix"
+                        :orderPageObject="allWarehouses"
+                        :rules="rules"
+                        :warehousesList="userWarehouses"
+                        :editOrderDisable="false"
+                        @onSuccess="
+                            (outputWarehouse) =>
+                                orderPageObject.type == 'stock-transfers' ||
+                                orderPageObject.type == 'stock-transfer-returns'
+                                    ? (formData.from_warehouse_id =
+                                          outputWarehouse)
+                                    : (formData.warehouse_id = outputWarehouse)
+                        "
+                    />
+                </a-col>
+
+                <a-col :xs="24" :sm="24" :md="6" :lg="6">
                     <a-form-item
                         :label="
                             $t(
@@ -171,8 +225,11 @@
                             )
                         "
                         name="order_date"
-                        :help="rules.order_date ? rules.order_date.message : null"
+                        :help="
+                            rules.order_date ? rules.order_date.message : null
+                        "
                         :validateStatus="rules.order_date ? 'error' : null"
+                        class="required"
                     >
                         <DateTimePicker
                             v-if="formData.order_date"
@@ -185,13 +242,18 @@
                         />
                     </a-form-item>
                 </a-col>
+                
             </a-row>
             <a-row :gutter="16">
                 <a-col :xs="24" :sm="24" :md="24" :lg="24">
                     <a-form-item
                         :label="$t('product.product')"
                         name="orderSearchTerm"
-                        :help="rules.product_items ? rules.product_items.message : null"
+                        :help="
+                            rules.product_items
+                                ? rules.product_items.message
+                                : null
+                        "
                         :validateStatus="rules.product_items ? 'error' : null"
                     >
                         <span style="display: flex">
@@ -202,7 +264,9 @@
                                 :filter-option="false"
                                 :placeholder="$t('product.search_scan_product')"
                                 style="width: 100%"
-                                :not-found-content="productFetching ? undefined : null"
+                                :not-found-content="
+                                    productFetching ? undefined : null
+                                "
                                 @search="
                                     (searchedValue) => {
                                         orderSearchTerm = searchedValue;
@@ -213,11 +277,25 @@
                                 option-label-prop="label"
                                 @focus="products = []"
                                 @select="searchValueSelected"
-                                :disabled="editOrderDisable"
+                                :disabled="
+                                    editOrderDisable &&
+                                    (orderPageObject.type ==
+                                        'stock-transfers' ||
+                                    orderPageObject.type ==
+                                        'stock-transfer-returns'
+                                        ? !formData.from_warehouse_id
+                                        : !formData.warehouse_id)
+                                "
                                 @inputKeyDown="inputValueChanged"
+                                
                             >
-                                <template #suffixIcon><SearchOutlined /></template>
-                                <template v-if="productFetching" #notFoundContent>
+                                <template #suffixIcon
+                                    ><SearchOutlined
+                                /></template>
+                                <template
+                                    v-if="productFetching"
+                                    #notFoundContent
+                                >
                                     <a-spin size="small" />
                                 </template>
                                 <a-select-option
@@ -227,10 +305,12 @@
                                     :label="product.name"
                                     :product="product"
                                 >
-                                    => {{ product.name }}
+                                    => {{ product.name }} [{{
+                                        product.color.name
+                                    }}]
                                 </a-select-option>
                             </a-select>
-                            <ProductAddButton size="large" />
+                            <!-- <ProductAddButton size="large" /> -->
                         </span>
                     </a-form-item>
                 </a-col>
@@ -246,7 +326,7 @@
                         <template #bodyCell="{ column, record }">
                             <template v-if="column.dataIndex === 'name'">
                                 {{ record.name }} <br />
-                                <small v-if="record.product_type != 'service'">
+                                <small>
                                     <a-typography-text code>
                                         {{ $t("product.avl_qty") }}
                                         {{
@@ -255,63 +335,163 @@
                                     </a-typography-text>
                                 </small>
                             </template>
-                            <template v-if="column.dataIndex === 'unit_quantity'">
+                            <template v-if="column.dataIndex === 'brand'">
+                                {{ record.brand ? record.brand.name : "-" }}
+                            </template>
+                            <template v-if="column.dataIndex === 'category'">
+                                {{
+                                    record.category ? record.category.name : "-"
+                                }}
+                            </template>
+                            <template v-if="column.dataIndex === 'group'">
+                                {{ record.group ? record.group.name : "-" }}
+                            </template>
+                            <template v-if="column.dataIndex === 'color'">
+                                {{ record.color ? record.color.name : "-" }}
+                            </template>
+                            <template v-if="column.dataIndex === 'notes'">
+                                <a-input
+                                    id="inputNotes"
+                                    v-model:value="record.notes"
+                                />
+                            </template>
+                            <template
+                                v-if="column.dataIndex === 'unit_quantity'"
+                            >
                                 <a-input-number
                                     id="inputNumber"
-                                    v-model:value="record.quantity"
+                                    v-model:value="record.qr_scanned_in"
                                     @change="quantityChanged(record)"
-                                    :min="0"
+                                    :min="1"
                                     :disabled="editOrderDisable"
                                 />
                             </template>
-                            <template v-if="column.dataIndex === 'single_unit_price'">
-                                {{ formatAmountCurrency(record.single_unit_price) }}
+                            <template v-if="column.dataIndex === 'price_type'">
+                                <span
+                                    v-if="
+                                        orderPageObject.type == 'purchases' ||
+                                        orderPageObject.type ==
+                                            'purchase-returns'
+                                    "
+                                >
+                                    <a-input
+                                        v-model:value="record.price_type"
+                                        hidden
+                                    />
+                                    {{ $t("product.retail_counter_price") }}
+                                </span>
+                                <a-select
+                                    v-else
+                                    style="width: 100%"
+                                    v-model:value="record.price_type"
+                                    :placeholder="
+                                        $t('invoice.price_type', [''])
+                                    "
+                                    @change="quantityChanged(record)"
+                                    :disabled="editOrderDisable"
+                                >
+                                    <a-select-option
+                                        v-for="priceType in priceTypes"
+                                        :key="priceType.key"
+                                    >
+                                        {{ priceType.value }}
+                                    </a-select-option>
+                                </a-select>
                             </template>
-                            <template v-if="column.dataIndex === 'discount_amount'">
+                            <template
+                                v-if="column.dataIndex === 'single_unit_price'"
+                            >
+                                <a-input-number
+                                    id="inputNumber"
+                                    v-model:value="record.single_unit_price"
+                                    @change="quantityChanged(record)"
+                                    :min="0"
+                                    :disabled="
+                                        record.price_type !== 'custom_price' &&
+                                        !editOrderDisable
+                                    "
+                                />
+                            </template>
+                            <template
+                                v-if="column.dataIndex === 'discount_rate'"
+                            >
+                                <a-input-number
+                                    id="inputSubtotal"
+                                    v-model:value="record.discount_rate"
+                                    style="width: 100%"
+                                    @change="quantityChanged(record)"
+                                    :min="0"
+                                    :disabled="
+                                        record.price_type !== 'custom_price' &&
+                                        !editOrderDisable
+                                    "
+                                />
+                            </template>
+                            <!-- <template v-if="column.dataIndex === 'discount_amount'">
                                 {{ formatAmountCurrency(record.discount_amount) }}
                             </template>
                             <template v-if="column.dataIndex === 'total_tax'">
                                 {{ formatAmountCurrency(record.total_tax) }}
-                            </template>
+                            </template> -->
                             <template v-if="column.dataIndex === 'subtotal'">
-                                {{ formatAmountCurrency(record.subtotal) }}
+                                <a-input-number
+                                    id="inputSubtotal"
+                                    v-model:value="record.subtotal"
+                                    style="width: 100%"
+                                    @change="subtotalChanged(record)"
+                                    :min="0"
+                                    :disabled="
+                                        record.price_type !== 'custom_price' &&
+                                        !editOrderDisable
+                                    "
+                                />
                             </template>
                             <template v-if="column.dataIndex === 'action'">
                                 <div v-if="editOrderDisable">-</div>
                                 <div v-else>
-                                    <a-button
+                                    <!-- <a-button
                                         type="primary"
                                         @click="editItem(record)"
                                         style="margin-left: 4px"
                                     >
                                         <template #icon><EditOutlined /></template>
-                                    </a-button>
+                                    </a-button> -->
                                     <a-button
                                         type="primary"
                                         @click="showDeleteConfirm(record)"
                                         style="margin-left: 4px"
                                     >
-                                        <template #icon><DeleteOutlined /></template>
+                                        <template #icon
+                                            ><DeleteOutlined
+                                        /></template>
                                     </a-button>
                                 </div>
                             </template>
                         </template>
+/**
                         <template #summary>
                             <a-table-summary-row>
                                 <a-table-summary-cell
-                                    :col-span="4"
+                                    :col-span="2"
                                 ></a-table-summary-cell>
                                 <a-table-summary-cell>
-                                    {{ $t("product.subtotal") }}
+                                    {{ $t("stock.grandtotal") }}
                                 </a-table-summary-cell>
-                                <a-table-summary-cell>
-                                    {{ formatAmountCurrency(productsAmount.tax) }}
-                                </a-table-summary-cell>
+                                <!-- <a-table-summary-cell>
+                                    {{
+                                        formatAmountCurrency(productsAmount.tax)
+                                    }}
+                                </a-table-summary-cell> -->
                                 <a-table-summary-cell :col-span="2">
-                                    {{ formatAmountCurrency(productsAmount.subtotal) }}
+                                    {{
+                                        formatAmountCurrency(
+                                            productsAmount.subtotal
+                                        )
+                                    }}
                                 </a-table-summary-cell>
                             </a-table-summary-row>
                         </template>
+**/
                     </a-table>
                 </a-col>
             </a-row>
@@ -328,11 +508,16 @@
                                         ? rules.terms_condition.message
                                         : null
                                 "
-                                :validateStatus="rules.terms_condition ? 'error' : null"
+                                :validateStatus="
+                                    rules.terms_condition ? 'error' : null
+                                "
+                                hidden
                             >
                                 <a-textarea
                                     v-model:value="formData.terms_condition"
-                                    :placeholder="$t('warehouse.terms_condition')"
+                                    :placeholder="
+                                        $t('warehouse.terms_condition')
+                                    "
                                     :auto-size="{ minRows: 2, maxRows: 3 }"
                                     :disabled="editOrderDisable"
                                 />
@@ -354,7 +539,7 @@
                                             $t('stock.notes'),
                                         ])
                                     "
-                                    :rows="5"
+                                    :auto-size="{ minRows: 2, maxRows: 3 }"
                                     :disabled="editOrderDisable"
                                 />
                             </a-form-item>
@@ -362,7 +547,8 @@
                     </a-row>
                 </a-col>
                 <a-col :xs="24" :sm="24" :md="8" :lg="8">
-                    <a-row :gutter="16" v-if="orderPageObject.type != 'quotations'">
+                    <!--* ADDENDUM -->
+                    <!-- <a-row :gutter="16" v-if="orderPageObject.type != 'quotations'">
                         <a-col :xs="24" :sm="24" :md="24" :lg="24">
                             <a-form-item
                                 :label="$t('stock.status')"
@@ -391,14 +577,18 @@
                                 </a-select>
                             </a-form-item>
                         </a-col>
-                    </a-row>
+                    </a-row> -->
+
                     <a-row :gutter="16">
                         <a-col :xs="24" :sm="24" :md="24" :lg="24">
                             <a-form-item
                                 :label="$t('stock.order_tax')"
                                 name="tax_id"
-                                :help="rules.tax_id ? rules.tax_id.message : null"
+                                :help="
+                                    rules.tax_id ? rules.tax_id.message : null
+                                "
                                 :validateStatus="rules.tax_id ? 'error' : null"
+                                hidden
                             >
                                 <span style="display: flex">
                                     <a-select
@@ -424,12 +614,12 @@
                                             {{ tax.name }} ({{ tax.rate }}%)
                                         </a-select-option>
                                     </a-select>
-                                    <TaxAddButton @onAddSuccess="taxAdded" />
+                                    <!-- <TaxAddButton @onAddSuccess="taxAdded" /> -->
                                 </span>
                             </a-form-item>
                         </a-col>
                     </a-row>
-                    <a-row :gutter="16">
+                    <!-- <a-row :gutter="16">
                         <a-col :xs="24" :sm="24" :md="24" :lg="24">
                             <a-form-item
                                 :label="$t('stock.discount')"
@@ -455,14 +645,21 @@
                                 </a-input-number>
                             </a-form-item>
                         </a-col>
-                    </a-row>
+                    </a-row> -->
                     <a-row :gutter="16">
                         <a-col :xs="24" :sm="24" :md="24" :lg="24">
                             <a-form-item
                                 :label="$t('stock.shipping')"
                                 name="shipping"
-                                :help="rules.shipping ? rules.shipping.message : null"
-                                :validateStatus="rules.shipping ? 'error' : null"
+                                :help="
+                                    rules.shipping
+                                        ? rules.shipping.message
+                                        : null
+                                "
+                                :validateStatus="
+                                    rules.shipping ? 'error' : null
+                                "
+                                hidden
                             >
                                 <a-input-number
                                     v-model:value="formData.shipping"
@@ -483,42 +680,49 @@
                             </a-form-item>
                         </a-col>
                     </a-row>
-                    <a-row :gutter="16" class="mt-10">
+                    <!-- <a-row :gutter="16" class="mt-10">
                         <a-col :xs="12" :sm="12" :md="12" :lg="12">
                             {{ $t("stock.order_tax") }}
                         </a-col>
                         <a-col :xs="12" :sm="12" :md="12" :lg="12">
                             {{ formatAmountCurrency(formData.tax_amount) }}
                         </a-col>
-                    </a-row>
-                    <a-row :gutter="16" class="mt-10">
+                    </a-row> -->
+                    <!-- <a-row :gutter="16" class="mt-10">
                         <a-col :xs="12" :sm="12" :md="12" :lg="12">
                             {{ $t("stock.discount") }}
                         </a-col>
                         <a-col :xs="12" :sm="12" :md="12" :lg="12">
                             {{ formatAmountCurrency(formData.discount) }}
                         </a-col>
-                    </a-row>
-                    <a-row :gutter="16" class="mt-10">
+                    </a-row> -->
+                    <!-- <a-row :gutter="16" class="mt-10">
                         <a-col :xs="12" :sm="12" :md="12" :lg="12">
                             {{ $t("stock.shipping") }}
                         </a-col>
                         <a-col :xs="12" :sm="12" :md="12" :lg="12">
                             {{ formatAmountCurrency(formData.shipping) }}
                         </a-col>
-                    </a-row>
-                    <a-row :gutter="16" class="mt-10">
+                    </a-row> -->
+                    <!-- <a-row :gutter="16" class="mt-10">
                         <a-col :xs="12" :sm="12" :md="12" :lg="12">
                             {{ $t("stock.grand_total") }}
                         </a-col>
                         <a-col :xs="12" :sm="12" :md="12" :lg="12">
                             {{ formatAmountCurrency(formData.subtotal) }}
                         </a-col>
-                    </a-row>
+                    </a-row> -->
                     <a-row :gutter="16" class="mt-20 mb-20">
+                        <a-progress
+                            :percent="ordersProgress.percent"
+                            :status="ordersProgress.status"
+                        />
+                        <a-typography-text type="danger">
+                            {{ ordersProgress.message }}
+                        </a-typography-text>
                         <a-button
                             type="primary"
-                            :loading="loading"
+                            :loading="ordersProgress.loading"
                             @click="onSubmit"
                             block
                         >
@@ -549,7 +753,9 @@
                                 ? addEditRules.unit_price.message
                                 : null
                         "
-                        :validateStatus="addEditRules.unit_price ? 'error' : null"
+                        :validateStatus="
+                            addEditRules.unit_price ? 'error' : null
+                        "
                     >
                         <a-input-number
                             v-model:value="addEditFormData.unit_price"
@@ -578,7 +784,9 @@
                                 ? addEditRules.discount_rate.message
                                 : null
                         "
-                        :validateStatus="addEditRules.discount_rate ? 'error' : null"
+                        :validateStatus="
+                            addEditRules.discount_rate ? 'error' : null
+                        "
                     >
                         <a-input-number
                             v-model:value="addEditFormData.discount_rate"
@@ -601,14 +809,20 @@
                     <a-form-item
                         :label="$t('product.tax')"
                         name="tax_id"
-                        :help="addEditRules.tax_id ? addEditRules.tax_id.message : null"
+                        :help="
+                            addEditRules.tax_id
+                                ? addEditRules.tax_id.message
+                                : null
+                        "
                         :validateStatus="addEditRules.tax_id ? 'error' : null"
                     >
                         <span style="display: flex">
                             <a-select
                                 v-model:value="addEditFormData.tax_id"
                                 :placeholder="
-                                    $t('common.select_default_text', [$t('product.tax')])
+                                    $t('common.select_default_text', [
+                                        $t('product.tax'),
+                                    ])
                                 "
                                 :allowClear="true"
                                 optionFilterProp="title"
@@ -623,7 +837,7 @@
                                     {{ tax.name }} ({{ tax.rate }}%)
                                 </a-select-option>
                             </a-select>
-                            <TaxAddButton @onAddSuccess="taxAdded" />
+                            <!-- <TaxAddButton @onAddSuccess="taxAdded" /> -->
                         </span>
                     </a-form-item>
                 </a-col>
@@ -634,14 +848,18 @@
                         :label="$t('product.tax_type')"
                         name="tax_type"
                         :help="
-                            addEditRules.tax_type ? addEditRules.tax_type.message : null
+                            addEditRules.tax_type
+                                ? addEditRules.tax_type.message
+                                : null
                         "
                         :validateStatus="addEditRules.tax_type ? 'error' : null"
                     >
                         <a-select
                             v-model:value="addEditFormData.tax_type"
                             :placeholder="
-                                $t('common.select_default_text', [$t('product.tax_type')])
+                                $t('common.select_default_text', [
+                                    $t('product.tax_type'),
+                                ])
                             "
                             :allowClear="true"
                         >
@@ -677,7 +895,7 @@
 </template>
 
 <script>
-import { onMounted, ref, toRefs } from "vue";
+import { onMounted, ref, toRefs, computed } from "vue";
 import {
     EyeOutlined,
     PlusOutlined,
@@ -688,8 +906,10 @@ import {
     SaveOutlined,
     BarcodeOutlined,
 } from "@ant-design/icons-vue";
+import { notification } from "ant-design-vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
+import { useStore } from "vuex";
 import apiAdmin from "../../../../common/composable/apiAdmin";
 import common from "../../../../common/composable/common";
 import stockManagement from "./stockManagement";
@@ -700,6 +920,9 @@ import ProductAddButton from "../../product-manager/products/AddButton.vue";
 import DateTimePicker from "../../../../common/components/common/calendar/DateTimePicker.vue";
 import AdminPageHeader from "../../../../common/layouts/AdminPageHeader.vue";
 import UserSearch from "./UserSearch.vue";
+
+//* ADDENDUM
+import WarehouseSearch from "./WarehouseSearch.vue";
 
 export default {
     components: {
@@ -718,6 +941,9 @@ export default {
         DateTimePicker,
         AdminPageHeader,
         UserSearch,
+
+        //* ADDENDUM
+        WarehouseSearch,
     },
     setup() {
         const { addEditRequestAdmin, loading, rules } = apiAdmin();
@@ -733,6 +959,11 @@ export default {
             purchaseReturnStatus,
             permsArray,
             selectedWarehouse,
+
+            //* ADDENDUM
+            allWarehouses,
+            priceTypes,
+            salesLabels,
         } = common();
         const { orderItemColumns } = fields();
         const {
@@ -768,9 +999,15 @@ export default {
 
             calculateProductAmount,
             inputValueChanged,
+
+            //* ADDENDUM
+            subtotalChanged,
         } = stockManagement();
         const { t } = useI18n();
-        const warehouses = ref([]);
+        const store = useStore();
+        const ordersProgress = computed(() => store.state.auth.ordersProgress);
+        const toWarehouses = ref([]);
+        const fromWarehouses = ref([]);
         const allUnits = ref([]);
         const users = ref([]);
         const orderId = route.params.id;
@@ -781,8 +1018,22 @@ export default {
         const warehouseUrl = `warehouses?filters=id ne "${selectedWarehouse.value.xid}"&hashable=${selectedWarehouse.value.xid}&limit=10000`;
         const editOrderDisable = ref(false);
 
+        //* ADDENDUM
+        const userSearchLabelPrefix = ref([]);
+        const warehouseSearchLabelPrefix = ref([]);
+        const userWarehouses = ref([]);
+
         onMounted(() => {
-            const orderPromise = axiosAdmin.get(`${orderType.value}/${orderId}`);
+            store.commit("auth/updateOrdersProgress", {
+                percent: 0,
+                status: "active",
+                message: "",
+                loading: false,
+            });
+
+            const orderPromise = axiosAdmin.get(
+                `${orderType.value}/${orderId}`
+            );
             const taxesPromise = axiosAdmin.get(taxUrl);
             const unitsPromise = axiosAdmin.get(unitUrl);
             const warehousesPromise = axiosAdmin.get(warehouseUrl);
@@ -792,93 +1043,188 @@ export default {
                 taxesPromise,
                 unitsPromise,
                 warehousesPromise,
-            ]).then(([orderResponse, taxResponse, unitResponse, warehousesResponse]) => {
-                const orderResponseData = orderResponse.data;
-                formData.value = {
-                    invoice_number: orderResponseData.order.invoice_number,
-                    order_date: orderResponseData.order.order_date,
-                    user_id: orderResponseData.order.x_user_id,
-                    warehouse_id: orderResponseData.order.x_warehouse_id,
-                    notes: orderResponseData.order.notes,
-                    terms_condition: orderResponseData.order.terms_condition,
-                    order_status: orderResponseData.order.order_status,
-                    tax_id: orderResponseData.order.x_tax_id,
-                    tax_rate: orderResponseData.order.tax_rate,
-                    tax_amount: orderResponseData.order.tax_amount,
-                    discount: orderResponseData.order.discount
-                        ? orderResponseData.order.discount
-                        : 0,
-                    shipping: orderResponseData.order.shipping
-                        ? orderResponseData.order.shipping
-                        : 0,
-                    subtotal: orderResponseData.order.total,
-                };
-                selectedProductIds.value = orderResponseData.ids;
-                selectedProducts.value = orderResponseData.items;
-                calculateProductAmount();
+            ]).then(
+                ([
+                    orderResponse,
+                    taxResponse,
+                    unitResponse,
+                    warehousesResponse,
+                ]) => {
+                    const orderResponseData = orderResponse.data;
+                    formData.value = {
+                        invoice_number: orderResponseData.order.invoice_number,
+                        order_date: orderResponseData.order.order_date,
+                        user_id: orderResponseData.order.x_user_id,
+                        from_warehouse_id:
+                            orderResponseData.order.x_warehouse_id,
+                        notes: orderResponseData.order.notes,
+                        terms_condition:
+                            orderResponseData.order.terms_condition,
+                        order_status: orderResponseData.order.order_status,
+                        tax_id: orderResponseData.order.x_tax_id,
+                        tax_rate: orderResponseData.order.tax_rate,
+                        tax_amount: orderResponseData.order.tax_amount,
+                        discount: orderResponseData.order.discount
+                            ? orderResponseData.order.discount
+                            : 0,
+                        shipping: orderResponseData.order.shipping
+                            ? orderResponseData.order.shipping
+                            : 0,
+                        subtotal: orderResponseData.order.total,
 
-                users.value = orderResponseData.user;
-                taxes.value = taxResponse.data;
-                allUnits.value = unitResponse.data;
-                warehouses.value = warehousesResponse.data;
+                        //* ADDENDUM
+                        label: orderResponseData.order.label,
+                        box_number: orderResponseData.order.box_number,
+                        packing_list_number:
+                            orderResponseData.order.packing_list_number,
+                    };
+                    selectedProductIds.value = orderResponseData.ids;
+                    selectedProducts.value = orderResponseData.items;
+                    calculateProductAmount();
 
-                if (orderResponseData.order.payment_status != "unpaid") {
-                    editOrderDisable.value = true;
+                    users.value = orderResponseData.user;
+                    taxes.value = taxResponse.data;
+                    allUnits.value = unitResponse.data;
+                    userWarehouses.value = orderResponseData.warehouse;
+
+                    if (orderType.value == "stock-transfers") {
+                        toWarehouses.value = warehousesResponse.data;
+                        fromWarehouses.value = [allWarehouses.value[0]];
+                    } else if (orderType.value == "stock-transfer-returns") {
+                        toWarehouses.value = [allWarehouses.value[0]];
+                        fromWarehouses.value = warehousesResponse.data;
+                    }
+
+                    if (orderResponseData.order.payment_status != "unpaid") {
+                        editOrderDisable.value = true;
+                    }
                 }
-            });
+            );
 
             if (orderType.value == "purchases") {
                 allOrderStatus.value = purchaseOrderStatus;
+                formData.value.order_status = "received";
+                formData.value.label = "purchases";
+                warehouseSearchLabelPrefix.value = "to";
             } else if (orderType.value == "sales") {
                 allOrderStatus.value = salesOrderStatus;
+                formData.value.order_status = "delivered";
+                warehouseSearchLabelPrefix.value = "from";
             } else if (orderType.value == "sales-returns") {
                 allOrderStatus.value = salesReturnStatus;
+                formData.value.order_status = "received";
+                warehouseSearchLabelPrefix.value = "to";
             } else if (orderType.value == "purchase-returns") {
                 allOrderStatus.value = purchaseReturnStatus;
+                formData.value.order_status = "completed";
+                formData.value.label = "purchases";
+                warehouseSearchLabelPrefix.value = "from";
             } else if (orderType.value == "quotations") {
                 allOrderStatus.value = [];
+                warehouseSearchLabelPrefix.value = "to";
             } else if (orderType.value == "stock-transfers") {
                 allOrderStatus.value = salesOrderStatus;
+                formData.value.order_status = "delivered";
+                formData.value.label = "stock-transfers";
+                warehouseSearchLabelPrefix.value = "from";
             }
         });
 
         const onSubmit = () => {
+            store.commit("auth/updateOrdersProgress", {
+                percent: 0,
+                status: "active",
+                message: "",
+                loading: true,
+            });
+
             const newFormDataObject = {
                 ...formData.value,
                 total: formData.value.subtotal,
                 total_items: selectedProducts.value.length,
                 product_items: selectedProducts.value,
                 removed_items: removedOrderItemsIds.value,
+                discount: 0,
                 _method: "PUT",
             };
 
             addEditRequestAdmin({
                 url: `${orderType.value}/${orderId}`,
                 data: newFormDataObject,
-                successMessage: t(`${orderPageObject.value.langKey}.updated`),
+                // successMessage: t(`${orderPageObject.value.langKey}.updated`),
                 success: (res) => {
-                    router.push({
-                        name: `admin.stock.${orderType.value}.index`,
+                    updateOrdersProgress(res);
+                },
+                error: (_) => {
+                    store.commit("auth/updateOrdersProgress", {
+                        percent: 0,
+                        status: "active",
+                        message: "",
+                        loading: false,
                     });
                 },
             });
         };
 
-        const unitAdded = () => {
-            axiosAdmin.get(unitUrl).then((response) => {
-                allUnits.value = response.data;
-            });
+        const updateOrdersProgress = (res) => {
+            console.log(res);
+            setTimeout(() => {
+                store.commit("auth/updateOrdersProgress", {
+                    percent: res.progress.percent,
+                    status: "active",
+                    message: "",
+                    loading: true,
+                });
+
+                if (res.finished) {
+                    notification.success({
+                        placement: appSetting.value.rtl
+                            ? "bottomLeft"
+                            : "bottomRight",
+                        message: t("common.success"),
+                        description: t(
+                            `${orderPageObject.value.langKey}.updated`
+                        ),
+                    });
+
+                    store.commit("auth/updateOrdersProgress", {
+                        percent: 100,
+                        status: "success",
+                        message: "",
+                        loading: false,
+                    });
+
+                    setTimeout(() => {
+                        router.push({
+                            name: `admin.stock.${orderType.value}.index`,
+                        });
+                    }, 500);
+                } else {
+                    axiosAdmin
+                        .post("queue/import-progress", {
+                            id: res.id,
+                            finished: res.finished,
+                            cache_key: res.cache_key,
+                            progress: res.progress,
+                        })
+                        .then((progressRes) => {
+                            updateOrdersProgress(progressRes.data);
+                        })
+                        .catch((err) => {
+                            store.commit("auth/updateOrdersProgress", {
+                                percent: res.progress.percent,
+                                status: "exception",
+                                message: err.data.error.message,
+                                loading: false,
+                            });
+                        });
+                }
+            }, 2000);
         };
 
-        const taxAdded = () => {
-            axiosAdmin.get(taxUrl).then((response) => {
-                taxes.value = response.data;
-            });
-        };
-
-        const warehouseAdded = () => {
-            axiosAdmin.get(warehouseUrl).then((response) => {
-                warehouses.value = response.data;
+        const fromWarehouseChanged = (selectedWarehouseId) => {
+            axiosAdmin.post("change-warehouse", {
+                warehouse_id: selectedWarehouseId,
             });
         };
 
@@ -894,7 +1240,6 @@ export default {
             loading,
             rules,
             users,
-            warehouses,
             taxes,
             onSubmit,
             fetchProducts,
@@ -924,12 +1269,26 @@ export default {
             taxTypes,
             permsArray,
 
-            unitAdded,
-            taxAdded,
-            warehouseAdded,
+            //unitAdded,
+            //taxAdded,
+            //warehouseAdded,
 
             editOrderDisable,
+
+            //* ADDENDUM
+            allWarehouses,
+            toWarehouses,
+            fromWarehouses,
+            fromWarehouseChanged,
+            userWarehouses,
+            userSearchLabelPrefix,
+            warehouseSearchLabelPrefix,
+            priceTypes,
+            salesLabels,
+            subtotalChanged,
+
             inputValueChanged,
+            ordersProgress,
         };
     },
 };

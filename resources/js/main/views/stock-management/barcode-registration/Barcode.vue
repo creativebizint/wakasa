@@ -490,10 +490,7 @@ export default {
         });
 
         const onSubmit = () => {
-            if(maximumBarcode.value < selectedProducts.value.length){
-                alert('total scan barcode('+selectedProducts.value.length+') > total Item('+ maximumBarcode.value +')');
-                return false;
-            }
+            
 
             
             const newFormDataObject = {

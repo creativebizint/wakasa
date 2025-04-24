@@ -69,9 +69,6 @@
                         
                     >
                         <template #bodyCell="{ column, text, record }">
-                            <template v-if="column.dataIndex === 'image_url'">
-                                <a-image :width="32" :src="text" />
-                            </template>
                             <template v-if="column.dataIndex === 'action'">
                                 <a-button
                                     v-if="

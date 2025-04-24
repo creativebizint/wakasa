@@ -86,7 +86,7 @@ export default defineComponent({
         }
 
         const pageTitle = computed(() => {
-            return props.addEditType == "add" ? t("category.add") : t("category.edit");
+            return props.addEditType == "add" ? t("picking_request.user") : t("picking_request.user");
         });
 
         const onSubmit = () => {

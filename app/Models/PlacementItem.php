@@ -13,13 +13,13 @@ class PlacementItem extends BaseModel
 {
     protected $table = 'placement_items';
 
-    protected $default = ['xid', 'id', 'x_user_id', 'x_placement_id', 'x_product_id', 'product_id','row'];
+    protected $default = ['xid', 'id',  'x_placement_id', 'x_product_id', 'product_id','row'];
 
     protected $guarded = ['id'];
 
     protected $hidden = ['id'];
 
-    protected $appends = ['xid', 'x_user_id', 'x_placement_id', 'x_product_id', 'x_unit_id'];
+    protected $appends = ['xid', 'x_placement_id', 'x_product_id'];
 
     protected $filterable = ['id', 'product_id', 'warehouse_id', 'row'];
 

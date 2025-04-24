@@ -382,10 +382,10 @@ const common = () => {
             key: "pending",
             value: t("common.pending"),
         },
-        {
-            key: "ordered",
-            value: t("common.ordered"),
-        },
+//        {
+//            key: "ordered",
+//            value: t("common.ordered"),
+//        },
     ];
 
     const purchaseReturnStatus = [
@@ -419,7 +419,10 @@ const common = () => {
             key: "ordered",
             value: t("common.ordered"),
         },
-        ...onlineOrderChangeStatus,
+        ...onlineOrderChangeStatus,        
+    ];
+    
+    const deliveryOrderStatus = [
         {
             key: "delivered",
             value: t("common.delivered"),

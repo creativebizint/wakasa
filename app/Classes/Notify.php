@@ -40,6 +40,7 @@ class Notify
             'quotations_create', 'quotations_update', 'quotations_delete',
             'sales_returns_create', 'sales_returns_update', 'sales_returns_delete',
             'stock_transfers_create', 'stock_transfers_update', 'stock_transfers_delete',
+            'stock_transfer_returns_create', 'stock_transfer_returns_update', 'stock_transfer_returns_delete','inventory_in_create'
         ])) {
             $warehouse = Warehouse::find($sendData->warehouse_id);
             $staffMember = StaffMember::find($sendData->staff_user_id);
@@ -146,8 +147,12 @@ class Notify
 
     public static function send($sendFor, $sendData)
     {
+        file_put_contents(storage_path('logs') . '/notify.log', "[" . date('Y-m-d H:i:s') . "]send for : \n" . print_r($sendFor,1) . "\n\n", FILE_APPEND);
+        file_put_contents(storage_path('logs') . '/notify.log', "[" . date('Y-m-d H:i:s') . "]send for : \n" . print_r($sendData,1) . "\n\n", FILE_APPEND);        
         $data = self::getData($sendFor, $sendData);
+        file_put_contents(storage_path('logs') . '/notify.log', "[" . date('Y-m-d H:i:s') . "]data array : \n" . print_r($data,1) . "\n\n", FILE_APPEND);
         $dataArray = self::getDataArray($data);
+        file_put_contents(storage_path('logs') . '/notify.log', "[" . date('Y-m-d H:i:s') . "]data : \n" . print_r($dataArray,1) . "\n\n", FILE_APPEND);
         $sender = $data['to'];
 
         $notficationData = [

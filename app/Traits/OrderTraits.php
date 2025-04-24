@@ -30,6 +30,8 @@ use Vinkla\Hashids\Facades\Hashids;
 use Illuminate\Support\Facades\Request;
 use DB;
 
+use Illuminate\Support\Facades\Bus;
+
 trait OrderTraits
 {
     public $orderType = "";
@@ -162,91 +164,116 @@ trait OrderTraits
         }
     }
 
-    public function storing(Order $order)
+//    public function storing(Order $order)
+//    {
+//        $request = request();
+//        $warehouse = warehouse();
+//
+//        if (!$request->has('invoice_number') || ($request->has('invoice_number') && $request->invoice_number == "")) {
+//            $order->invoice_number = '';
+//        }
+//        //    dd($request->warehouse_id );
+//        $order->unique_id = Common::generateOrderUniqueId();
+//        $order->order_type = $this->orderType;
+//        $order->warehouse_id = $this->orderType == 'stock-transfers' ? $request->warehouse_id : $warehouse->id;
+//        $order->from_warehouse_id = $this->orderType == 'stock-transfers' ? $warehouse->id : null;
+//        $order->user_id = $this->orderType == 'stock-transfers' ? null : $request->user_id;
+//
+//        if ($this->orderType == "quotations") {
+//            $order->order_status = "pending";
+//        }
+//
+//        return $order;
+//    }
+    
+    public function store()
     {
+		$this->validate();
+
         $request = request();
-        $warehouse = warehouse();
+		$meta = $this->getMetaData(true);
 
-        if (!$request->has('invoice_number') || ($request->has('invoice_number') && $request->invoice_number == "")) {
-            $order->invoice_number = '';
-        }
-        //    dd($request->warehouse_id );
-        $order->unique_id = Common::generateOrderUniqueId();
-        $order->order_type = $this->orderType;
-        $order->warehouse_id = $this->orderType == 'stock-transfers' ? $request->warehouse_id : $warehouse->id;
-        $order->from_warehouse_id = $this->orderType == 'stock-transfers' ? $warehouse->id : null;
-        $order->user_id = $this->orderType == 'stock-transfers' ? null : $request->user_id;
+        $batch = Bus::batch([new \App\Jobs\OrderJob("store", $request->all(), null, company()->id, user()->id)])
+            ->onQueue('orders')
+            ->dispatch();
 
-        if ($this->orderType == "quotations") {
-            $order->order_status = "pending";
-        }
-
-        return $order;
+        $response = [
+            'id' => $batch->id,
+            'finished' => $batch->finished(),
+            'cache_key' => null,
+            'progress' => [
+                'percent' => $batch->progress(),
+                'status' => 'active',
+                'message' => '',
+            ],
+        ];
+            
+		return ApiResponse::make("Resource is being processed", $response, $meta);
     }
 
-    public function stored(Order $order)
-    {
-        $request = request();
-        $oldOrderId = "";
-
-        if ($order->invoice_number == '') {
-            $order->invoice_number = Common::getTransactionNumber($order->order_type, $order->id);
-        }
-
-        // Created by user
-        $order->staff_user_id = auth('api')->user()->id;
-        $order->save();
-
-        $order = Common::storeAndUpdateOrder($order, $oldOrderId);
-
-        // Updating Warehouse History
-        Common::updateWarehouseHistory('order', $order, "add_edit");
-
-        // Notifying to Warehouse
-        Notify::send(str_replace('-', '_', $order->order_type)  . '_create', $order);
-
-
-        $allPayments = $request->has('all_payments') && count($request->all_payments) == 0 ? [] : $request->all_payments;
-
-        foreach ($allPayments as $allPayment) {
-            // Save Order Payment
-            if ($allPayment['amount'] > 0 && $allPayment['payment_mode_id'] != '') {
-                $payment = new Payment();
-                $payment->warehouse_id = $order->warehouse_id;
-                if ($order->order_type == 'sales' || $order->order_type == 'purchase-returns') {
-                    $payment->payment_type = "in";
-                } elseif ($order->order_type == 'purchases' || $order->order_type == 'sales-returns') {
-                    $payment->payment_type = "out";
-                }
-                $payment->date = Carbon::now();
-                if ($allPayment['amount'] == $order->total) {
-                    $payment->amount = $allPayment['amount'];
-                } elseif ($allPayment['amount'] > $order->total || $allPayment['amount'] < $order->total) {
-                    throw new ApiException('Paid amount should be less than or equal to Grand Total');
-                }
-                $payment->paid_amount = $allPayment['amount'];
-                $payment->payment_mode_id = $allPayment['payment_mode_id'];
-                $payment->notes = null;
-                $payment->user_id = $order->user_id;
-                $payment->save();
-
-                // Generate and save payment number
-                $paymentType = 'payment-' . $payment->payment_type;
-                $payment->payment_number = Common::getTransactionNumber($paymentType, $payment->id);
-                $payment->save();
-
-                $orderPayment = new OrderPayment();
-                $orderPayment->order_id = $order->id;
-                $orderPayment->payment_id = $payment->id;
-                $orderPayment->amount = $allPayment['amount'];
-                $orderPayment->save();
-            }
-        }
-
-        Common::updateOrderAmount($order->id);
-
-        return $order;
-    }
+//    public function stored(Order $order)
+//    {
+//        $request = request();
+//        $oldOrderId = "";
+//
+//        if ($order->invoice_number == '') {
+//            $order->invoice_number = Common::getTransactionNumber($order->order_type, $order->id);
+//        }
+//
+//        // Created by user
+//        $order->staff_user_id = auth('api')->user()->id;
+//        $order->save();
+//
+//        $order = Common::storeAndUpdateOrder($order, $oldOrderId);
+//
+//        // Updating Warehouse History
+//        Common::updateWarehouseHistory('order', $order, "add_edit");
+//
+//        // Notifying to Warehouse
+//        Notify::send(str_replace('-', '_', $order->order_type)  . '_create', $order);
+//
+//
+//        $allPayments = $request->has('all_payments') && count($request->all_payments) == 0 ? [] : $request->all_payments;
+//
+//        foreach ($allPayments as $allPayment) {
+//            // Save Order Payment
+//            if ($allPayment['amount'] > 0 && $allPayment['payment_mode_id'] != '') {
+//                $payment = new Payment();
+//                $payment->warehouse_id = $order->warehouse_id;
+//                if ($order->order_type == 'sales' || $order->order_type == 'purchase-returns') {
+//                    $payment->payment_type = "in";
+//                } elseif ($order->order_type == 'purchases' || $order->order_type == 'sales-returns') {
+//                    $payment->payment_type = "out";
+//                }
+//                $payment->date = Carbon::now();
+//                if ($allPayment['amount'] == $order->total) {
+//                    $payment->amount = $allPayment['amount'];
+//                } elseif ($allPayment['amount'] > $order->total || $allPayment['amount'] < $order->total) {
+//                    throw new ApiException('Paid amount should be less than or equal to Grand Total');
+//                }
+//                $payment->paid_amount = $allPayment['amount'];
+//                $payment->payment_mode_id = $allPayment['payment_mode_id'];
+//                $payment->notes = null;
+//                $payment->user_id = $order->user_id;
+//                $payment->save();
+//
+//                // Generate and save payment number
+//                $paymentType = 'payment-' . $payment->payment_type;
+//                $payment->payment_number = Common::getTransactionNumber($paymentType, $payment->id);
+//                $payment->save();
+//
+//                $orderPayment = new OrderPayment();
+//                $orderPayment->order_id = $order->id;
+//                $orderPayment->payment_id = $payment->id;
+//                $orderPayment->amount = $allPayment['amount'];
+//                $orderPayment->save();
+//            }
+//        }
+//
+//        Common::updateOrderAmount($order->id);
+//
+//        return $order;
+//    }
 
     public function updating(Order $order)
     {
@@ -265,6 +292,17 @@ trait OrderTraits
         return $order;
     }
 
+    public function invoiceCheck(){
+        $invoice_number = isset($_GET['invoice_number'])?$_GET['invoice_number']:'';
+        $order = [];
+        if($invoice_number != ''){
+          $order = Order::where('invoice_number',$invoice_number)->first();  
+        }
+
+        
+        return ['data'=>$order];
+    }
+    
     public function update(...$args)
     {
         \DB::beginTransaction();
@@ -565,15 +603,18 @@ trait OrderTraits
                 $scanned_history->order_item_id = $order_item_id;
                 $scanned_history->save();
 
-                $scanned_history_items = new ScannedHistoryItems();
                 $total_scanned = 0;
                 foreach($product_items as $product_item){
-                    $scanned_history_items->scanned_history_id = $scanned_history->id;
-                    $scanned_history_items->barcode_id = Common::getIdFromHash($product_item['xid']);
-                    $scanned_history_items->qty = $product_item['qty_bungkus'];
-                    $scanned_history_items->save();
-                    Barcode::where('id',Common::getIdFromHash($product_item['xid']))->update(['isactive'=>'1','order_item_id' => $order_item_id,'item_id' => $item_id,'scanned_in_by'=> $user_id, 'status' => Barcode::STATUS_SCANNED ]);
-                    $total_scanned += $product_item['qty_bungkus'];
+                    $count = ScannedHistoryItems::where('barcode_id',Common::getIdFromHash($product_item['xid']))->count();
+                    if($count == 0){
+                        $scanned_history_items = new ScannedHistoryItems();
+                        $scanned_history_items->scanned_history_id = $scanned_history->id;
+                        $scanned_history_items->barcode_id = Common::getIdFromHash($product_item['xid']);
+                        $scanned_history_items->qty = $product_item['qty_bungkus'];
+                        $scanned_history_items->save();
+                        Barcode::where('id',Common::getIdFromHash($product_item['xid']))->update(['isactive'=>'1','order_item_id' => $order_item_id,'item_id' => $item_id,'scanned_in_by'=> $user_id, 'status' => Barcode::STATUS_SCANNED ]);
+                        $total_scanned += $product_item['qty_bungkus'];
+                    }                    
                 }
                 $scanned_history->qty_scanned = $total_scanned;
                 $scanned_history->save();
@@ -581,7 +622,13 @@ trait OrderTraits
                 //calculate total scanned
                 $all_scanned = ScannedHistory::where('order_id',$order->id)
                                     ->where('order_item_id', $order_item_id)->selectRaw("sum(qty_scanned) as total")->first();
-                OrderItem::where('id',$order_item_id)->update(['quantity_scanned'=>$all_scanned->total]);
+                $barcodes = Barcode::where('order_item_id',$order_item_id)->get();
+                $total_scanned_qty = $total_qrcode = 0;
+                foreach($barcodes as $barcode_data){
+                    $total_scanned_qty += $barcode_data->qty_bungkus;
+                    $total_qrcode++;
+                }
+                OrderItem::where('id',$order_item_id)->update(['quantity_scanned'=>$total_scanned_qty, 'quantity_qrcode'=>$total_qrcode]);
 
                 $message = 'Barcode telah berhasil di scan';
             }

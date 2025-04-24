@@ -528,6 +528,24 @@
                         >
                             <span>{{ $t("menu.placement_in") }}</span>
                         </a-menu-item>
+
+                        <a-menu-item
+                            @click="
+                                () => {
+                                    menuSelected();
+                                    $router.push({
+                                        name: 'admin.product_placement.placement_in_history',
+                                    });
+                                }
+                            "
+                            key="placement_in_history"
+                            v-if="
+                                permsArray.includes('placement_in_view') ||
+                                permsArray.includes('admin')
+                            "
+                        >
+                            <span>{{ $t("menu.placement_in_history") }}</span>
+                        </a-menu-item>
                     </a-sub-menu>
 
                     <a-sub-menu
@@ -599,62 +617,6 @@
                         </a-menu-item>
                     </a-sub-menu>
 
-                    
-                    <a-sub-menu
-                        key="inventory"
-                        v-if="
-                            permsArray.includes('inventory_in_view') ||
-                            permsArray.includes('inventory_out_view') ||
-                            permsArray.includes('admin')
-                        "
-                    >
-                        <template #title>
-                            <span>
-                                <ContainerOutlined />
-                                <span>{{ $t("menu.inventory") }}</span>
-                            </span>
-                        </template>
-                        
-                        <a-menu-item
-                            @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.stock_management.index',
-                                    });
-                                }
-                            "
-                            key="product_placement"
-                            v-if="
-                                permsArray.includes('stock_managements_view') ||
-                                permsArray.includes('admin')
-                            "
-                        >
-                            <span>{{ $t("menu.stock_management") }}</span>
-                        </a-menu-item>
-
-                        <a-menu-item
-                            @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.stock_management.in_history',
-                                    });
-                                }
-                            "
-                            key="in_history"
-                            v-if="
-                                permsArray.includes('stock_managements_view') ||
-                                permsArray.includes('admin')
-                            "
-                        >
-                            <span>{{ $t("menu.stock_in") }}</span>
-                        </a-menu-item>
-
-                        
-
-                    </a-sub-menu>
-                    
 
                     <a-menu-item
                         @click="

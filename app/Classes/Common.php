@@ -22,6 +22,7 @@ use App\Models\StockAdjustmentOrder;
 use App\Models\Recalculate;
 use App\Models\StockHistory;
 use App\Models\SubscriptionPlan;
+use App\Models\PickingAssignment;
 use App\Models\Tax;
 use App\Models\Translation;
 use App\Models\Unit;
@@ -856,7 +857,7 @@ class Common
                 $orderItem->tax_type = $productItem->tax_type;
                 $orderItem->subtotal = $productItem->subtotal;
                 $orderItem->single_unit_price = $productItem->single_unit_price;
-                $orderItem->shelf = isset($productItem->shelf) ? $productItem->shelf : '123';
+                $orderItem->shelf = isset($productItem->shelf) ? $productItem->shelf : '';
                 $orderItem->save();
 
                 // Inserting sub taxes
@@ -1105,6 +1106,7 @@ class Common
             'product-placement-out' => 'PLC-OUT-',
             'stock-adjustment-add' => 'AI-',
             'stock-adjustment-subtract' => 'AO-',
+            'picking-assignment' => 'PA-',
         ];
 
         $currentMonth = Carbon::now()->format('ym');
@@ -1138,6 +1140,8 @@ class Common
             $exist = StockAdjustmentOrder::where('invoice_number', '=', $result)->first();
         } else if ($type == 'product-placement-in' || $type == 'product-placement-out') {
             $exist = Placement::where('invoice_number', '=', $result)->first();
+        }elseif ($type == 'picking-assignment') {
+            $exist = PickingAssignment::where('code', '=', $result)->first();
         } else {
             $exist = Order::where('invoice_number', '=', $result)->first();
         }

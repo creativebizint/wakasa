@@ -193,6 +193,20 @@ export default [
             },
             
             {
+                path: "/admin/product-placement/place-in-history",
+                component: () =>
+                    import("../views/stock-management/product-placement/placement_in_history.vue"),
+                name: "admin.product_placement.placement_in_history",
+                meta: {
+                    requireAuth: true,
+                    menuParent: "product_placement",
+                    menuKey: (route) => "placement_in_history",
+                    permission: (route) => "product_placement_view",
+                    orderType: "placement_in",
+                },
+            },
+            
+            {
                 path: "inventory-in/create",
                 component: () =>
                     import("../views/stock-management/inventory/Create.vue"),

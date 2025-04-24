@@ -48,7 +48,7 @@
                 <a-row :gutter="16">
                     <a-col :xs="24" :sm="24" :md="8" :lg="8">
                         <a-form-item
-                            :label="$t(`stock.invoice_number`)"
+                            :label="$t(`${orderPageObject.langKey}.invoice_number`)"
                             name="invoice_number"
                             :help="
                                 rules.invoice_number ? rules.invoice_number.message : null
@@ -62,6 +62,7 @@
                                         $t('stock.invoice_number'),
                                     ])
                                 "
+                                @blur="checkInvoiceNumber"
                             />
                             <small class="small-text-message">
                                 {{ $t("stock.invoie_number_blank") }}
@@ -236,9 +237,7 @@
                     <a-col :xs="24" :sm="24" :md="8" :lg="8">
                         <a-form-item
                             :label="
-                                $t(
-                                    `inventory_in.date`
-                                )
+                                $t(`${orderPageObject.langKey}.date`)
                             "
                             name="order_date"
                             :help="rules.order_date ? rules.order_date.message : null"
@@ -978,6 +977,8 @@ import PaymentModeAddButton from "../payments/AddButton.vue";
 
 //* ADDENDUM
 import WarehouseSearch from "./WarehouseSearch.vue";
+import { debounce } from "lodash-es"; // Import lodash debounce if you want to debounce
+import { Modal } from "ant-design-vue"; // For confirmation dialog
 
 export default {
     components: {
@@ -1112,7 +1113,7 @@ export default {
                 warehouseSearchLabelPrefix.value = "from";
             } else if (orderType.value == "inventory_out") {
                 allOrderStatus.value = salesOrderStatus;
-                formData.value.order_status = "delivered";
+                formData.value.order_status = "Ordered";
                 formData.value.label = "sales";
                 warehouseSearchLabelPrefix.value = "from";
             } else if (orderType.value == "sales-returns") {
@@ -1159,6 +1160,62 @@ export default {
                 },
             });
         };
+
+        const invoiceNumberHelp = ref(null);
+        const invoiceNumberStatus = ref(null);
+
+        const checkInvoiceNumber = debounce(async () => {
+            const invoiceNumber = formData.value.invoice_number;
+
+            // Skip check if invoice number is empty
+            if (!invoiceNumber) {
+                invoiceNumberHelp.value = null;
+                invoiceNumberStatus.value = null;
+                rules.value.invoice_number = null;
+                return;
+            }
+
+            try {
+                // Make an API call to check if the invoice number exists
+                const response = await axiosAdmin.get(`/invoices/check?invoice_number=${invoiceNumber}`);
+
+                if (response.data === null || response.data === undefined) {
+                    // Do nothing if response.data is null or undefined
+                    invoiceNumberHelp.value = null;
+                    invoiceNumberStatus.value = null;
+                    rules.value.invoice_number = null;
+                    return;
+                }
+
+
+                // Show confirmation dialog
+                Modal.confirm({
+                    title: t("stock.invoice_number_already_exists"),
+                    content: t("stock.confirm_stock_transfer", { warehouse: "B15" }), // e.g., "This invoice is already used. Do you want to stock transfer from B15?"
+                    okText: t("common.yes"),
+                    cancelText: t("common.no"),
+                    onOk() {
+                        // Redirect to admin.stock.stock-transfers.edit with invoice ID
+                        router.push({
+                            name: "admin.stock.stock-transfers.edit",
+                            params: { id: response.data.xid },
+                        });
+                    },
+                    onCancel() {
+                        // Mark as error but allow user to stay on the form
+                        invoiceNumberHelp.value = t("stock.invoice_number_already_exists");
+                        invoiceNumberStatus.value = "error";
+                        rules.value.invoice_number = {
+                            message: t("stock.invoice_number_already_exists"),
+                        };
+                    },
+                });
+            } catch (error) {
+                console.error("Error checking invoice number:", error);
+                invoiceNumberHelp.value = t("common.error_occurred");
+                invoiceNumberStatus.value = "error";
+            }
+        }, 500); // Debounce for 500ms
 
         const unitAdded = () => {
             axiosAdmin.get(unitUrl).then((response) => {
@@ -1292,6 +1349,9 @@ export default {
             payment,
 
             warehouseSearchLabelPrefix,
+
+            //addition
+            checkInvoiceNumber,
         };
     },
 };

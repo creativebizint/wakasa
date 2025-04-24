@@ -17,6 +17,8 @@ use App\Models\User;
 use App\Models\UserDetails;
 use App\Models\Warehouse;
 use App\Models\Store;
+use App\Models\PickingAssignment;
+use App\Models\PickingAssignmentItem;
 use Examyou\RestAPI\ApiResponse;
 use Examyou\RestAPI\Exceptions\ApiException;
 use Carbon\Carbon;
@@ -24,10 +26,12 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Imports\StockInImport;
 use App\Imports\StockOutImport;
+use App\Models\OrderItem;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Requests\Api\ProductPlacement\ImportRequest;
 use App\Exports\ExcelExport;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Http\Request;
 
 class pickingRequestController extends ApiBaseController
 {
@@ -47,96 +51,40 @@ class pickingRequestController extends ApiBaseController
                         ->join('products','products.id','order_items.product_id')
                         ->whereNull('order_items.picker_by')
                         ->where('orders.order_type','=','sales')
-                        ->select('orders.invoice_number','orders.id','orders.order_date','order_items.quantity','products.name','products.id as product_id','products.item_id');
+                        ->select('orders.invoice_number','order_items.id','orders.order_date','order_items.quantity','products.name','products.id as product_id','products.item_id');
         $this->modifySelect = true;
         return $query;
     }
     
-    public function save(){
-        $request = request();
-        $loggedInUser = user();
-        $warehouse = warehouse();
-
-        $obj = $request->all();
-        $rules = [
-          'shelf_group'=>'required',
-          'shelf_number'=> 'required',
-          'row'=> 'required',
-          'floor'=> 'required',
-          'warehouse_id'=> 'required',
-        ];
-        $validator = Validator::make($obj, $rules);
-        if($validator->fails()) {
-          throw new ApiException($validator->errors()->first());
-        }
-    
-        $product_items = $request->product_items;
-        $company = company();
+    public function save(Request $request){
+        $user_id = $this->getIdFromHash($request->user_id);
+        $pa_code = Common::getTransactionNumber('picking-assignment');
         
-        DB::beginTransaction();
-        try{
-            $placement = new Placement();
-            $placement->company_id = $company->id;
-            $placement->invoice_number = '';
-            $placement->unique_id = Common::generateOrderUniqueId();
-            $placement->invoice_type = "product-placement";
-            $placement->placement_type = "in";
-            $placement->placement_date = Carbon::now();
-            $placement->warehouse_id = $obj['warehouse_id'];
-            $placement->notes = $obj['notes'];
-            $placement->staff_user_id = $loggedInUser->id;
-            $placement->user_id = $loggedInUser->id;
-            $placement->total_items = $obj['total_items'];
-            $placement->total_quantity = 0;
-            $placement->save();
-
-            $type = 'product-placement-in';
-            $placement->invoice_number = Common::getTransactionNumber($type);
-            $placement->save();
-            $total_qty = 0;
-            foreach($product_items as $product_item){
-                $placement_item = new PlacementItem();
-                $placement_item->user_id = $loggedInUser->id;
-                $placement_item->placement_id = $placement->id;
-                $placement_item->product_id = $this->getIdFromHash($product_item['xid']);
-                $placement_item->unit_id = $this->getIdFromHash($product_item['x_unit_id']);
-                $placement_item->floor = $this->getIdFromHash($obj['floor']);
-                $placement_item->shelf_group = $this->getIdFromHash($obj['shelf_group']);
-                $placement_item->shelf_number = $this->getIdFromHash($obj['shelf_number']);
-                $placement_item->row = $this->getIdFromHash($obj['row']);
-                $placement_item->qty = $product_item['quantity'];
-                $placement_item->save();
-                
-                $total_qty += $product_item['quantity'];
-                
-                for($i = 1; $i<=$product_item['quantity'];$i++){
-                    $product_placement = new ProductPlacement();
-                    $product_placement->user_id = $loggedInUser->id;
-                    $product_placement->placement_id = $placement->id;
-                    $product_placement->product_id = $this->getIdFromHash($product_item['xid']);
-                    $product_placement->unit_id = $this->getIdFromHash($product_item['x_unit_id']);
-                    $product_placement->floor = $this->getIdFromHash($obj['floor']);
-                    $product_placement->shelf_group = $this->getIdFromHash($obj['shelf_group']);
-                    $product_placement->shelf_number = $this->getIdFromHash($obj['shelf_number']);
-                    $product_placement->row = $this->getIdFromHash($obj['row']);
-                    $product_placement->warehouse_id = $obj['warehouse_id'];
-                    $product_placement->save();
-                }
-                
-                
-            }
-
-            $placement->total_quantity = $total_qty;
-            $placement->save();
-        } catch (\Exception $e) {
-            DB::rollback();
-            throw new ApiException($e->getMessage());
-        }
+        $picking_assignment = new PickingAssignment();
+        $picking_assignment->user_id = $user_id;
+        $picking_assignment->code = $pa_code;
+        $picking_assignment->save();
+        
+        foreach($request->selected_ids as $order_id){
+            $picking_assignment_item = new PickingAssignmentItem();
+            $picking_assignment_item->picking_assignment_id  = $picking_assignment->id;
+            $picking_assignment_item->order_item_id = $this->getIdFromHash($order_id);
+            $order_item = OrderItem::where('order_items.id',$this->getIdFromHash($order_id))
+                          ->join('orders','orders.id','=','order_items.order_id')
+                          ->select('product_id','quantity','orders.invoice_number')
+                          ->first();
+            $picking_assignment_item->invoice_number = $order_item->invoice_number;
+            $picking_assignment_item->product_id = $order_item->product_id;
+            $picking_assignment_item->qty = $order_item->quantity;
+            $picking_assignment_item->save();
             
-         DB::commit();   
+            OrderItem::where('order_items.id',$this->getIdFromHash($order_id))->update(['picker_by' => $user_id]);
+        }
         
-         return ApiResponse::make('Product Placement In successfull', [
-                'unique_id' => $placement->unique_id 
+        
+         return ApiResponse::make('Picking Assignment In successfull', [
+                'unique_id' => $picking_assignment->id, 
+                'code' => $picking_assignment->$pa_code, 
             ]);
     }
     

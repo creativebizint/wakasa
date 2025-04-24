@@ -9,6 +9,9 @@ use App\Http\Requests\Api\User\UpdateRequest;
 use App\Http\Requests\Api\User\DeleteRequest;
 use App\Models\User;
 use App\Traits\UserTraits;
+use Examyou\RestAPI\ApiResponse;
+use Examyou\RestAPI\Exceptions\ApiException;
+use Examyou\RestAPI\Exceptions\ResourceNotFoundException;
 
 class UsersController extends ApiBaseController
 {

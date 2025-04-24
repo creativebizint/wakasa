@@ -78,6 +78,9 @@ export default defineComponent({
                 filters: {
                     product_id: props.filters.product.xid,
                 },
+                extraFilters: {
+                    warehouse_id: props.filters.warehouse_id,
+                },
             };
             datatableVariables.hashable.value = [...orderItemsHashableColumns];
             datatableVariables.table.sorter = {

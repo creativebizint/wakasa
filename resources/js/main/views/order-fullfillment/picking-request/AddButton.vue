@@ -12,7 +12,7 @@
             <a-tooltip
                 v-if="tooltip"
                 placement="topLeft"
-                :title="$t('category.add')"
+                :title="$t('picking_request.user')"
                 arrow-point-at-center
             >
                 <a-button @click="showAdd" class="ml-5 no-border-radius" :type="btnType">
@@ -39,7 +39,7 @@
             @closed="onClose"
             :formData="formData"
             :data="formData"
-            :pageTitle="$t('category.add')"
+            :pageTitle="$t('picking_request.user')"
             :successMessage="$t('category.created')"
         />
     </div>

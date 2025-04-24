@@ -343,6 +343,11 @@ const stockManagement = () => {
             }
         });
         selectedProducts.value = newResults;
+        var qty_scanned = 0;
+        for (var n in newResults){
+            qty_scanned += newResults[n].qty_bungkus;
+        }
+        formData.value.total_items_scanned = qty_scanned;
 
         // Remove deleted product id from lists
         const filterProductIdArray = selectedProductIds.value.filter(

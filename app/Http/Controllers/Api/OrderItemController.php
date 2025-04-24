@@ -18,12 +18,22 @@ class OrderItemController extends ApiBaseController
         $request = request();
         $warehouse = warehouse();
 
-        $query = $query->join('orders', 'orders.id', '=', 'order_items.order_id')
-            ->where(function ($query) use ($warehouse) {
-                $query->where('orders.warehouse_id', $warehouse->id)
-                    ->orWhere('orders.from_warehouse_id', $warehouse->id);
-            });
-
+        if(isset($request->warehouse_id)){
+            $warehouse_id = $this->getIdFromHash($request->warehouse_id);
+            
+            $query = $query->join('orders', 'orders.id', '=', 'order_items.order_id')
+                ->where(function ($query) use ($warehouse_id) {
+                    $query->where('orders.warehouse_id', $warehouse_id)
+                        ->orWhere('orders.from_warehouse_id', $warehouse_id);
+                });
+        }
+        else{
+            $query = $query->join('orders', 'orders.id', '=', 'order_items.order_id')
+                ->where(function ($query) use ($warehouse) {
+                    $query->where('orders.warehouse_id', $warehouse->id)
+                        ->orWhere('orders.from_warehouse_id', $warehouse->id);
+                });
+        }
 
         // Dates Filters
         if ($request->has('dates') && $request->dates != "") {

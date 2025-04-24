@@ -37,9 +37,9 @@ class StoreRequest extends FormRequest
         if ($this->invoice_number && $this->invoice_number != '') {
             $rules['invoice_number'] = [
                 'required',
-                Rule::unique('orders', 'invoice_number')->where(function ($query) use ($company) {
-                    return $query->where('company_id', $company->id);
-                })
+//                Rule::unique('orders', 'invoice_number')->where(function ($query) use ($company) {
+//                    return $query->where('company_id', $company->id);
+//                })
             ];
         }
 

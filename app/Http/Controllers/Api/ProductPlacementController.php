@@ -362,13 +362,16 @@ class ProductPlacementController extends ApiBaseController
       $results = $results->get()->toArray();
       foreach($results as $i => $result){
           $results[$i]['items'] = PlacementItem::where('placement_id',Common::getIdFromHash($result['xid']))
-                  ->join('products','products.id','placement_items.product_id')
-                  ->join('product_placement_floor','product_placement_floor.id','=','placement_items.floor')
+                  ->join('barcode','barcode.id','placement_items.barcode_id')
+                  ->join('products','products.item_id','barcode.item_id')
                   ->join('product_placement_row','product_placement_row.id','=','placement_items.row')
-                  ->join('product_placement_shelf_group','product_placement_shelf_group.id','=','placement_items.shelf_group')
-                  ->join('product_placement_shelf_number','product_placement_shelf_number.id','=','placement_items.shelf_number')
-                  ->select('placement_id','product_id','name','slug','item_code','category_id','brand_id','description',
-                          'qty','warehouse_id','product_placement_floor.id as floor_id', 'product_placement_floor.value as floor',
+                  ->leftjoin('product_placement_shelf_number','product_placement_shelf_number.id','=','product_placement_row.product_placement_shelf_number_id')
+                  ->leftjoin('product_placement_shelf_group','product_placement_shelf_group.id','=','product_placement_shelf_number.product_placement_shelf_group_id')
+                  ->leftjoin('product_placement_floor','product_placement_floor.id','=','product_placement_shelf_group.product_placement_floor_id')
+                  
+                  
+                  ->select('placement_id','products.item_id','products.name','products.item_code','category_id','brand_id','description',
+                          'barcode.qty_bungkus as qty','warehouse_id','product_placement_floor.id as floor_id', 'product_placement_floor.value as floor',
                           'product_placement_row.id as row_id', 'product_placement_row.value as row',
                           'product_placement_shelf_group.id as shelf_group_id', 'product_placement_shelf_group.value as shelf_group', 
                           'product_placement_shelf_number.id as shelf_number_id', 'product_placement_shelf_number.value as shelf_number')
@@ -462,19 +465,22 @@ class ProductPlacementController extends ApiBaseController
           }
           $results = $results->get()->toArray();
           foreach($results as $i => $result){
-              $results[$i]['items'] = PlacementItem::where('placement_id',Common::getIdFromHash($result['xid']))
-                      ->join('products','products.id','placement_items.product_id')
-                      ->join('product_placement_floor','product_placement_floor.id','=','placement_items.floor')
-                      ->join('product_placement_row','product_placement_row.id','=','placement_items.row')
-                      ->join('product_placement_shelf_group','product_placement_shelf_group.id','=','placement_items.shelf_group')
-                      ->join('product_placement_shelf_number','product_placement_shelf_number.id','=','placement_items.shelf_number')
-                      ->select('placement_id','product_id','name','slug','item_code','category_id','brand_id','description',
-                              'qty','warehouse_id','product_placement_floor.id as floor_id', 'product_placement_floor.value as floor',
-                              'product_placement_row.id as row_id', 'product_placement_row.value as row',
-                              'product_placement_shelf_group.id as shelf_group_id', 'product_placement_shelf_group.value as shelf_group', 
-                              'product_placement_shelf_number.id as shelf_number_id', 'product_placement_shelf_number.value as shelf_number')
-                      ->get()->toARray();
-          }
+          $results[$i]['items'] = PlacementItem::where('placement_id',Common::getIdFromHash($result['xid']))
+                  ->join('barcode','barcode.id','placement_items.barcode_id')
+                  ->join('products','products.item_id','barcode.item_id')
+                  ->join('product_placement_row','product_placement_row.id','=','placement_items.row')
+                  ->leftjoin('product_placement_shelf_number','product_placement_shelf_number.id','=','product_placement_row.product_placement_shelf_number_id')
+                  ->leftjoin('product_placement_shelf_group','product_placement_shelf_group.id','=','product_placement_shelf_number.product_placement_shelf_group_id')
+                  ->leftjoin('product_placement_floor','product_placement_floor.id','=','product_placement_shelf_group.product_placement_floor_id')
+                  
+                  
+                  ->select('placement_id','products.item_id','products.name','products.item_code','category_id','brand_id','description',
+                          'barcode.qty_bungkus as qty','warehouse_id','product_placement_floor.id as floor_id', 'product_placement_floor.value as floor',
+                          'product_placement_row.id as row_id', 'product_placement_row.value as row',
+                          'product_placement_shelf_group.id as shelf_group_id', 'product_placement_shelf_group.value as shelf_group', 
+                          'product_placement_shelf_number.id as shelf_number_id', 'product_placement_shelf_number.value as shelf_number')
+                  ->get()->toARray();
+      }
 
           if (ob_get_contents()) {
             ob_end_clean();

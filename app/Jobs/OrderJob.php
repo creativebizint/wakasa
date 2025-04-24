@@ -68,11 +68,18 @@ class OrderJob implements ShouldQueue, ShouldBeUnique
             $warehouseId = isset($this->request["warehouse_id"]) ? Common::getIdFromHash($this->request["warehouse_id"]) : null;
             $fromWarehouseId = isset($this->request["from_warehouse_id"]) ? Common::getIdFromHash($this->request["from_warehouse_id"]) : null;
             $userId = isset($this->request["user_id"]) ? Common::getIdFromHash($this->request["user_id"]) : null;
-            $label = isset($this->request['label']) ? $this->request['label'] : null;
-            $boxNumber = isset($this->request['box_number']) ? $this->request['box_number'] : null;
-            $packingListNumber = isset($this->request['packing_list_number']) ? $this->request['packing_list_number'] : null;
+//            $label = isset($this->request['label']) ? $this->request['label'] : null;
+//            $boxNumber = isset($this->request['box_number']) ? $this->request['box_number'] : null;
+//            $packingListNumber = isset($this->request['packing_list_number']) ? $this->request['packing_list_number'] : null;
 
             $orderType = $this->request["order_type"];
+            
+            if($orderType == 'inventory_in'){
+                $orderType = 'purchases';
+            }
+            elseif($orderType == 'inventory_out'){
+                $orderType = 'sales';
+            }
             
             $newOrder = new Order();
             $newOrder->company_id = $this->companyId;
@@ -91,9 +98,9 @@ class OrderJob implements ShouldQueue, ShouldBeUnique
             $newOrder->notes = $this->request["notes"];
             $newOrder->payment_status = 'unpaid';
             $newOrder->total_items = count($productItems);
-            $newOrder->label = $label;
-            $newOrder->box_number = $boxNumber;
-            $newOrder->packing_list_number = $packingListNumber;
+//            $newOrder->label = $label;
+//            $newOrder->box_number = $boxNumber;
+//            $newOrder->packing_list_number = $packingListNumber;
             $newOrder->total_quantity = 0;
             $newOrder->subtotal = 0;
             $newOrder->total = 0;
@@ -110,15 +117,18 @@ class OrderJob implements ShouldQueue, ShouldBeUnique
             }
 
             $newOrder->save();
+            
+            if(!in_array(strtolower($newOrder->order_status),['ordered','confirmed','processing','shipping'])){
+                file_put_contents(storage_path('logs') . '/order.log', "[" . date('Y-m-d H:i:s') . "]order 1 : \n" . print_r($newOrder,1) . "\n\n", FILE_APPEND);
+                // Update Stock
+                $newOrder = Common::storeAndUpdateOrder($newOrder, "", $productItems);
+                // Updating Warehouse History
+                Common::updateWarehouseHistory('order', $newOrder, "add_edit");
 
-            // Update Stock
-            $newOrder = Common::storeAndUpdateOrder($newOrder, "", $productItems);
-
-            // Updating Warehouse History
-            Common::updateWarehouseHistory('order', $newOrder, "add_edit");
-
-            // Notifying to Warehouse
-            Notify::send(str_replace('-', '_', $newOrder->order_type)  . '_create', $newOrder);
+                // Notifying to Warehouse
+                Notify::send(str_replace('-', '_', $newOrder->order_type)  . '_create', $newOrder);
+            }
+            
         } else if ($this->context == "update") {
             $productItems = $this->request["product_items"];
             $removedItems = $this->request["removed_items"];

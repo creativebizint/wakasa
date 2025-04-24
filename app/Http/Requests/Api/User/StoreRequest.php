@@ -30,15 +30,15 @@ class StoreRequest extends FormRequest
         $loggedUser = auth('api')->user();
 
         $rules = [
-            'phone'    => [
-                'numeric',
-                Rule::unique('users', 'phone')->where(function ($query) use ($company) {
-                    return $query->where(function ($query) {
-                        $query->where('user_type', 'staff_members')
-                            ->orWhere('user_type', 'super_admins');
-                    })->where('company_id', $company->id);
-                })
-            ],
+//            'phone'    => [
+//                'numeric',
+//                Rule::unique('users', 'phone')->where(function ($query) use ($company) {
+//                    return $query->where(function ($query) {
+//                        $query->where('user_type', 'staff_members')
+//                            ->orWhere('user_type', 'super_admins');
+//                    })->where('company_id', $company->id);
+//                })
+//            ],
             'name' => 'required',
             'email'    => [
                 'required', 'email',

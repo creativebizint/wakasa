@@ -151,6 +151,7 @@
                                 name="code"
                                 :help="rules.code ? rules.code.message : null"
                                 :validateStatus="rules.code ? 'error' : null"
+                                class="required"
                             >
                                 <a-input
                                     v-model:value="formData.code"

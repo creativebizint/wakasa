@@ -49,7 +49,7 @@ class StockListingController extends ApiBaseController
             $query = $query->where(
                 function ($query) use ($searchTerm) {
                     $query->where('products.name', 'LIKE', "%$searchTerm%")
-                        ->orWhere('products.item_code', trim($searchTerm))
+                        ->orWhere('products.item_id', trim($searchTerm))
                         ->orWhere('products.parent_item_code', trim($searchTerm));
                 }
             );
@@ -126,7 +126,7 @@ class StockListingController extends ApiBaseController
             $query = $query->where(
                 function ($query) use ($searchTerm) {
                     $query->where('products.name', 'LIKE', "%$searchTerm%")
-                        ->orWhere('products.item_code', trim($searchTerm))
+                        ->orWhere('products.item_id', trim($searchTerm))
                         ->orWhere('products.parent_item_code', trim($searchTerm));
                 }
             );

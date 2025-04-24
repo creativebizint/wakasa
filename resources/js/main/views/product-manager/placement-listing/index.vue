@@ -116,19 +116,7 @@
                             </a-select-option>
                         </a-select>
                     </a-col>
-
-                    <a-col :xs="24" :sm="24" :md="8" :lg="8" :xl="4">
-                        <DateTimePicker
-                            :dateTime="filters.stock_listing_date"
-                            @dateTimeChanged="
-                                (changedDateTime) => {
-                                    filters.stock_listing_date =
-                                        changedDateTime;
-                                    setUrlData();
-                                }
-                            "
-                        />
-                    </a-col>
+                    
                 </a-row>
             </a-col>
         </a-row>

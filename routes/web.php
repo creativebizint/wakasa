@@ -35,7 +35,8 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
     ApiRoute::get('stock-listing', ['as' => 'api.stock-listing.index', 'uses' => 'StockListingController@stockListing']);
     ApiRoute::get('placement-listing', ['as' => 'api.placement-listing.index', 'uses' => 'StockListingController@placementListing']);
     ApiRoute::get('stock-changes', ['as' => 'api.stock-changes.index', 'uses' => 'StockHistoryController@stockChanges']);
-    
+    ApiRoute::get('product-placement-in-history', ['as' => 'api.productplacement.in.history', 'uses' => 'ProductPlacementController@stockIn']);
+     
     //import
     ApiRoute::post('floors/import', ['as' => 'api.floors.import', 'uses' => 'FloorController@import']);
     ApiRoute::post('rows/import', ['as' => 'api.rows.import', 'uses' => 'RowController@import']);
@@ -161,10 +162,12 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         ApiRoute::get('product-placement/{id}/row', ['as' => 'api.productplacement.index', 'uses' => 'ProductPlacementController@row']);
         ApiRoute::post('stock-adjustment-order-items-data', ['as' => 'api.extra.stock-adjustment-order-items-data', 'uses' => 'StockAdjustmentController@getStockAdjustmentOrderItemData']);
         ApiRoute::get('picking-request', ['as' => 'api.pickingRequest.index', 'uses' => 'PickingRequestController@index']);
+        ApiRoute::post('picking-request', ['as' => 'api.pickingRequest.save', 'uses' => 'PickingRequestController@save']);
         
         ApiRoute::get('scanned/barcode/{id}', ['as' => 'api.inventory_in.barcode', 'uses' => 'PurchaseController@scannedBarcode']);
         ApiRoute::get('inventory-detail/barcode/{id}', ['as' => 'api.inventory_in.barcode', 'uses' => 'PurchaseController@barcode']);
         ApiRoute::post('inventory-detail/barcode/register', ['as' => 'api.inventory_in.barcode', 'uses' => 'PurchaseController@barcodeRegister']);
+        ApiRoute::get('invoices/check', ['as' => 'api.invoice.check', 'uses' => 'PurchaseController@invoiceCheck']);
         
         ApiRoute::resource('floors', 'FloorController', $options, ['as' => 'api', 'except' => ['index']]);
         ApiRoute::resource('rows', 'RowController', $options, ['as' => 'api', 'except' => ['index']]);
