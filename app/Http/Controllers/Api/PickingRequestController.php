@@ -50,7 +50,7 @@ class pickingRequestController extends ApiBaseController
         $query = $query->join('order_items', 'order_items.order_id', '=', 'orders.id')
                         ->join('products','products.id','order_items.product_id')
                         ->whereNull('order_items.picker_by')
-                        ->where('orders.order_type','=','sales')
+                        ->where('orders.order_type','=','sales_order')
                         ->select('orders.invoice_number','order_items.id','orders.order_date','order_items.quantity','products.name','products.id as product_id','products.item_id');
         $this->modifySelect = true;
         return $query;

@@ -10,7 +10,7 @@ use App\Http\Requests\Api\Sales\DeleteRequest;
 use App\Models\Order;
 use App\Traits\OrderTraits;
 
-class SalesController extends ApiBaseController
+class DeliveryOrderController extends ApiBaseController
 {
 	use OrderTraits;
 
@@ -25,6 +25,6 @@ class SalesController extends ApiBaseController
 	{
 		parent::__construct();
 
-		$this->orderType = "sales_order";
+		$this->orderType = "sales";
 	}
 }

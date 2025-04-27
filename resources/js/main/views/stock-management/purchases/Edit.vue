@@ -47,13 +47,13 @@
     </AdminPageHeader>
 
     <a-card class="page-content-container">
-        <a-alert
+        <!-- <a-alert
             v-if="editOrderDisable"
             :description="$t('messages.not_able_to_edit_order')"
             type="warning"
             class="mb-30"
             showIcon
-        />
+        />-->
 
         <a-form layout="vertical">
             <a-row :gutter="16">
@@ -470,7 +470,7 @@
                         </template>
 /**
                         <template #summary>
-                            <a-table-summary-row>
+                            <a-table-summary-row style="display:none">
                                 <a-table-summary-cell
                                     :col-span="2"
                                 ></a-table-summary-cell>
@@ -1055,8 +1055,7 @@ export default {
                         invoice_number: orderResponseData.order.invoice_number,
                         order_date: orderResponseData.order.order_date,
                         user_id: orderResponseData.order.x_user_id,
-                        from_warehouse_id:
-                            orderResponseData.order.x_warehouse_id,
+                        from_warehouse_id:orderResponseData.order.x_warehouse_id,
                         notes: orderResponseData.order.notes,
                         terms_condition:
                             orderResponseData.order.terms_condition,
@@ -1089,9 +1088,9 @@ export default {
 
                     if (orderType.value == "stock-transfers") {
                         toWarehouses.value = warehousesResponse.data;
-                        fromWarehouses.value = [allWarehouses.value[0]];
+                        fromWarehouses.value = warehousesResponse.data;
                     } else if (orderType.value == "stock-transfer-returns") {
-                        toWarehouses.value = [allWarehouses.value[0]];
+                        toWarehouses.value = warehousesResponse.data;
                         fromWarehouses.value = warehousesResponse.data;
                     }
 

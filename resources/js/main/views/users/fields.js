@@ -63,6 +63,10 @@ const fields = () => {
             dataIndex: "email",
         },
         {
+            title: t("warehouse.warehouse"),
+            dataIndex: "warehouse",
+        },
+        {
             title: t("user.created_at"),
             dataIndex: "created_at",
         },

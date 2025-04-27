@@ -78,6 +78,9 @@ class OrderJob implements ShouldQueue, ShouldBeUnique
                 $orderType = 'purchases';
             }
             elseif($orderType == 'inventory_out'){
+                $orderType = 'sales_order';
+            }
+            elseif($orderType == 'delivery_order'){
                 $orderType = 'sales';
             }
             
@@ -118,10 +121,12 @@ class OrderJob implements ShouldQueue, ShouldBeUnique
 
             $newOrder->save();
             
-            if(!in_array(strtolower($newOrder->order_status),['ordered','confirmed','processing','shipping'])){
+            
                 file_put_contents(storage_path('logs') . '/order.log', "[" . date('Y-m-d H:i:s') . "]order 1 : \n" . print_r($newOrder,1) . "\n\n", FILE_APPEND);
                 // Update Stock
                 $newOrder = Common::storeAndUpdateOrder($newOrder, "", $productItems);
+           
+            if(!in_array(strtolower($newOrder->order_status),['ordered','confirmed','processing','shipping'])){    
                 // Updating Warehouse History
                 Common::updateWarehouseHistory('order', $newOrder, "add_edit");
 

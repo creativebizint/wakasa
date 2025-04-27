@@ -208,6 +208,9 @@
                             <template v-if="column.dataIndex === 'created_at'">
                                 {{ formatDateTime(record.created_at) }}
                             </template>
+                            <template v-if="column.dataIndex === 'warehouse'">
+                                {{ record.warehouse.name }}
+                            </template>
                             <!--<template v-if="column.dataIndex === 'balance'">
                                 <a-typography-link
                                     type="primary"

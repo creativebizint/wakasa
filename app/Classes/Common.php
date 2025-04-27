@@ -778,26 +778,30 @@ class Common
                         $oldStock = $productDetails->current_stock;
                     }
 
-                    $newStock = $orderType == 'sales' || $orderType == 'purchase-returns' ? $oldStock + $removedItem->quantity :  $oldStock - $removedItem->quantity;
-                    $productDetails->current_stock = $newStock;
-                    $productDetails->save();
-
-                    $stockHistory = new StockHistory();
-                    $stockHistory->warehouse_id = $warehouseId;
-                    $stockHistory->from_warehouse_id = $fromWarehouseId;
-                    $stockHistory->user_id = $userId;
-                    $stockHistory->invoice_number = $invoiceNumber;
-                    $stockHistory->date = $orderDate;
-                    $stockHistory->product_id = $productId;
-                    $stockHistory->quantity = $newStock;
-                    $stockHistory->old_quantity = $oldStock;
-                    $stockHistory->from_old_quantity = $fromOldStock;
-                    $stockHistory->order_type = $orderType;
-                    $stockHistory->stock_type = $orderType == 'sales' || $orderType == 'purchase-returns' ? 'out' : 'in';
-                    $stockHistory->action_type = "delete";
-                    $stockHistory->created_by = $loggedUser ? $loggedUser->xid : $indirectUserId;
-                    $stockHistory->save();
-
+                    //file_put_contents(storage_path('logs') . '/order.log', "[" . date('Y-m-d H:i:s') . "]order status : \n" . print_r($order->order_status,1) . "\n\n", FILE_APPEND);
+                    if(!in_array(strtolower($order->order_status),['ordered','confirmed','processing','shipping'])){
+                        //update stock product detail
+                        $newStock = $orderType == 'sales' || $orderType == 'sales_order'  || $orderType == 'purchase-returns' ? $oldStock + $removedItem->quantity :  $oldStock - $removedItem->quantity;
+                        $productDetails->current_stock = $newStock;
+                        $productDetails->save();
+                        
+                        //file_put_contents(storage_path('logs') . '/order.log', "[" . date('Y-m-d H:i:s') . "]masuk1 \n"  . "\n\n", FILE_APPEND);
+                        $stockHistory = new StockHistory();
+                        $stockHistory->warehouse_id = $warehouseId;
+                        $stockHistory->from_warehouse_id = $fromWarehouseId;
+                        $stockHistory->user_id = $userId;
+                        $stockHistory->invoice_number = $invoiceNumber;
+                        $stockHistory->date = $orderDate;
+                        $stockHistory->product_id = $productId;
+                        $stockHistory->quantity = $newStock;
+                        $stockHistory->old_quantity = $oldStock;
+                        $stockHistory->from_old_quantity = $fromOldStock;
+                        $stockHistory->order_type = $orderType;
+                        $stockHistory->stock_type = $orderType == 'sales' || $orderType == 'sales_order' || $orderType == 'purchase-returns' ? 'out' : 'in';
+                        $stockHistory->action_type = "delete";
+                        $stockHistory->created_by = $loggedUser ? $loggedUser->xid : $indirectUserId;
+                        $stockHistory->save();
+                    }
                     $removedItem->delete();
                 }
             }
@@ -896,7 +900,10 @@ class Common
                 $totalQuantities += $orderItem->quantity;
 
                 // Tracking Stock History
-                if ($stockHistoryQuantity != 0 && $orderType != 'quotations') {
+                file_put_contents(storage_path('logs') . '/order.log', "[" . date('Y-m-d H:i:s') . "]stock history quantity : \n" . $stockHistoryQuantity . "\n\n", FILE_APPEND);
+                file_put_contents(storage_path('logs') . '/order.log', "[" . date('Y-m-d H:i:s') . "]order_type : \n" . $orderType . "\n\n", FILE_APPEND);
+                if ($stockHistoryQuantity != 0 && !in_array(strtolower($orderType),['sales_order','quotations'])) {
+                    file_put_contents(storage_path('logs') . '/order.log', "[" . date('Y-m-d H:i:s') . "]masuk2 : \n"  . "\n\n", FILE_APPEND);
                     $stockHistory = new StockHistory();
                     $stockHistory->warehouse_id = $order->warehouse_id;
                     $stockHistory->product_id = $orderItem->product_id;

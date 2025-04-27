@@ -1113,7 +1113,7 @@ export default {
                 warehouseSearchLabelPrefix.value = "from";
             } else if (orderType.value == "inventory_out") {
                 allOrderStatus.value = salesOrderStatus;
-                formData.value.order_status = "Ordered";
+                formData.value.order_status = "ordered";
                 formData.value.label = "sales";
                 warehouseSearchLabelPrefix.value = "from";
             } else if (orderType.value == "sales-returns") {

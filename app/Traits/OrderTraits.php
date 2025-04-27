@@ -40,7 +40,8 @@ trait OrderTraits
     {
         $request = request();
         $warehouse = warehouse();
-
+        $user = user();
+        
         $query = $query->where('orders.order_type', $this->orderType);
 
         // Dates Filters
@@ -60,15 +61,18 @@ trait OrderTraits
         }
 
         // Can see only order of warehouses which is assigned to him
-        if ($this->orderType == 'stock-transfers') {
-            if ($request->transfer_type == 'transfered') {
-                $query = $query->where('orders.from_warehouse_id', $warehouse->id);
+        if($user->role->name != 'admin'){
+            if ($this->orderType == 'stock-transfers') {
+                if ($request->transfer_type == 'transfered') {
+                    $query = $query->where('orders.from_warehouse_id', $warehouse->id);
+                } else {
+                    $query = $query->where('orders.warehouse_id', $warehouse->id);
+                }
             } else {
                 $query = $query->where('orders.warehouse_id', $warehouse->id);
             }
-        } else {
-            $query = $query->where('orders.warehouse_id', $warehouse->id);
         }
+        
 
         return $query;
     }
@@ -157,7 +161,7 @@ trait OrderTraits
                 'items' => $allProducs,
                 'ids' => $selectProductIds,
                 'user' => $user,
-              
+                'ss'=> 'ddd',
                 //* ADDENDUM
                 'warehouse' => $warehouse,
             ]);
@@ -418,7 +422,7 @@ trait OrderTraits
             $stockHistory->quantity = 0;
             $stockHistory->old_quantity = $orderItem->quantity;
             $stockHistory->order_type = $orderType;
-            $stockHistory->stock_type = $orderType == 'sales' || $orderType == 'purchase-returns' ? 'out' : 'in';
+            $stockHistory->stock_type = $orderType == 'sales' || $orderType == 'sales_order' || $orderType == 'purchase-returns' ? 'out' : 'in';
             $stockHistory->action_type = "delete";
             $stockHistory->created_by = $loggedUser->xid;
             $stockHistory->save();

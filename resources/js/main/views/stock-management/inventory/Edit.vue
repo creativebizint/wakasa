@@ -37,13 +37,13 @@
     </AdminPageHeader>
 
     <a-card class="page-content-container">
-        <a-alert
+        <!-- <a-alert
             v-if="editOrderDisable"
             :description="$t('messages.not_able_to_edit_order')"
             type="warning"
             class="mb-30"
             showIcon
-        />
+        />-->
 
         <a-form layout="vertical">
             <a-row :gutter="16">

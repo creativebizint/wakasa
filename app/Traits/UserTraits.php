@@ -31,10 +31,9 @@ trait UserTraits
         }
 
         // records of current warehouse
-        $query = $query->where(function ($qury) use ($warehouse) {
-            $qury->where('user_warehouse.warehouse_id', $warehouse->id)
-                ->orWhere('roles.name', '=', 'admin');
-        });
+        if($user->role->name != 'admin'){
+            $query->where('user_warehouse.warehouse_id', $warehouse->id);
+        }
 
         if ($request->has('dates') && $request->dates != '') {
             dd($request);

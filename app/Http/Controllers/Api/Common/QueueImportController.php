@@ -30,11 +30,11 @@ class QueueImportController extends ApiBaseController
             }
             
             if($request->bus == 'inventory_out'){
-                $request->bus = 'sales';
+                $request->bus = 'sales_order';
             }
             
             if($request->context == 'inventory_out'){
-                $request->context = 'sales';
+                $request->context = 'sales_order';
             }
             
             if ($request->bus == 'master') {
@@ -62,6 +62,10 @@ class QueueImportController extends ApiBaseController
                             ->onQueue('orders')
                             ->dispatch();
             } else if ($request->bus == 'sales') {
+                $batch = Bus::batch([new \App\Jobs\SalesImportJob($request->context, $file, $fileName, user()->id)])
+                            ->onQueue('orders')
+                            ->dispatch();
+            } else if ($request->bus == 'sales_order') {
                 $batch = Bus::batch([new \App\Jobs\SalesImportJob($request->context, $file, $fileName, user()->id)])
                             ->onQueue('orders')
                             ->dispatch();
