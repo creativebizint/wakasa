@@ -22,22 +22,6 @@ const fields = () => {
             title: t("product.quantity"),
             dataIndex: "quantity",
         },
-        {
-            title: t("product.unit_price"),
-            dataIndex: "single_unit_price",
-        },
-        {
-            title: t("product.discount"),
-            dataIndex: "total_discount",
-        },
-        {
-            title: t("product.tax"),
-            dataIndex: "total_tax",
-        },
-        {
-            title: t("product.subtotal"),
-            dataIndex: "subtotal",
-        },
     ];
 
     const stockHistoryColumns = [

@@ -5,6 +5,7 @@ use Examyou\RestAPI\Facades\ApiRoute;
 
 Route::get('admin/session', ['as' => 'api.session.index', 'uses' => 'Api\SessionController@index']);
 Route::get('admin/stock-management/invoice/export', ['as' => 'api.stockInvoice.export', 'uses' => 'Api\ProductPlacementController@stockInvoiceExport']);
+Route::get('/admin/order-fullfillment/picking-assignment/export', ['as' => 'api.pickingAssignment.export', 'uses' => 'Api\pickingAssignmentController@pickingAssignmentExport']);
 
 // Admin Routes
 ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
@@ -163,6 +164,7 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         ApiRoute::post('stock-adjustment-order-items-data', ['as' => 'api.extra.stock-adjustment-order-items-data', 'uses' => 'StockAdjustmentController@getStockAdjustmentOrderItemData']);
         ApiRoute::get('picking-request', ['as' => 'api.pickingRequest.index', 'uses' => 'PickingRequestController@index']);
         ApiRoute::post('picking-request', ['as' => 'api.pickingRequest.save', 'uses' => 'PickingRequestController@save']);
+        ApiRoute::get('picking-assignment', ['as' => 'api.pickingAssignment.index', 'uses' => 'PickingAssignmentController@index']);
         
         ApiRoute::get('scanned/barcode/{id}', ['as' => 'api.inventory_in.barcode', 'uses' => 'PurchaseController@scannedBarcode']);
         ApiRoute::get('inventory-detail/barcode/{id}', ['as' => 'api.inventory_in.barcode', 'uses' => 'PurchaseController@barcode']);

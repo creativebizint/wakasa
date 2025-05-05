@@ -29,23 +29,7 @@
                                     ? record.product.unit.short_name
                                     : ""
                             }}
-                        </template>
-                        <template v-if="column.dataIndex === 'single_unit_price'">
-                            {{ formatAmountCurrency(record.single_unit_price) }}
-                        </template>
-                        <template v-if="column.dataIndex === 'total_discount'">
-                            {{ formatAmountCurrency(record.total_discount) }} ({{
-                                record.discount_rate
-                            }}%)
-                        </template>
-                        <template v-if="column.dataIndex === 'total_tax'">
-                            {{ formatAmountCurrency(record.total_tax) }} ({{
-                                record.tax_rate
-                            }}%)
-                        </template>
-                        <template v-if="column.dataIndex === 'subtotal'">
-                            {{ formatAmountCurrency(record.subtotal) }}
-                        </template>
+                        </template>                        
                     </template>
                 </a-table>
             </div>

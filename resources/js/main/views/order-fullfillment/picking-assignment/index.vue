@@ -1,7 +1,7 @@
 <template>
     <AdminPageHeader>
         <template #header>
-            <a-page-header :title="$t(`menu.categories`)" class="p-0" />
+            <a-page-header :title="$t(`menu.picking_assignment`)" class="p-0" />
         </template>
         <template #breadcrumb>
             <a-breadcrumb separator="-" style="font-size: 12px">
@@ -11,10 +11,7 @@
                     </router-link>
                 </a-breadcrumb-item>
                 <a-breadcrumb-item>
-                    {{ $t(`menu.product_manager`) }}
-                </a-breadcrumb-item>
-                <a-breadcrumb-item>
-                    {{ $t(`menu.categories`) }}
+                    {{ $t(`menu.picking_assignment`) }}
                 </a-breadcrumb-item>
             </a-breadcrumb>
         </template>
@@ -24,41 +21,10 @@
         <a-row :gutter="[16, 16]">
             <a-col :xs="24" :sm="24" :md="12" :lg="10" :xl="10">
                 <a-space>
-                    <template
-                        v-if="
-                            permsArray.includes('categories_create') ||
-                            permsArray.includes('admin')
-                        "
-                    >
-                        <a-space>
-                            <a-button type="primary" @click="addItem">
-                                <PlusOutlined />
-                                {{ $t("category.add") }}
-                            </a-button>
-                            <QueueImport
-                                :pageTitle="$t('category.import_categories')"
-                                :sampleFileUrl="sampleFileUrl"
-                                importUrl="categories/import"
-                                context="categories"
-                                bus="master"
-                                @onUploadSuccess="getCategories"
-                            />
-                            <a-typography-link
-                                :href="exportUrl"
-                                target="_blank"
-                            >
-                                <a-button type="primary">
-                                    <FileExcelOutlined />
-                                    {{ $t("common.export") }}
-                                    {{ $t("menu.categories") }}
-                                </a-button>
-                            </a-typography-link>
-                        </a-space>
-                    </template>
                     <a-button
                         v-if="
-                            selectedRowKeys.length > 0 &&
-                            (permsArray.includes('categories_delete') ||
+                            table.selectedRowKeys.length > 0 &&
+                            (permsArray.includes('parts_delete') ||
                                 permsArray.includes('admin'))
                         "
                         type="primary"
@@ -71,7 +37,32 @@
                 </a-space>
             </a-col>
             <a-col :xs="24" :sm="24" :md="12" :lg="14" :xl="14">
-                <a-row :gutter="[16, 16]" justify="end"> </a-row>
+                <a-row :gutter="[16, 16]" justify="end">
+                    <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="8">
+                        <a-input-group compact>
+                            <a-select
+                                style="width: 25%"
+                                v-model:value="table.searchColumn"
+                                :placeholder="$t('common.select_default_text', [''])"
+                            >
+                                <a-select-option
+                                    v-for="filterableColumn in filterableColumns"
+                                    :key="filterableColumn.key"
+                                >
+                                    {{ filterableColumn.value }}
+                                </a-select-option>
+                            </a-select>
+                            <a-input-search
+                                style="width: 75%"
+                                v-model:value="table.searchString"
+                                show-search
+                                @change="onTableSearch"
+                                @search="onTableSearch"
+                                :loading="table.filterLoading"
+                            />
+                        </a-input-group>
+                    </a-col>
+                </a-row>
             </a-col>
         </a-row>
     </admin-page-filters>
@@ -85,18 +76,28 @@
             @closed="onCloseAddEdit"
             :formData="formData"
             :data="viewData"
-            :destroyOnClose="true"
+            :pageTitle="$t('menu.picking_assignment')"
+            :successMessage="successMessage"
         />
 
         <a-row>
             <a-col :span="24">
                 <div class="table-responsive">
                     <a-table
-                        :row-selection="rowSelection"
+                        :row-selection="{
+                            selectedRowKeys: table.selectedRowKeys,
+                            onChange: onRowSelectChange,
+                            getCheckboxProps: (record) => ({
+                                disabled: false,
+                                name: record.xid,
+                            }),
+                        }"
                         :columns="columns"
                         :row-key="(record) => record.xid"
-                        :data-source="allCategories"
-                        :defaultExpandAllRows="true"
+                        :data-source="table.data"
+                        :pagination="table.pagination"
+                        :loading="table.loading"
+                        @change="handleTableChange"
                         bordered
                         size="middle"
                     >
@@ -104,10 +105,37 @@
                             <template v-if="column.dataIndex === 'image_url'">
                                 <a-image :width="32" :src="text" />
                             </template>
+                            <template v-if="column.dataIndex === 'name'">
+                                {{record.name}}
+                            </template>
+                            <template v-if="column.dataIndex === 'created_at'">
+                                {{formatDate(record.created_at)}}
+                            </template>
+                            <template v-if="column.dataIndex === 'status'">
+                                <div v-if="record.status == '1'">
+                                    <a-tag color="yellow">
+                                        {{ $t(`common.${"open"}`) }}
+                                    </a-tag>
+                                </div>
+                                <div v-if="record.status == '2'">
+                                    <a-tag color="green">
+                                        {{ $t(`common.${"complete"}`) }}
+                                    </a-tag>
+                                </div>
+                            </template>
                             <template v-if="column.dataIndex === 'action'">
                                 <a-button
+                                    type="primary"
+                                    @click="editItem(record)"
+                                    style="margin-left: 4px"
+                                >
+                                    <template #icon><EyeOutlined /></template>
+                                </a-button>
+
+                                <!--
+                                <a-button
                                     v-if="
-                                        permsArray.includes('categories_edit') ||
+                                        permsArray.includes('parts_edit') ||
                                         permsArray.includes('admin')
                                     "
                                     type="primary"
@@ -118,9 +146,8 @@
                                 </a-button>
                                 <a-button
                                     v-if="
-                                        (permsArray.includes('categories_delete') ||
-                                            permsArray.includes('admin')) &&
-                                        (!record.children || record.children.length == 0)
+                                        permsArray.includes('parts_delete') ||
+                                        permsArray.includes('admin')
                                     "
                                     type="primary"
                                     @click="showDeleteConfirm(record.xid)"
@@ -128,6 +155,7 @@
                                 >
                                     <template #icon><DeleteOutlined /></template>
                                 </a-button>
+                                -->
                             </template>
                         </template>
                     </a-table>
@@ -137,18 +165,10 @@
     </admin-page-table-content>
 </template>
 <script>
-import { onMounted, ref, createVNode, unref, computed } from "vue";
+import { onMounted } from "vue";
+import { PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined } from "@ant-design/icons-vue";
 import fields from "./fields";
-import {
-    PlusOutlined,
-    EditOutlined,
-    DeleteOutlined,
-    ExclamationCircleOutlined,
-} from "@ant-design/icons-vue";
-import { Modal, notification } from "ant-design-vue";
-import { useStore } from "vuex";
-import { useI18n } from "vue-i18n";
-import { forEach } from "lodash-es";
+import crud from "../../../../common/composable/crud";
 import common from "../../../../common/composable/common";
 import AddEdit from "./AddEdit.vue";
 import AdminPageHeader from "../../../../common/layouts/AdminPageHeader.vue";
@@ -156,213 +176,50 @@ import QueueImport from "../../../../common/core/ui/QueueImport.vue";
 
 export default {
     components: {
+        EyeOutlined,
         PlusOutlined,
         EditOutlined,
         DeleteOutlined,
-        ExclamationCircleOutlined,
         AddEdit,
         AdminPageHeader,
         QueueImport,
     },
     setup() {
-        const store = useStore();
-        const { initData, columns } = fields();
-        const { permsArray } = common();
-        const { t } = useI18n();
-        const sampleFileUrl = window.config.category_sample_file;
-        const exportUrl = window.config.category_export_url;
-
-        const detailsVisible = ref(false);
-        const viewData = ref({});
-
-        const addEditVisible = ref(false);
-        const addEditType = ref("add");
-        const addEditUrl = ref("categories");
-        const allCategories = ref([]);
-
-        const formData = ref({});
-
-        const selectedRowKeys = ref([]);
+        const { addEditUrl, initData, columns, filterableColumns } = fields();
+        const crudVariables = crud();
+        const { permsArray,formatDate } = common();
+        const sampleFileUrl = window.config.part_sample_file;
+        const exportUrl = window.config.part_export_url;
 
         onMounted(() => {
-            getCategories();
+            setUrlData();
         });
 
-        const onRowSelectionChange = (selectedRowKeyValues) => {
-            selectedRowKeys.value = selectedRowKeyValues;
-        };
-
-        const getCheckboxProps = (record) => {
-            return {
-                disabled: !record.children || record.children.length == 0 ? false : true,
-                name: record.xid,
+        const setUrlData = () => {
+            crudVariables.tableUrl.value = {
+                url: "picking-assignment?field=id,xid,items{id,xid,picking_assignment_id,product{item_id}}",
             };
-        };
+            crudVariables.table.filterableColumns = filterableColumns;
 
-        const rowSelection = computed(() => {
-            return {
-                selectedRowKeys: unref(selectedRowKeys),
-                onChange: onRowSelectionChange,
-                getCheckboxProps: getCheckboxProps,
-            };
-        });
-
-        const getCategories = () => {
-            axiosAdmin
-                .get(
-                    `categories?fields=id,xid,name,slug,parent_id,x_parent_id,image,image_url,category_id&order=parent_id asc&limit=10000`
-                )
-                .then((response) => {
-                    const allCategoriesArray = [];
-                    var listArray = response.data;
-                    // listArray = sortBy(listArray, "x_parent_id");
-
-                    listArray.forEach((node) => {
-                        // No parentId means top level
-                        if (!node.x_parent_id) return allCategoriesArray.push(node);
-
-                        // Insert node as child of parent in listArray array
-                        const parentIndex = listArray.findIndex(
-                            (el) => el.xid === node.x_parent_id
-                        );
-                        if (!listArray[parentIndex].children) {
-                            return (listArray[parentIndex].children = [node]);
-                        }
-
-                        listArray[parentIndex].children.push(node);
-                    });
-
-                    allCategories.value = allCategoriesArray;
-                });
-        };
-
-        const viewItem = (item) => {
-            viewData.value = item;
-            detailsVisible.value = true;
-        };
-
-        const addItem = () => {
-            addEditUrl.value = "categories";
-            addEditType.value = "add";
-            addEditVisible.value = true;
-        };
-
-        const addEditSuccess = (id) => {
-            // If add action is performed then move page to first
-            if (addEditType.value == "add") {
-                formData.value = {
-                    name: "",
-                    slug: "",
-                    image: undefined,
-                    image_url: undefined,
-                    parent_id: null,
-                };
-            }
-
-            getCategories();
-            addEditVisible.value = false;
-        };
-
-        const onCloseAddEdit = () => {
-            formData.value = { ...initData };
-            addEditVisible.value = false;
-        };
-
-        const editItem = (item) => {
-            formData.value = {
-                name: item.name,
-                slug: item.slug,
-                image: item.image,
-                image_url: item.image_url,
-                parent_id: item.x_parent_id,
-                _method: "PUT",
-            };
-
-            viewData.value = item;
-            addEditUrl.value = `categories/${item.xid}`;
-            addEditType.value = "edit";
-            addEditVisible.value = true;
-        };
-
-        const showDeleteConfirm = (id) => {
-            Modal.confirm({
-                title: t("common.delete") + "?",
-                icon: createVNode(ExclamationCircleOutlined),
-                content: t("category.delete_message"),
-                centered: true,
-                okText: t("common.yes"),
-                okType: "danger",
-                cancelText: t("common.no"),
-                onOk() {
-                    axiosAdmin.delete(`categories/${id}`).then(() => {
-                        getCategories();
-                        notification.success({
-                            message: t("common.success"),
-                            description: t("category.deleted"),
-                        });
-                    });
-                },
-                onCancel() {},
+            crudVariables.fetch({
+                page: 1,
             });
-        };
 
-        const showSelectedDeleteConfirm = () => {
-            Modal.confirm({
-                title: t("common.delete") + "?",
-                icon: createVNode(ExclamationCircleOutlined),
-                content: t("category.delete_message"),
-                centered: true,
-                okText: t("common.yes"),
-                okType: "danger",
-                cancelText: t("common.no"),
-                onOk() {
-                    const allDeletePromise = [];
-                    forEach(selectedRowKeys.value, (selectedRow) => {
-                        allDeletePromise.push(
-                            axiosAdmin.delete(`categories/${selectedRow}`)
-                        );
-                    });
-
-                    Promise.all(allDeletePromise).then((successResponse) => {
-                        // Update Visible Subscription Modules
-                        store.dispatch("auth/updateVisibleSubscriptionModules");
-
-                        getCategories();
-
-                        notification.success({
-                            message: t("common.success"),
-                            description: t(`category.deleted`),
-                            placement: "bottomRight",
-                        });
-                    });
-                },
-                onCancel() {},
-            });
+            crudVariables.crudUrl.value = addEditUrl;
+            crudVariables.langKey.value = "part";
+            crudVariables.initData.value = { ...initData };
+            crudVariables.formData.value = { ...initData };
         };
 
         return {
             columns,
-            addEditSuccess,
-            formData,
-            editItem,
-            addEditVisible,
-            addItem,
-            onCloseAddEdit,
-            addEditUrl,
-            addEditType,
-            showDeleteConfirm,
-            detailsVisible,
-            viewItem,
-            viewData,
-            allCategories,
+            filterableColumns,
             permsArray,
+            ...crudVariables,
             sampleFileUrl,
-            getCategories,
-
-            selectedRowKeys,
-            rowSelection,
-            showSelectedDeleteConfirm,
+            setUrlData,
             exportUrl,
+            formatDate
         };
     },
 };

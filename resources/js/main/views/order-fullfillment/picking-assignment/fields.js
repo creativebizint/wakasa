@@ -1,27 +1,38 @@
 import { useI18n } from "vue-i18n";
 
 const fields = () => {
-	const addEditUrl = "categories";
+	const addEditUrl = "picking-assignment";
 	const { t } = useI18n();
-	const hashableColumns = ['parent_id'];
-
+        const hashableColumns = ['id'];
+        
 	const initData = {
 		name: "",
+		code: "",
+		type: "",
 		slug: "",
-		image: undefined,
-		image_url: undefined,
-		parent_id: null,
-		category_id: null,
+                created_at: '',
+                status : '',
+                items : ''
 	};
 
 	const columns = [
 		{
-			title: t("category.name"),
-			dataIndex: "name",
+			title: t("picking_assignment.code"),
+			dataIndex: "code",
+			sorter:true
 		},
 		{
-			title: t("category.category_id"),
-			dataIndex: "category_id",
+			title: t("picking_assignment.name"),
+			dataIndex: "name",
+			sorter:true
+		},
+		{
+			title: t("picking_assignment.status"),
+			dataIndex: "status",
+		},
+		{
+			title: t("picking_assignment.date"),
+			dataIndex: "created_at",
 		},
 		{
 			title: t("common.action"),
@@ -29,11 +40,18 @@ const fields = () => {
 		},
 	];
 
+	const filterableColumns = [
+		{
+			key: "user.name",
+			value: t("picking_assignment.name")
+		},
+	];
+
 	return {
-		hashableColumns,
 		addEditUrl,
 		initData,
 		columns,
+		filterableColumns
 	}
 }
 

@@ -19,7 +19,7 @@ class PickingAssignmentItem extends BaseModel
 
     protected $hidden = ['id'];
 
-    protected $appends = ['xid', 'x_picking_assignment_id','x_order_item_id','x_product_id'];
+    protected $appends = ['xid', 'x_picking_assignment_id','x_order_item_id','x_product_id','item_id'];
 
     protected $filterable = ['id', 'invoice_number'];
 
@@ -38,8 +38,21 @@ class PickingAssignmentItem extends BaseModel
     protected static function boot()
     {
         parent::boot();
-
-        
     }
 
+    public function pickingAssignment()
+    {
+        return $this->belongsTo(PickingAssignment::class, 'picking_assignment_id', 'id');
+    }
+    
+    public function product()
+    {
+        return $this->belongsTo(Product::class, 'product_id', 'id');
+    }
+    
+    // Append item_id from the product relationship
+    public function getItemIdAttribute()
+    {
+        return $this->product ? $this->product->item_id : null;
+    }
 }

@@ -32,10 +32,12 @@ use App\Http\Requests\Api\ProductPlacement\ImportRequest;
 use App\Exports\ExcelExport;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
+use PDF;
+use PHPExcel_Style_Fill;
 
-class pickingRequestController extends ApiBaseController
+class pickingAssignmentController extends ApiBaseController
 {
-    protected $model = Order::class;
+    protected $model = PickingAssignment::class;
 
     protected $indexRequest = IndexRequest::class;
     protected $storeRequest = StoreRequest::class;
@@ -47,11 +49,9 @@ class pickingRequestController extends ApiBaseController
     {
         $request = request();
     
-        $query = $query->join('order_items', 'order_items.order_id', '=', 'orders.id')
-                        ->join('products','products.id','order_items.product_id')
-                        ->whereNull('order_items.picker_by')
-                        ->where('orders.order_type','=','sales_order')
-                        ->select('orders.invoice_number','order_items.id','orders.order_date','order_items.quantity','products.name','products.id as product_id','products.item_id');
+        $query = $query->with('items')
+                        ->join('users', 'users.id', '=', 'picking_assignment.user_id')
+                        ->select('picking_assignment.*','users.name');
         $this->modifySelect = true;
         return $query;
     }
@@ -87,5 +87,27 @@ class pickingRequestController extends ApiBaseController
                 'code' => $picking_assignment->$pa_code, 
             ]);
     }
-        
+    
+    public function pickingAssignmentExport(){
+        $request = request();
+        $type = isset($request->type) ? $request->type : '';
+        $code = isset($request->code) ? $request->code : '';
+        $view_name = 'picking-assignment';
+        $datetime_filename_format = 'Ymd';
+        $download_name = $view_name.'-'.date($datetime_filename_format);
+        $pickingAssignment = PickingAssignment::where('picking_assignment.code',$code)
+                    ->join('users','users.id','=','picking_assignment.user_id')
+                    ->select('picking_assignment.*','users.name')
+                    ->first();
+         $pdf_data = [
+           'pickingAssignment' => $pickingAssignment
+         ];
+        if($type == 'pdf'){
+            $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])
+            ->setPaper('a4', 'landscape')
+            ->loadView('pdf.'.$view_name, array_merge($pdf_data, ['print' => false]));
+
+            return $pdf->download($download_name . '.pdf');
+        }
+    }
 }

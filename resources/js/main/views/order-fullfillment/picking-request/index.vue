@@ -37,7 +37,20 @@
                 </a-space>
             </a-col>
             <a-col :xs="24" :sm="24" :md="12" :lg="14" :xl="14">
-                <a-row :gutter="[16, 16]" justify="end"> </a-row>
+                <a-row :gutter="[16, 16]" justify="end">
+                    <a-col :xs="24" :sm="24" :md="12" :lg="8" :xl="6">
+                        <a-input-search
+                            style="width: 100%"
+                            v-model:value="filters.searchString"
+                            show-search
+                            :placeholder="
+                                $t('common.placeholder_search_text', [
+                                    $t('stock.invoice_number'),
+                                ])
+                            "
+                        />
+                    </a-col>
+                </a-row>
             </a-col>
         </a-row>
     </admin-page-filters>
@@ -62,7 +75,7 @@
                         :row-selection="rowSelection"
                         :columns="columns"
                         :row-key="(record) => record.xid"
-                        :data-source="allPickingRequests"
+                        :data-source="filteredPickingRequests"
                         :defaultExpandAllRows="true"
                         bordered
                         size="middle"
@@ -148,6 +161,27 @@ export default {
         const formData = ref({});
 
         const selectedRowKeys = ref([]);
+
+        const filters = ref({
+            searchString: "",
+            searchColumn: "invoice_number",
+        });
+
+       
+        // Computed property for filtered data
+        const filteredPickingRequests = computed(() => {
+            if (!filters.value.searchString) {
+                return allPickingRequests.value; // Return all data if no search string
+            }
+
+            return allPickingRequests.value.filter((record) => {
+                const value = record[filters.value.searchColumn] || "";
+                return value
+                    .toString()
+                    .toLowerCase()
+                    .includes(filters.value.searchString.toLowerCase());
+            });
+        });
 
         onMounted(() => {
             getPickingRequest();
@@ -307,6 +341,8 @@ export default {
             rowSelection,
             showSelectedDeleteConfirm,
             exportUrl,
+            filteredPickingRequests, // Return the computed property
+            filters,
         };
     },
 };
