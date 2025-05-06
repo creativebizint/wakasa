@@ -103,7 +103,6 @@
                                         :validateStatus="
                                             rules.email ? 'error' : null
                                         "
-                                        class="required"
                                     >
                                         <a-input
                                             v-model:value="formData.email"
@@ -159,7 +158,6 @@
                                         :validateStatus="
                                             rules.phone ? 'error' : null
                                         "
-                                        class="required"
                                     >
                                         <a-input
                                             v-model:value="formData.phone"
@@ -307,6 +305,33 @@
                                         }}
                                     </blockquote>
                                 </a-typography-paragraph>
+                            </a-form-item>
+                        </a-col>
+                    </a-row>
+
+                    <a-row :gutter="16">
+                        <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                            <a-form-item
+                                :label="$t('warehouse.note')"
+                                name="note"
+                                :help="
+                                    rules.note
+                                        ? rules.note.message
+                                        : null
+                                "
+                                :validateStatus="
+                                    rules.note ? 'error' : null
+                                "
+                            >
+                                <a-textarea
+                                    v-model:value="formData.note"
+                                    :placeholder="
+                                        $t('common.placeholder_default_text', [
+                                            $t('warehouse.note'),
+                                        ])
+                                    "
+                                    :auto-size="{ minRows: 2, maxRows: 3 }"
+                                />
                             </a-form-item>
                         </a-col>
                     </a-row>

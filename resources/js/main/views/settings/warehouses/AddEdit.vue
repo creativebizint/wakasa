@@ -70,7 +70,6 @@
                                         name="email"
                                         :help="rules.email ? rules.email.message : null"
                                         :validateStatus="rules.email ? 'error' : null"
-                                        class="required"
                                     >
                                         <a-input
                                             v-model:value="formData.email"
@@ -112,7 +111,6 @@
                                         name="phone"
                                         :help="rules.phone ? rules.phone.message : null"
                                         :validateStatus="rules.phone ? 'error' : null"
-                                        class="required"
                                     >
                                         <a-input
                                             v-model:value="formData.phone"

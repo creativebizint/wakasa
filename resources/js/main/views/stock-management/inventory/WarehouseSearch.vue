@@ -39,9 +39,9 @@
                     :product="warehouse"
                 >
                     {{ warehouse.name }}
-                    <span v-if="warehouse.phone && warehouse.phone != ''">
+                    <span v-if="warehouse.code && warehouse.code != ''">
                         <br />
-                        {{ warehouse.phone }}
+                        {{ warehouse.code }}
                     </span>
                 </a-select-option>
             </a-select>
@@ -81,7 +81,7 @@ export default defineComponent({
                 const newValue = value.trim();
                 state.productFetching = true;
                 const filterString = `name lk "${newValue}%" or (phone lk "${newValue}%")`;
-                let url = `warehouses?fields=id,xid,name,phone&filters=${encodeURIComponent(filterString)}`;
+                let url = `warehouses?fields=id,xid,name,code,phone&filters=${encodeURIComponent(filterString)}`;
 
                 axiosAdmin.get(url).then((response) => {
                     state.products = response.data;

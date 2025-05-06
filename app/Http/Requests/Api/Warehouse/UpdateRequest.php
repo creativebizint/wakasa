@@ -39,8 +39,6 @@ class UpdateRequest extends FormRequest
                         ->where('id', '!=', $id);
                 })
             ],
-            'email'    => 'required|email',
-            'phone'    => 'required|numeric',
             'default_pos_order_status'    => 'required',
             'customers_visibility'    => 'required',
             'suppliers_visibility'    => 'required',

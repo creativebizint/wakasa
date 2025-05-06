@@ -65,7 +65,7 @@
                                 @blur="checkInvoiceNumber"
                             />
                             <small class="small-text-message">
-                                {{ $t("stock.invoie_number_blank") }}
+                                {{ $t("stock.invoice_number_blank") }}
                             </small>
                         </a-form-item>
                     </a-col>

@@ -35,8 +35,6 @@ class StoreRequest extends FormRequest
                     return $query->where('company_id', $company->id);
                 })
             ],
-            'email'    => 'required|email',
-            'phone'    => 'required|numeric',
             'default_pos_order_status'    => 'required',
             'customers_visibility'    => 'required',
             'suppliers_visibility'    => 'required',
