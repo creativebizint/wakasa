@@ -274,6 +274,7 @@
                         <template #bodyCell="{ column, record }">
                             <template v-if="column.dataIndex === 'name'">
                                 {{ record.name }} <br />
+                                {{ record.product_item_id }} <br />
                                 <small v-if="record.product_type != 'service'">
                                     <a-typography-text code>
                                         {{ $t("product.avl_qty") }}
@@ -301,18 +302,6 @@
                                 />
                             </template>
                             
-                            <template v-if="column.dataIndex === 'single_unit_price'">
-                                {{ formatAmountCurrency(record.single_unit_price) }}
-                            </template>
-                            <template v-if="column.dataIndex === 'discount_amount'">
-                                {{ formatAmountCurrency(record.discount_amount) }}
-                            </template>
-                            <template v-if="column.dataIndex === 'total_tax'">
-                                {{ formatAmountCurrency(record.total_tax) }}
-                            </template>
-                            <template v-if="column.dataIndex === 'subtotal'">
-                                {{ formatAmountCurrency(record.subtotal) }}
-                            </template>
                             <template v-if="column.dataIndex === 'action'">
                                 <div v-if="editOrderDisable">-</div>
                                 <div v-else>

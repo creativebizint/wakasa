@@ -318,6 +318,7 @@
                             <template #bodyCell="{ column, record }">
                                 <template v-if="column.dataIndex === 'name'">
                                     {{ record.name }} <br />
+                                    {{ record.product_item_id }} <br />
                                     <small>
                                         <a-typography-text
                                             code
@@ -372,13 +373,6 @@
                                     {{ formatAmountCurrency(record.subtotal) }}
                                 </template>
                                 <template v-if="column.dataIndex === 'action'">
-                                    <a-button
-                                        type="primary"
-                                        @click="editItem(record)"
-                                        style="margin-left: 4px"
-                                    >
-                                        <template #icon><EditOutlined /></template>
-                                    </a-button>
                                     <a-button
                                         type="primary"
                                         @click="showDeleteConfirm(record)"
