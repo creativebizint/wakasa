@@ -2,7 +2,7 @@
     <AdminPageHeader>
         <template #header>
             <a-page-header
-                :title="$t(`menu.inventory_in`)"
+                :title="$t(`menu.barcode_registration`)"
                 @back="() => $router.go(-1)"
                 class="p-0"
             >
@@ -30,7 +30,7 @@
                 </a-breadcrumb-item>
                 
                 <a-breadcrumb-item>
-                    {{ $t("menu.barcode") }}
+                    {{ $t("menu.barcode_registration") }}
                 </a-breadcrumb-item>
             </a-breadcrumb>
         </template>

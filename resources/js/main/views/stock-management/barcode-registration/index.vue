@@ -11,13 +11,11 @@
                     </router-link>
                 </a-breadcrumb-item>
                 <a-breadcrumb-item>
+                    <router-link :to="{ name: 'admin.inventory_in.index' }">
                     {{
-                        orderPageObject.type == "inventory_out" ||
-                        orderPageObject.type == "sales-returns" ||
-                        orderPageObject.type == "quotations"
-                            ? $t(`menu.inventory_out`)
-                            : $t(`menu.inventory_in`)
+                       $t(`menu.inventory_in`)
                     }}
+                    </router-link>
                 </a-breadcrumb-item>
                 <a-breadcrumb-item>
                     {{ $t(`menu.barcode_registration`) }}
