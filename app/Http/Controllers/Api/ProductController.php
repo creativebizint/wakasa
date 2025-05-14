@@ -562,10 +562,8 @@ class ProductController extends ApiBaseController
         $isactive = isset($request->isactive) ? trim($request->isactive) : 0;
         
         $barcodes = Barcode::select('string','id','qty_bungkus')
-            ->where(function ($query) use ($searchTerm, $item_id) {
-                $query->where(DB::raw('LOWER(string)'), 'LIKE', "%$searchTerm%")
-                      ->where(DB::raw('LOWER(item_id)'), 'LIKE', "%$item_id%");
-            })->where('isactive',$isactive)->get()->toArray();
+            ->where(DB::raw('LOWER(string)'), 'LIKE', "%$searchTerm%")
+            ->where('isactive',$isactive)->get()->toArray();
 
         
 
