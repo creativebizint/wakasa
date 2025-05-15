@@ -365,12 +365,10 @@ const stockManagement = () => {
     };
 
     const editItem = (product) => {
+        console.log('edit: ',product);
         addEditFormData.value = {
             id: product.xid,
-            discount_rate: product.discount_rate,
-            unit_price: product.unit_price,
-            tax_id: product.x_tax_id,
-            tax_type: product.tax_type == null ? undefined : product.tax_type,
+            qty_bungkus: product.qty_bungkus,            
         };
         addEditVisible.value = true;
         addEditPageTitle.value = product.name;
@@ -382,22 +380,9 @@ const stockManagement = () => {
             (selectedProduct) => selectedProduct.xid == addEditFormData.value.id
         );
 
-        const selecteTax = taxes.value.filter(
-            (tax) => tax.xid == addEditFormData.value.tax_id
-        );
-
-        const taxType =
-            addEditFormData.value.tax_type != undefined
-                ? addEditFormData.value.tax_type
-                : "exclusive";
-
         const newData = {
             ...record[0],
-            discount_rate: parseFloat(addEditFormData.value.discount_rate),
-            unit_price: parseFloat(addEditFormData.value.unit_price),
-            tax_id: addEditFormData.value.tax_id,
-            tax_rate: selecteTax[0] ? selecteTax[0].rate : 0,
-            tax_type: taxType,
+            qty_bungkus: parseFloat(addEditFormData.value.qty_bungkus)
         };
         quantityChanged(newData);
         onAddEditClose();

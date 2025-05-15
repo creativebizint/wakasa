@@ -11,7 +11,7 @@ class OrderItem extends BaseModel
 {
     protected $table = 'order_items';
 
-    protected $default = ['xid'];
+    protected $default = ['xid', 'nik'];
 
     protected $guarded = ['id', 'created_at', 'updated_at'];
 

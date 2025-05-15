@@ -503,7 +503,7 @@ trait OrderTraits
         }
         $order_item = OrderItem::where('order_items.id',$id)
                        ->join('products','products.id','order_items.product_id')
-                       ->select('order_items.id','order_items.quantity','products.item_id','order_items.order_id','quantity_scanned')
+                       ->select('order_items.id','order_items.quantity','products.item_id','order_items.order_id','quantity_scanned','nik')
                        ->first();
         
         $barcode_in = Barcode::where('order_item_id',$id)
@@ -529,6 +529,7 @@ trait OrderTraits
             $request = $request::all();        
             $xorder_item_id = $request['order_item_id'];
             $item_id = $request['item_id'];
+            $nik = isset($request['nik'])?$request['nik']:'';
             $row = isset($request['row']) ? $request['row'] : '';
             $order_item_id = Common::getIdFromHash($xorder_item_id);
             $loggedUser = user();
@@ -621,7 +622,7 @@ trait OrderTraits
                         $scanned_history_items->barcode_id = Common::getIdFromHash($product_item['xid']);
                         $scanned_history_items->qty = $product_item['qty_bungkus'];
                         $scanned_history_items->save();
-                        Barcode::where('id',Common::getIdFromHash($product_item['xid']))->update(['isactive'=>'1','order_item_id' => $order_item_id,'item_id' => $item_id,'scanned_in_by'=> $user_id, 'status' => Barcode::STATUS_SCANNED ]);
+                        Barcode::where('id',Common::getIdFromHash($product_item['xid']))->update(['isactive'=>'1','order_item_id' => $order_item_id,'item_id' => $item_id,'scanned_in_by'=> $user_id, 'status' => Barcode::STATUS_SCANNED, 'nik' => $nik, 'qty_bungkus' => $product_item['qty_bungkus'] ,'reg_bungkus_id' => Common::generateOrderUniqueId(),'box_id' => Common::generateOrderUniqueId()]);
                         $total_scanned += $product_item['qty_bungkus'];
                     }                    
                 }

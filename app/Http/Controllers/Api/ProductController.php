@@ -565,8 +565,17 @@ class ProductController extends ApiBaseController
             ->where(DB::raw('LOWER(string)'), 'LIKE', "%$searchTerm%")
             ->where('isactive',$isactive)->get()->toArray();
 
+        $product = Product::where('item_id',$item_id)->select('kemasan_jual_qty')->first();
+        if(count($barcodes)>0){
+            foreach($barcodes as $k => $barcode){
+                if($barcodes[$k]['qty_bungkus'] == null){
+                    $barcodes[$k]['qty_bungkus'] = $product->kemasan_jual_qty;
+                }
+            }
+        }
         
-
+        
+        
         return ApiResponse::make('Fetched Successfully', $barcodes);
     }
     

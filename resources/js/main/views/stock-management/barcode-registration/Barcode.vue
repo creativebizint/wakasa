@@ -113,6 +113,24 @@
                     </a-form-item>
                 </a-col>
             </a-row>
+            <a-row :gutter="8">
+                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                    <a-form-item
+                        :label="$t('barcode.nik')"
+                        name="nik"
+                        :help="rules.nik ? rules.nik.message : null"
+                        :validateStatus="rules.nik ? 'error' : null"
+                    >
+                        <a-input-number
+                            v-model:value="formData.nik"
+                            min="0"
+                            style="width: 100%"
+                        >
+
+                        </a-input-number>
+                    </a-form-item>
+                </a-col>
+            </a-row>
                     
         <a-form layout="vertical">
             <a-row :gutter="16">
@@ -177,6 +195,13 @@
                                 <div v-else>
                                     <a-button
                                         type="primary"
+                                        @click="editItem(record)"
+                                        style="margin-left: 4px"
+                                    >
+                                        <template #icon><EditOutlined /></template>
+                                    </a-button>
+                                    <a-button
+                                        type="primary"
                                         @click="showDeleteConfirm(record)"
                                         style="margin-left: 4px"
                                     >
@@ -219,120 +244,31 @@
             <a-row :gutter="16">
                 <a-col :xs="24" :sm="24" :md="24" :lg="24">
                     <a-form-item
-                        :label="$t('product.unit_price')"
-                        name="unit_price"
+                        :label="$t('barcode.qty_bungkus')"
+                        name="qty_bungkus"
                         :help="
-                            addEditRules.unit_price
-                                ? addEditRules.unit_price.message
-                                : null
-                        "
-                        :validateStatus="addEditRules.unit_price ? 'error' : null"
-                    >
-                        <a-input-number
-                            v-model:value="addEditFormData.unit_price"
-                            :placeholder="
-                                $t('common.placeholder_default_text', [
-                                    $t('product.unit_price'),
-                                ])
-                            "
-                            min="0"
-                            style="width: 100%"
-                        >
-                            <template #addonBefore>
-                                {{ appSetting.currency.symbol }}
-                            </template>
-                        </a-input-number>
-                    </a-form-item>
-                </a-col>
-            </a-row>
-            <a-row :gutter="16">
-                <a-col :xs="24" :sm="24" :md="24" :lg="24">
-                    <a-form-item
-                        :label="$t('product.discount')"
-                        name="discount_rate"
-                        :help="
-                            addEditRules.discount_rate
-                                ? addEditRules.discount_rate.message
+                            addEditRules.qty_bungkus
+                                ? addEditRules.qty_bungkus.message
                                 : null
                         "
                         :validateStatus="addEditRules.discount_rate ? 'error' : null"
                     >
                         <a-input-number
-                            v-model:value="addEditFormData.discount_rate"
+                            v-model:value="addEditFormData.qty_bungkus"
                             :placeholder="
                                 $t('common.placeholder_default_text', [
-                                    $t('product.discount'),
+                                    $t('product.qty_bungkus'),
                                 ])
                             "
                             min="0"
                             style="width: 100%"
                         >
-                            <template #addonAfter>%</template>
                         </a-input-number>
                     </a-form-item>
                 </a-col>
             </a-row>
 
-            <a-row :gutter="16">
-                <a-col :xs="24" :sm="24" :md="24" :lg="24">
-                    <a-form-item
-                        :label="$t('product.tax')"
-                        name="tax_id"
-                        :help="addEditRules.tax_id ? addEditRules.tax_id.message : null"
-                        :validateStatus="addEditRules.tax_id ? 'error' : null"
-                    >
-                        <span style="display: flex">
-                            <a-select
-                                v-model:value="addEditFormData.tax_id"
-                                :placeholder="
-                                    $t('common.select_default_text', [$t('product.tax')])
-                                "
-                                :allowClear="true"
-                                optionFilterProp="title"
-                                show-search
-                            >
-                                <a-select-option
-                                    v-for="tax in taxes"
-                                    :key="tax.xid"
-                                    :value="tax.xid"
-                                    :title="tax.name"
-                                >
-                                    {{ tax.name }} ({{ tax.rate }}%)
-                                </a-select-option>
-                            </a-select>
-                            <TaxAddButton @onAddSuccess="taxAdded" />
-                        </span>
-                    </a-form-item>
-                </a-col>
-            </a-row>
-            <a-row :gutter="16">
-                <a-col :xs="24" :sm="24" :md="24" :lg="24">
-                    <a-form-item
-                        :label="$t('product.tax_type')"
-                        name="tax_type"
-                        :help="
-                            addEditRules.tax_type ? addEditRules.tax_type.message : null
-                        "
-                        :validateStatus="addEditRules.tax_type ? 'error' : null"
-                    >
-                        <a-select
-                            v-model:value="addEditFormData.tax_type"
-                            :placeholder="
-                                $t('common.select_default_text', [$t('product.tax_type')])
-                            "
-                            :allowClear="true"
-                        >
-                            <a-select-option
-                                v-for="taxType in taxTypes"
-                                :key="taxType.key"
-                                :value="taxType.key"
-                            >
-                                {{ taxType.value }}
-                            </a-select-option>
-                        </a-select>
-                    </a-form-item>
-                </a-col>
-            </a-row>
+            
         </a-form>
         <template #footer>
             <a-button
