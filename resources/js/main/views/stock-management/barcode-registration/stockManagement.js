@@ -369,6 +369,7 @@ const stockManagement = () => {
         addEditFormData.value = {
             id: product.xid,
             qty_bungkus: product.qty_bungkus,            
+            comment: product.comment,            
         };
         addEditVisible.value = true;
         addEditPageTitle.value = product.name;
@@ -382,7 +383,8 @@ const stockManagement = () => {
 
         const newData = {
             ...record[0],
-            qty_bungkus: parseFloat(addEditFormData.value.qty_bungkus)
+            qty_bungkus: parseFloat(addEditFormData.value.qty_bungkus),
+            comment: addEditFormData.value.comment
         };
         quantityChanged(newData);
         onAddEditClose();

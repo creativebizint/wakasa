@@ -294,6 +294,10 @@ const fields = () => {
             dataIndex: "qty_bungkus",
         },
         {
+            title: t("barcode.comment"),
+            dataIndex: "comment",
+        },
+        {
             title: t("common.action"),
             dataIndex: "action",
         },      
