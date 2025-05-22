@@ -28,7 +28,7 @@
                             {{ formatDateTime(selectedItem.order_date) }}
                         </a-descriptions-item>
                         <a-descriptions-item
-                            :label="$t('stock.invoice_number')"
+                            :label="$t(selectedItem.order_type+'.invoice_number')"
                         >
                             {{ selectedItem.invoice_number }}
                         </a-descriptions-item>

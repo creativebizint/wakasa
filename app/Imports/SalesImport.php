@@ -9,12 +9,9 @@ use App\Models\ProductDetails;
 use App\Models\Warehouse;
 use App\Models\User;
 use App\Models\Unit;
-
 use App\Classes\Common;
 use App\Classes\Notify;
-
 use Carbon\Carbon;
-
 use Examyou\RestAPI\Exceptions\ApiException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
@@ -22,6 +19,7 @@ use Illuminate\Support\Facades\Cache;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Concerns\ToArray;
+use Examyou\RestAPI\ApiResponse;
 
 class SalesImport implements ToArray, WithHeadingRow, WithMultipleSheets
 {
@@ -51,8 +49,8 @@ class SalesImport implements ToArray, WithHeadingRow, WithMultipleSheets
 			$company = company();
 			$userType = 'customer';
 			$warehouseType = 'from_warehouse';
-			$orderType = 'sales';
-			$orderStatus = 'delivered';
+			$orderType = 'sales_order';
+			$orderStatus = 'ordered';
 
 			$orderSubtotal = 0;
 			$totalQuantities = 0;
@@ -61,9 +59,10 @@ class SalesImport implements ToArray, WithHeadingRow, WithMultipleSheets
 				!array_key_exists('invoice_number', $orderItems[0]) || !array_key_exists($userType . '_code', $orderItems[0]) || !array_key_exists($warehouseType . '_code', $orderItems[0]) ||
 				!array_key_exists('order_date', $orderItems[0]) || !array_key_exists('order_notes', $orderItems[0])
 			) {
-                                //file_put_contents(storage_path('logs') . '/sales.log', "[" . date('Y-m-d H:i:s') . "]test 2: \n"  .  "\n\n", FILE_APPEND);
+//                                file_put_contents(storage_path('logs') . '/sales.log', "[" . date('Y-m-d H:i:s') . "]test 2: \n"  .  "\n\n", FILE_APPEND);
                 $errMessage = '[row ' . $currentRow . ']: Field missing from header.';
 				Cache::put($this->cacheKey, $errMessage);
+                                throw new ApiException($errMessage);
 				return;
 			}
 
@@ -71,15 +70,17 @@ class SalesImport implements ToArray, WithHeadingRow, WithMultipleSheets
 			$userCode = trim($orderItems[0][$userType . '_code']);
 			if ($userCode == '') {
 				$errMessage = '[row ' . $currentRow . ']: ' . $userType . '_code Cannot Be Empty.';
-                                //file_put_contents(storage_path('logs') . '/sales.log', "[" . date('Y-m-d H:i:s') . "]test 4: \n"  .  "\n\n", FILE_APPEND);
+//                                file_put_contents(storage_path('logs') . '/sales.log', "[" . date('Y-m-d H:i:s') . "]test 4: \n"  .  "\n\n", FILE_APPEND);
 				Cache::put($this->cacheKey, $errMessage);
+                                throw new ApiException($errMessage);
 				return;
 			} else {
 				$user = User::where('code', $userCode)->first();
 				if (!$user) {
-                                        //file_put_contents(storage_path('logs') . '/sales.log', "[" . date('Y-m-d H:i:s') . "]test 3: \n"  .  "\n\n", FILE_APPEND);
+//                                        file_put_contents(storage_path('logs') . '/sales.log', "[" . date('Y-m-d H:i:s') . "]test 3: \n"  .  "\n\n", FILE_APPEND);
 					$errMessage = '[row ' . $currentRow . ']: ' . $userType . '_code *' . $userCode . '* Not Found.';
 					Cache::put($this->cacheKey, $errMessage);
+                                        throw new ApiException($errMessage);
 					return;
 				}
 			}
@@ -88,16 +89,18 @@ class SalesImport implements ToArray, WithHeadingRow, WithMultipleSheets
 			$warehouse = null;
 			$warehouseCode = trim($orderItems[0][$warehouseType . '_code']);
 			if ($warehouseCode == '') {
-                                //file_put_contents(storage_path('logs') . '/sales.log', "[" . date('Y-m-d H:i:s') . "]test 4: \n"  .  "\n\n", FILE_APPEND);
+//                                file_put_contents(storage_path('logs') . '/sales.log', "[" . date('Y-m-d H:i:s') . "]test 4: \n"  .  "\n\n", FILE_APPEND);
 				$errMessage = '[row ' . $currentRow . ']: ' . $warehouseType . '_code Cannot Be Empty.';
 				Cache::put($this->cacheKey, $errMessage);
+                                throw new ApiException($errMessage);
 				return;
 			} else {
 				$warehouse = Warehouse::where('code', $warehouseCode)->first();
 				if (!$warehouse) {
-                                        //file_put_contents(storage_path('logs') . '/sales.log', "[" . date('Y-m-d H:i:s') . "]test 5: \n"  .  "\n\n", FILE_APPEND);
+//                                        file_put_contents(storage_path('logs') . '/sales.log', "[" . date('Y-m-d H:i:s') . "]test 5: \n"  .  "\n\n", FILE_APPEND);
 					$errMessage = '[row ' . $currentRow . ']: ' . $warehouseType . '_code *' . $warehouseCode . '* Not Found.';
 					Cache::put($this->cacheKey, $errMessage);
+                                        throw new ApiException($errMessage);
 					return;
 				}
 			}
@@ -136,23 +139,26 @@ class SalesImport implements ToArray, WithHeadingRow, WithMultipleSheets
             foreach ($orderItems as $orderItem) {
 
 				if (
-					!array_key_exists('item_code', $orderItem) || !array_key_exists('item_quantity', $orderItem) ||
+					!array_key_exists('item_quantity', $orderItem) ||
 					!array_key_exists('item_id', $orderItem)
 				) {
                     $errMessage = '[row ' . $currentRow . ']: Field missing from header.';
 					Cache::put($this->cacheKey, $errMessage);
+                                        throw new ApiException($errMessage);
 					$newOrder->delete();
 					return;
 				}
 
 				$product = null;
 
-				// Item Code
-				$itemCode = trim($orderItem['item_code']);
-				if ($itemCode == '') {
-                                        //file_put_contents(storage_path('logs') . '/sales.log', "[" . date('Y-m-d H:i:s') . "]1 : \n"  . "\n\n", FILE_APPEND);
-					$errMessage = '[row ' . $currentRow . ']: item_code Cannot Be Empty.';
+				// Item id
+				$item_id = trim($orderItem['item_id']);
+                                
+                                if ($item_id == '') {
+//                                        file_put_contents(storage_path('logs') . '/sales.log', "[" . date('Y-m-d H:i:s') . "]1 : \n"  . "\n\n", FILE_APPEND);
+					$errMessage = '[row ' . $currentRow . ']: item_id Cannot Be Empty.';
 					Cache::put($this->cacheKey, $errMessage);
+                                        throw new ApiException($errMessage);
 					$newOrder->delete();
 					return;
 				} 
@@ -163,11 +169,12 @@ class SalesImport implements ToArray, WithHeadingRow, WithMultipleSheets
 				// 	return;
 				// } 
 				else {
-					$product = Product::where('item_code', $itemCode)->first();
+					$product = Product::where('item_id', $item_id)->first();
 					if (!$product) {
-                                                //file_put_contents(storage_path('logs') . '/sales.log', "[" . date('Y-m-d H:i:s') . "]2 : \n"  . "\n\n", FILE_APPEND);
-						$errMessage = '[row ' . $currentRow . ']: item_code *' . $itemCode . '* Not Found.';
+//                                                file_put_contents(storage_path('logs') . '/sales.log', "[" . date('Y-m-d H:i:s') . "]2 : \n"  . "\n\n", FILE_APPEND);
+						$errMessage = '[row ' . $currentRow . ']: item_code *' . $item_id . '* Not Found.';
 						Cache::put($this->cacheKey, $errMessage);
+                                                throw new ApiException($errMessage);
 						$newOrder->delete();
 						return;
 					}
@@ -184,12 +191,14 @@ class SalesImport implements ToArray, WithHeadingRow, WithMultipleSheets
 				if (!$itemQuantity) {
                                         //file_put_contents(storage_path('logs') . '/sales.log', "[" . date('Y-m-d H:i:s') . "]3 : \n"  . "\n\n", FILE_APPEND);
 					$errMessage = '[row ' . $currentRow . ']: item_quantity Cannot Be Empty Or 0.';
+                                        throw new ApiException('[row ' . $currentRow . ']: item_quantity Cannot Be Empty Or 0.');
 					Cache::put($this->cacheKey, $errMessage);
 					$newOrder->delete();
 					return;
 				} else if ($itemQuantity > $currentStock) {
                                         //file_put_contents(storage_path('logs') . '/sales.log', "[" . date('Y-m-d H:i:s') . "]4 : \n"  . "\n\n", FILE_APPEND);
-					$errMessage = '[row ' . $currentRow . ']: item_quantity Exceed Stock.';
+                                        $errMessage = '[row ' . $currentRow . ']: item_quantity Exceed Stock.';
+					throw new ApiException('[row ' . $currentRow . ']: item_quantity Exceed Stock.');
 					Cache::put($this->cacheKey, $errMessage);
 					$newOrder->delete();
 					return;
@@ -237,7 +246,7 @@ class SalesImport implements ToArray, WithHeadingRow, WithMultipleSheets
 				
                $currentRow++;
 
-			   $processedItemCodes[] = $itemCode;
+			   $processedItemCodes[] = $item_id;
             }
 
 			$newOrder->total_quantity = $totalQuantities;
@@ -254,12 +263,12 @@ class SalesImport implements ToArray, WithHeadingRow, WithMultipleSheets
 
 			// Update Stock
 			$newOrder = Common::storeAndUpdateOrder($newOrder, "", $productItems);
-                        //file_put_contents(storage_path('logs') . '/sales.log', "[" . date('Y-m-d H:i:s') . "]5 : \n"  . print_r($newOrder,1). "\n\n", FILE_APPEND);
+                        file_put_contents(storage_path('logs') . '/sales.log', "[" . date('Y-m-d H:i:s') . "]5 : \n"  . print_r($newOrder,1). "\n\n", FILE_APPEND);
 			// Updating Warehouse History
 			Common::updateWarehouseHistory('order', $newOrder, "add_edit");
 
 			// Notifying to Warehouse
-			Notify::send(str_replace('-', '_', $orderType)  . '_create', $newOrder);
+//			Notify::send(str_replace('-', '_', $orderType)  . '_create', $newOrder);
 
 			// Forget cache
 			Cache::forget($this->cacheKey);

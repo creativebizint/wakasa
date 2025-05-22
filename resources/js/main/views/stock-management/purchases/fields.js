@@ -235,7 +235,7 @@ const fields = () => {
     const setupTableColumns = () => {
         var allColumns = [
             {
-                title: t(`stock.invoice_number`),
+                title: t(orderType.value+`.invoice_number`),
                 dataIndex: "invoice_number",
                 sorter:true
             },

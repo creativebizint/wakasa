@@ -9,6 +9,7 @@ use App\Models\UserDetails;
 use App\Models\Warehouse;
 use Examyou\RestAPI\ApiResponse;
 use Examyou\RestAPI\Exceptions\ApiException;
+use Examyou\RestAPI\Exceptions\ResourceNotFoundException;
 use Maatwebsite\Excel\Facades\Excel;
 
 trait PartyTraits
@@ -51,6 +52,9 @@ trait PartyTraits
         $warehouse = warehouse();
         $company = company();
 
+        if($request->code == ''){
+            
+        }
         $user->warehouse_id = $loggedUser->hasRole('admin') && $request->warehouse_id != '' ? $request->warehouse_id : $warehouse->id;
         $user->user_type = $this->userType;
         $user->lang_id = $company->lang_id;
