@@ -34,7 +34,9 @@ Route::get('stock-in/export', ['as' => 'api.stockIn.export', 'uses' => 'Api\Prod
 Route::get('stock-out/export', ['as' => 'api.stockOut.export', 'uses' => 'Api\ProductPlacementController@stockOutExport']);
 Route::get('stock-listings/export', ['as' => 'api.stock-listings.export', 'uses' => 'Api\StockListingController@export']);
 Route::get('warehouse/export', ['as' => 'api.warehouse.export', 'uses' => 'Api\WarehouseController@export']);
-
+Route::get('customers/export', ['as' => 'api.customers.export', 'uses' => 'Api\CustomersController@export']);
+Route::get('suppliers/export', ['as' => 'api.suppliers.export', 'uses' => 'Api\SuppliersController@export']);
+Route::get('users/export', ['as' => 'api.users.export', 'uses' => 'Api\UsersController@export']);
 // If appType is saas version
 // Then we only define routes
 // for send email settings not email settings

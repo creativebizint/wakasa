@@ -9,6 +9,8 @@ use App\Http\Requests\Api\Customer\UpdateRequest;
 use App\Http\Requests\Api\Customer\DeleteRequest;
 use App\Models\Customer;
 use App\Traits\PartyTraits;
+use App\Exports\CustomerExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class CustomersController extends ApiBaseController
 {
@@ -27,4 +29,10 @@ class CustomersController extends ApiBaseController
 
 		$this->userType = "customers";
 	}
+        
+        public function export()
+        {
+                return Excel::download(new CustomerExport, 'customers.xlsx');
+        }
+      
 }

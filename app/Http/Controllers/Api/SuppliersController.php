@@ -9,6 +9,8 @@ use App\Http\Requests\Api\Supplier\UpdateRequest;
 use App\Http\Requests\Api\Supplier\DeleteRequest;
 use App\Models\Supplier;
 use App\Traits\PartyTraits;
+use App\Exports\SupplierExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class SuppliersController extends ApiBaseController
 {
@@ -27,4 +29,9 @@ class SuppliersController extends ApiBaseController
 
 		$this->userType = "suppliers";
 	}
+        
+        public function export()
+        {
+                return Excel::download(new SupplierExport, 'suppliers.xlsx');
+        }
 }

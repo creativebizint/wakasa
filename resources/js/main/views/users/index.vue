@@ -38,10 +38,20 @@
                             <QueueImport
                                 :pageTitle="importPageTitle"
                                 :sampleFileUrl="sampleFileUrl"
-                                context="suppliers"
+                                :context="context"
                                 bus="master"
                                 @onUploadSuccess="setUrlData"
                             />
+                            <a-typography-link
+                                :href="exportUrl"
+                                target="_blank"
+                            >
+                                <a-button type="primary">
+                                    <FileExcelOutlined />
+                                    {{ $t("common.export") }}
+                                    {{ $t(`${langKey}`) }}
+                                </a-button>
+                            </a-typography-link>
                         </a-space>
                     </template>
                     <a-button
@@ -410,6 +420,9 @@ export default {
         const importUrl = ref("");
         const transactionVisible = ref(false);
         const modelData = ref("");
+        const context = ref("");
+        const exportUrl = ref("");
+
 
         const openTransactions = (record) => {
             transactionVisible.value = true;
@@ -434,7 +447,9 @@ export default {
                 tableColumns.value = supplierCustomerColumns;
                 sampleFileUrl.value = window.config.supplier_sample_file;
                 importPageTitle.value = t("supplier.import_suppliers");
+                context.value = "suppliers";
                 importUrl.value = "suppliers/import";
+                exportUrl.value = "/suppliers/export";
             } else if (userType.value == "customers") {
                 crudVariables.initData.value = { ...customerInitData };
                 crudVariables.formData.value = { ...customerInitData };
@@ -442,7 +457,9 @@ export default {
                 tableColumns.value = supplierCustomerColumns;
                 sampleFileUrl.value = window.config.customer_sample_file;
                 importPageTitle.value = t("customer.import_customers");
+                context.value = "customers";
                 importUrl.value = "customers/import";
+                exportUrl.value = "/customers/export";
             } else {
                 crudVariables.initData.value = { ...staffMemberInitData };
                 crudVariables.formData.value = { ...staffMemberInitData };
@@ -450,7 +467,9 @@ export default {
                 tableColumns.value = columns;
                 sampleFileUrl.value = window.config.staff_member_sample_file;
                 importPageTitle.value = t("staff_member.import_staff_members");
+                context.value = "users";
                 importUrl.value = "users/import";
+                exportUrl.value = "/users/export";
             }
             crudVariables.restFormData();
         };
@@ -544,6 +563,9 @@ export default {
             onCloseTransactions,
             openTransactions,
             modelData,
+
+            context,
+            exportUrl,
         };
     },
 };

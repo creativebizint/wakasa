@@ -12,6 +12,8 @@ use App\Traits\UserTraits;
 use Examyou\RestAPI\ApiResponse;
 use Examyou\RestAPI\Exceptions\ApiException;
 use Examyou\RestAPI\Exceptions\ResourceNotFoundException;
+use App\Exports\UserExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class UsersController extends ApiBaseController
 {
@@ -30,4 +32,9 @@ class UsersController extends ApiBaseController
 
 		$this->userType = "staff_members";
 	}
+        
+        public function export()
+        {
+                return Excel::download(new UserExport, 'users.xlsx');
+        }
 }

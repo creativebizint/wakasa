@@ -36,7 +36,6 @@ trait UserTraits
         }
 
         if ($request->has('dates') && $request->dates != '') {
-            dd($request);
             $dates = explode(',', $request->dates);
             $startDate = $dates[0];
             $endDate = $dates[1];

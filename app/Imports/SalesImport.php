@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\ProductDetails;
 use App\Models\Warehouse;
 use App\Models\User;
+use App\Models\UserDetails;
 use App\Models\Unit;
 use App\Classes\Common;
 use App\Classes\Notify;
@@ -77,11 +78,40 @@ class SalesImport implements ToArray, WithHeadingRow, WithMultipleSheets
 			} else {
 				$user = User::where('code', $userCode)->first();
 				if (!$user) {
-//                                        file_put_contents(storage_path('logs') . '/sales.log', "[" . date('Y-m-d H:i:s') . "]test 3: \n"  .  "\n\n", FILE_APPEND);
-					$errMessage = '[row ' . $currentRow . ']: ' . $userType . '_code *' . $userCode . '* Not Found.';
-					Cache::put($this->cacheKey, $errMessage);
-                                        throw new ApiException($errMessage);
-					return;
+                                    try {
+                                        $user = new User();
+                                        $user->name = trim($orderItems[0][$userType . '_name']);
+                                        $user->address = trim($orderItems[0][$userType . '_address']);
+                                        $user->shipping_address = trim($orderItems[0][$userType . '_address']);
+                                        $user->code = trim($orderItems[0][$userType . '_code']);
+                                        $user->saveOrFail(); // this throws an exception if save fails
+
+                                        $allWarehouses = Warehouse::select('id')->withoutGlobalScope(CompanyScope::class)->where('company_id', $company->id)->get();
+                                        logger($allWarehouses);
+                                        
+                                        foreach ($allWarehouses as $allWarehouse) {
+                                            $userDetails = new UserDetails();
+                                            $userDetails->warehouse_id = $allWarehouse->id;
+                                            $userDetails->user_id = $user->id;
+                                            $userDetails->credit_period = 30;
+                                            $userDetails->save();
+                                        }
+            
+    logger('User saved successfully', $user->toArray());
+                                    } catch (\Throwable $ex) {
+                                         logger()->error('User save failed: ' . $ex->getMessage());
+//    dd($e); // Optional: dump full exception
+                                    }
+                                    
+                                    
+                                    
+                       
+
+//dd('sss');
+                                    
+                                    
+                                    file_put_contents(storage_path('logs') . '/sales.log', "[" . date('Y-m-d H:i:s') . "]test 2: \n"  . print_r($user,1). "\n\n", FILE_APPEND);
+                                    
 				}
 			}
 

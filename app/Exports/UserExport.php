@@ -34,7 +34,7 @@ class UserExport implements FromCollection, WithHeadings, WithStyles
     */
     public function collection()
     {
-        return Customer::select('code', 'name', 'email', 'phone', 'address')
+        return User::select('code', 'name', 'email', 'phone', 'address')
             ->where('user_type','staff_members')    
             ->get()
             ->makeHidden(['xid','profile_image_url']);

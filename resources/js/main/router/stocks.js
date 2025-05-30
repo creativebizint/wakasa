@@ -302,6 +302,20 @@ export default [
                 },
             },
 
+            {
+                path: "delivery-order",
+                component: () =>
+                    import("../views/stock-management/inventory/index.vue"),
+                name: "admin.delivery_order.index",
+                meta: {
+                    requireAuth: true,
+                    menuParent: "stock_management",
+                    menuKey: (route) => "delivery_order",
+                    permission: (route) => "delivery_order_view",
+                    orderType: "inventory_out",
+                },
+            },
+            
             // Purchase Returns
             {
                 path: "purchase-returns/edit/:id",

@@ -178,22 +178,22 @@ class Common
                 ->where('warehouse_id', '=', $warehouseId)
                 ->count();
 
-            $userDetails->purchase_order_count = $purchaseOrderCount;
-            $userDetails->purchase_return_count = $purchaseReturnOrderCount;
-            $userDetails->sales_order_count = $salesOrderCount;
-            $userDetails->sales_return_count = $salesReturnOrderCount;
+            if ($userDetails !== null) {
+                $userDetails->purchase_order_count = $purchaseOrderCount == '' ? 0 : $purchaseOrderCount;
+                $userDetails->purchase_return_count = $purchaseReturnOrderCount == '' ? 0 : $purchaseReturnOrderCount;
+                $userDetails->sales_order_count = $salesOrderCount == '' ? 0: $salesOrderCount;
+                $userDetails->sales_return_count = $salesReturnOrderCount == '' ? 0 : $salesReturnOrderCount;
 
-            $userDetails->total_amount = $userTotalOrderAmount;
+                $userDetails->total_amount = $userTotalOrderAmount == '' ? 0 : $userTotalOrderAmount;
+                if ($userDetails->opening_balance_type == "receive") {
+                    $userDetails->paid_amount = $userTotalPaidPayment - $userDetails->opening_balance;
+                } else {
+                    $userDetails->paid_amount = $userTotalPaidPayment + $userDetails->opening_balance;
+                }
 
-
-            if ($userDetails->opening_balance_type == "receive") {
-                $userDetails->paid_amount = $userTotalPaidPayment - $userDetails->opening_balance;
-            } else {
-                $userDetails->paid_amount = $userTotalPaidPayment + $userDetails->opening_balance;
-            }
-
-            $userDetails->due_amount = $userDetails->total_amount - $userDetails->paid_amount;
-            $userDetails->save();
+                $userDetails->due_amount = $userDetails->total_amount - $userDetails->paid_amount;
+                $userDetails->save();
+            } 
         }
     }
 

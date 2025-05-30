@@ -495,6 +495,25 @@
                         >
                             {{ $t("menu.inventory_out") }}
                         </a-menu-item>
+
+                        <a-menu-item
+                            @click="
+                                () => {
+                                    menuSelected();
+                                    $router.push({
+                                        name: 'admin.delivery_order.index',
+                                    });
+                                }
+                            "
+                            key="delivery_order"
+                            v-if="
+                                permsArray.includes('delivery_order_view') ||
+                                permsArray.includes('admin')
+                            "
+                        >
+                            {{ $t("menu.delivery_order") }}
+                        </a-menu-item>
+
                     </a-sub-menu>
 
                     <a-sub-menu
