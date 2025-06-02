@@ -6,6 +6,8 @@ use Examyou\RestAPI\Facades\ApiRoute;
 Route::get('admin/session', ['as' => 'api.session.index', 'uses' => 'Api\SessionController@index']);
 Route::get('admin/stock-management/invoice/export', ['as' => 'api.stockInvoice.export', 'uses' => 'Api\ProductPlacementController@stockInvoiceExport']);
 Route::get('/admin/order-fullfillment/picking-assignment/export', ['as' => 'api.pickingAssignment.export', 'uses' => 'Api\pickingAssignmentController@pickingAssignmentExport']);
+Route::get('/admin/test', ['as' => 'api.test', 'uses' => 'Api\TestController@connectSqlServer']);
+
 
 // Admin Routes
 ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
@@ -178,6 +180,7 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         ApiRoute::get('default-warehouse', ['as' => 'api.warehouses.default-warehouse', 'uses' => 'WarehouseController@getDefaultWarehouse']);
         ApiRoute::resource('inventory_in', 'PurchaseController', $options);        
         ApiRoute::resource('inventory_out', 'SalesController', $options);
+        ApiRoute::resource('delivery_order', 'DeliveryOrderController', $options);
         ApiRoute::resource('placement_in', 'PurchaseController', $options);
     });
 });

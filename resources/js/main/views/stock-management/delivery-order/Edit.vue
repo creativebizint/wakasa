@@ -58,7 +58,7 @@
                             v-model:value="formData.invoice_number"
                             :placeholder="
                                 $t('common.placeholder_default_text', [
-                                    $t('${orderType}.invoice_number'),
+                                    $t('stock.invoice_number'),
                                 ])
                             "
                             :disabled="editOrderDisable"

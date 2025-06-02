@@ -11,12 +11,7 @@ const fields = () => {
     const route = useRoute();
     const orderType = ref(route.meta.orderType);
     const columns = ref([]);
-    const hashableColumns = [
-        "user_id",
-        "warehouse_id",
-        "from_warehouse_id",
-        "staff_user_id",
-    ];
+    const hashableColumns = ['user_id', 'warehouse_id'];
 
     onMounted(() => {
         if (route.meta && route.meta.orderType) {
@@ -33,8 +28,6 @@ const fields = () => {
         order_status: undefined,
         tax_id: undefined,
         warehouse_id: undefined,
-        from_warehouse_id: undefined,
-        staff_user_id: undefined,
         discount: 0,
         shipping: 0,
         subtotal: 0,
@@ -57,44 +50,24 @@ const fields = () => {
             dataIndex: "name",
         },
         {
-            title: t("product.quantity"),
+            title: t("product.quantity_faktur"),
             dataIndex: "unit_quantity",
         },
-        
-//        {
-//            title: t("product.unit_price"),
-//            dataIndex: "single_unit_price",
-//        },
-//        {
-//            title: t("product.discount"),
-//            dataIndex: "total_discount",
-//        },
-//        {
-//            title: t("product.tax"),
-//            dataIndex: "total_tax",
-//        },
-//        {
-//            title: t("product.subtotal"),
-//            dataIndex: "subtotal",
-//        },
         {
-            title: t("common.action"),
-            dataIndex: "action",
+            title: t("product.quantity_qr"),
+            dataIndex: "quantity_qr",
         },
-    ];
-
-    const orderItemDetailsColumns = [
         {
-            title: t("product.product_id"),
-            dataIndex: "product_id",
+            title: t("product.quantity_real"),
+            dataIndex: "quantity_real",
+        },
+        {
+            title: t("product.shelf"),
+            dataIndex: "shelf",
         },
         {
             title: t("product.product_code"),
             dataIndex: "product_code",
-        },
-        {
-            title: t("product.product_name"),
-            dataIndex: "name",
         },
         {
             title: t("product.product_description"),
@@ -112,34 +85,73 @@ const fields = () => {
             title: t("product.sat"),
             dataIndex: "sat",
         },
+        //{
+        //    title: t("product.unit_price"),
+        //    dataIndex: "single_unit_price",
+        //},
+        //{
+        //    title: t("product.discount"),
+        //    dataIndex: "total_discount",
+        //},
+        //{
+        //    title: t("product.tax"),
+        //    dataIndex: "total_tax",
+        //},
+        //{
+        //    title: t("product.subtotal"),
+        //    dataIndex: "subtotal",
+        //},
+        {
+            title: t("common.action"),
+            dataIndex: "action",
+        },
+    ];
+
+    const orderItemBarcodeIn = [
+        {
+            title: "#",
+            dataIndex: "sn",
+        },
+        {
+            title: t("product.item_id"),
+            dataIndex: "product_item_id",
+        },
         {
             title: t("product.quantity_faktur"),
-            dataIndex: "quantity",
+            dataIndex: "unit_quantity",
         },
         {
             title: t("product.qty_scanned"),
-            dataIndex: "quantity_scanned",
+            dataIndex: "qty_scanned",
+        },
+        
+    ];
+    
+    const orderItemDetailsColumns = [
+        {
+            title: t("product.product"),
+            dataIndex: "product_id",
         },
         {
-            title: t("product.quantity_qr"),
-            dataIndex: "quantity_qrcode",
+            title: t("product.quantity"),
+            dataIndex: "quantity",
         },
-//        {
-//            title: t("product.unit_price"),
-//            dataIndex: "single_unit_price",
-//        },
-//        {
-//            title: t("product.discount"),
-//            dataIndex: "total_discount",
-//        },
-//        {
-//            title: t("product.tax"),
-//            dataIndex: "total_tax",
-//        },
-//        {
-//            title: t("product.subtotal"),
-//            dataIndex: "subtotal",
-//        },
+        {
+            title: t("product.unit_price"),
+            dataIndex: "single_unit_price",
+        },
+        {
+            title: t("product.discount"),
+            dataIndex: "total_discount",
+        },
+        {
+            title: t("product.tax"),
+            dataIndex: "total_tax",
+        },
+        {
+            title: t("product.subtotal"),
+            dataIndex: "subtotal",
+        },
     ];
 
     const filterableColumns = [
@@ -163,11 +175,11 @@ const fields = () => {
         }
         else if (orderType.value == "inventory_in") {
             pageObjectDetails = {
-                type: "purchases",
-                langKey: "purchase",
-                menuKey: "purchases",
+                type: "inventory_in",
+                langKey: "inventory_in",
+                menuKey: "inventory_in",
                 userType: "suppliers",
-                permission: "purchases",
+                permission: "inventory_in",
             };
         }
         else if (orderType.value == "inventory_out") {
@@ -187,6 +199,14 @@ const fields = () => {
                 userType: "customers",
                 permission: "sales",
             };
+        } else if (orderType.value == "purchase-returns") {
+            pageObjectDetails = {
+                type: "purchase-returns",
+                langKey: "purchase_returns",
+                menuKey: "purchase_returns",
+                userType: "suppliers",
+                permission: "purchase_returns",
+            };
         } 
         else if (orderType.value == "delivery_order") {
             pageObjectDetails = {
@@ -197,15 +217,7 @@ const fields = () => {
                 permission: "sales",
             };
         }
-        else if (orderType.value == "purchase-returns") {
-            pageObjectDetails = {
-                type: "purchase-returns",
-                langKey: "purchase_returns",
-                menuKey: "purchase_returns",
-                userType: "suppliers",
-                permission: "purchase_returns",
-            };
-        } else if (orderType.value == "sales-returns") {
+        else if (orderType.value == "sales-returns") {
             pageObjectDetails = {
                 type: "sales-returns",
                 langKey: "sales_returns",
@@ -245,20 +257,10 @@ const fields = () => {
     const setupTableColumns = () => {
         var allColumns = [
             {
-                title: t(orderType.value+`.invoice_number`),
+                title: t(`stock.invoice_number`),
                 dataIndex: "invoice_number",
                 sorter:true
-            },
-//            {
-//                title: t(
-//                    `${pageObject.value.langKey}.${pageObject.value.langKey}_date`
-//                ),
-//                dataIndex: "order_date",
-//            },
-            {
-                title: t(`common.created_by`),
-                dataIndex: "staff_user_id",
-            },
+            }
         ];
 
         if (pageObject.value.type == 'stock-transfers') {
@@ -270,14 +272,6 @@ const fields = () => {
             });
         }
 
-        //* ADDENDUM
-        if (pageObject.value.type == "purchases") {
-            allColumns.push({
-                title: t("stock_transfer.to_warehouse"),
-                dataIndex: "warehouse",
-            });
-        }
-        
         allColumns.push({
             title: t(`${pageObject.value.langKey}.${pageObject.value.langKey}_date`),
             dataIndex: "order_date",
@@ -301,19 +295,12 @@ const fields = () => {
                 sorter:true,
             },
             {
-                title: t("invoice.total_items"),
-                dataIndex: "total_items",
+                title: t("payments.total_amount"),
+                dataIndex: "total_amount",
+                sorter:true,
+                sorter_field:"orders.total"
+
             },
-            {
-                title: t("invoice.total_quantities"),
-                dataIndex: "total_quantities",
-            },    
-            //{
-            //    title: t("payments.total_amount"),
-            //    dataIndex: "total_amount",
-            //    sorter:true,
-            //    sorter_field:"orders.total"
-            //},
             {
                 title: t("common.action"),
                 dataIndex: "action",
@@ -340,7 +327,7 @@ const fields = () => {
         },
       
     ];
-
+    
     return {
         initData,
         initPaymentData,
@@ -351,8 +338,9 @@ const fields = () => {
         pageObject,
         orderType,
         orderItemColumns,
+        orderItemBarcodeIn,
         orderPaymentsColumns,
-        orderItemDetailsColumns
+        orderItemDetailsColumns,
     }
 }
 

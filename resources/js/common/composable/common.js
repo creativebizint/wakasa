@@ -270,7 +270,17 @@ const common = () => {
                 userType: "customers",
                 permission: "sales",
             };
-        } else if (orderType.value == "purchase-returns") {
+        } 
+        else if (orderType.value == "delivery_order") {
+            pageObjectDetails = {
+                type: "delivery_order",
+                langKey: "delivery_order",
+                menuKey: "delivery_order",
+                userType: "customers",
+                permission: "delivery_order",
+            };
+        }
+        else if (orderType.value == "purchase-returns") {
             pageObjectDetails = {
                 type: "purchase-returns",
                 langKey: "purchase_returns",

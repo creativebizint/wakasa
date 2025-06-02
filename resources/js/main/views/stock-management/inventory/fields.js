@@ -199,7 +199,17 @@ const fields = () => {
                 userType: "customers",
                 permission: "sales",
             };
-        } else if (orderType.value == "purchase-returns") {
+        }
+        else if (orderType.value == "delivery_order") {
+            pageObjectDetails = {
+                type: "sales",
+                langKey: "sales",
+                menuKey: "sales",
+                userType: "customers",
+                permission: "sales",
+            };
+        }
+        else if (orderType.value == "purchase-returns") {
             pageObjectDetails = {
                 type: "purchase-returns",
                 langKey: "purchase_returns",

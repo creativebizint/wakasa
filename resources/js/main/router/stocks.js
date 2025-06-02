@@ -276,6 +276,19 @@ export default [
                 },
             },
             {
+                path: "delivery-order/edit/:id",
+                component: () =>
+                    import("../views/stock-management/delivery-order/Edit.vue"),
+                name: "admin.delivery_order.edit",
+                meta: {
+                    requireAuth: true,
+                    menuParent: "stock_management",
+                    menuKey: (route) => "delivery_order",
+                    permission: (route) => "delivery_order_edit",
+                    orderType: "delivery_order",
+                },
+            },
+            {
                 path: "inventory-out/create",
                 component: () =>
                     import("../views/stock-management/inventory/Create.vue"),
@@ -305,14 +318,28 @@ export default [
             {
                 path: "delivery-order",
                 component: () =>
-                    import("../views/stock-management/inventory/index.vue"),
+                    import("../views/stock-management/delivery-order/index.vue"),
                 name: "admin.delivery_order.index",
                 meta: {
                     requireAuth: true,
                     menuParent: "stock_management",
                     menuKey: (route) => "delivery_order",
                     permission: (route) => "delivery_order_view",
-                    orderType: "inventory_out",
+                    orderType: "delivery_order",
+                },
+            },
+            
+            {
+                path: "delivery-order/create",
+                component: () =>
+                    import("../views/stock-management/delivery-order/Create.vue"),
+                name: "admin.delivery_order.create",
+                meta: {
+                    requireAuth: true,
+                    menuParent: "stock_management",
+                    menuKey: (route) => "delivery_order",
+                    permission: (route) => "delivery_order_view",
+                    orderType: "delivery_order",
                 },
             },
             

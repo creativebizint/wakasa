@@ -11,8 +11,11 @@
                     </router-link>
                 </a-breadcrumb-item>
                 <a-breadcrumb-item>
-                    {{ $t(`menu.${orderType}`) }}
+                    {{
+                        $t(`menu.${orderType}`)
+                    }}
                 </a-breadcrumb-item>
+                
             </a-breadcrumb>
         </template>
     </AdminPageHeader>
@@ -23,7 +26,7 @@
                 <a-space>
                     <template
                         v-if="
-                            permsArray.includes(`${orderPageObject.permission}_create`) ||
+                            permsArray.includes(`inventory_in_create`) ||
                             permsArray.includes('admin')
                         "
                     >
@@ -38,7 +41,6 @@
                             </a-button>
                         </router-link>
                     </template>
-
                     <QueueImport
                         :pageTitle="$t(`${orderType}.import`)"
                         :sampleFileUrl="sampleFileUrl"
@@ -49,7 +51,7 @@
                     <a-button
                         v-if="
                             selectedRowIds.length > 0 &&
-                            (permsArray.includes(`${orderPageObject.permission}_view`) ||
+                            (permsArray.includes(`inventory_in_view`) || permsArray.includes(`inventory_out_view`) ||
                                 permsArray.includes('admin'))
                         "
                         type="primary"
@@ -70,7 +72,7 @@
                             show-search
                             :placeholder="
                                 $t('common.placeholder_search_text', [
-                                    $t(`${orderType}.invoice_number`),
+                                    $t('stock.invoice_number'),
                                 ])
                             "
                         />
@@ -80,7 +82,7 @@
                             v-model:value="filters.user_id"
                             :placeholder="
                                 $t('common.select_default_text', [
-                                    $t(`${orderType}.user`),
+                                    $t(`order_in.user`),
                                 ])
                             "
                             :allowClear="true"
@@ -98,6 +100,33 @@
                             </a-select-option>
                         </a-select>
                     </a-col>
+
+                    <!--* ADDENDUM -->
+                    <a-col :xs="24" :sm="24" :md="8" :lg="8" :xl="6">
+                        <a-select
+                            v-model:value="filters.warehouse_id"
+                            :placeholder="
+                                $t('common.select_default_text', [
+                                    $t('warehouse.warehouse'),
+                                ])
+                            "
+                            :allowClear="true"
+                            style="width: 100%"
+                            optionFilterProp="title"
+                            show-search
+                        >
+                            <a-select-option
+                                v-for="warehouse in warehouses"
+                                :key="warehouse.xid"
+                                :title="warehouse.name"
+                                :value="warehouse.xid"
+                            >
+                                {{ warehouse.name }}
+                            </a-select-option>
+                        </a-select>
+                    </a-col>
+
+
                     <a-col :xs="24" :sm="24" :md="8" :lg="8" :xl="6">
                         <DateRangePicker
                             ref="serachDateRangePicker"
@@ -153,8 +182,8 @@ export default {
         } = common();
         const route = useRoute();
 
-        const warehouses = ref([]);
         const users = ref([]);
+        const warehouses = ref([]);
         const serachDateRangePicker = ref(null);
 
         const selectedRowIds = ref([]);
@@ -166,9 +195,6 @@ export default {
             dates: [],
             searchColumn: "invoice_number",
             searchString: "",
-
-            //* ADDENDUM
-            warehouse_id: undefined,
         });
 
         const sampleFileUrl = ref([]);
@@ -177,12 +203,12 @@ export default {
             fetchUsers();
             fetchWarehouses();
             sampleFileUrl.value =
-                window.config[orderType.value+`_sample_file`];
+                window.config[`stock_in_sample_file`];
         });
 
         const fetchUsers = () => {
             const usersPromise = axiosAdmin.get(
-                `${orderPageObject.value.userType}?limit=10000`
+                `suppliers?limit=10000`
             );
 
             Promise.all([usersPromise]).then(([usersResponse]) => {
@@ -209,8 +235,6 @@ export default {
             (newVal, oldVal) => {
                 if (
                     newVal == "purchases" ||
-                    newVal == "inventory_in" ||
-                    newVal == "inventory_out" ||
                     newVal == "purchase-returns" ||
                     newVal == "sales" ||
                     newVal == "sales-returns" ||
@@ -224,6 +248,9 @@ export default {
                         dates: [],
                         searchColumn: "invoice_number",
                         searchString: "",
+
+                        //* ADDENDUM
+                        warehouse_id: undefined,
                     };
 
                     fetchUsers();
@@ -233,8 +260,7 @@ export default {
                 }
 
                 sampleFileUrl.value =
-                window.config[orderType.value+`_sample_file`];
-
+                    window.config[`order_in_sample_file`];
             }
         );
 

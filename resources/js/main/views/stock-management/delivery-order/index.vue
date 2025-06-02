@@ -29,7 +29,7 @@
                     >
                         <router-link
                             :to="{
-                                name: `admin.${orderType}.create`,
+                                name: `admin.delivery_order.create`,
                             }"
                         >
                             <a-button type="primary">
@@ -39,26 +39,6 @@
                         </router-link>
                     </template>
 
-                    <QueueImport
-                        :pageTitle="$t(`${orderType}.import`)"
-                        :sampleFileUrl="sampleFileUrl"
-                        :context="orderType"
-                        :bus="orderType"
-                        @onUploadSuccess="orderTableRef.setUrlData()"
-                    />
-                    <a-button
-                        v-if="
-                            selectedRowIds.length > 0 &&
-                            (permsArray.includes(`${orderPageObject.permission}_view`) ||
-                                permsArray.includes('admin'))
-                        "
-                        type="primary"
-                        @click="orderTableRef.showSelectedDeleteConfirm"
-                        danger
-                    >
-                        <template #icon><DeleteOutlined /></template>
-                        {{ $t("common.delete") }}
-                    </a-button>
                 </a-space>
             </a-col>
             <a-col :xs="24" :sm="24" :md="12" :lg="14" :xl="14">
