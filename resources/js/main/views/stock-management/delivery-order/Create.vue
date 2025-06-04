@@ -114,10 +114,28 @@
                                     $t('common.placeholder_default_text', [
                                         $t('user.id'),
                                     ])
-                                " readonly=true 
+                                " readonly=true type="hidden"
                             />
                     </a-col>
-
+                    <a-col :xs="24" :sm="24" :md="8" :lg="8">
+                        <a-form-item
+                            :label="$t(`${orderPageObject.langKey}.combine_shipment_number`)"
+                            name="invoice_number"
+                            :help="
+                                rules.invoice_number ? rules.invoice_number.message : null
+                            "
+                            :validateStatus="rules.invoice_number ? 'error' : null"
+                        >
+                            <a-input
+                                v-model:value="formData.combine_shipment_number"
+                                :placeholder="
+                                    $t('common.placeholder_default_text', [
+                                        $t(`${orderPageObject.langKey}.combine_shipment_number`),
+                                    ])
+                                "
+                            />
+                        </a-form-item>
+                    </a-col>
                     <!--* ADDENDUM -->
                     <a-col
                         v-if="
@@ -236,7 +254,7 @@
                                 readonly=true
                             />
                             <a-input
-                                v-model:value="formData.customer_id"
+                                v-model:value="formData.user_id"
                                 :placeholder="
                                     $t('common.placeholder_default_text', [
                                         $t('user.id'),
@@ -1016,7 +1034,7 @@ export default {
             console.log("Received in handleSalesSearchSuccess:", { sales_id, customerId, customerName, address });
             formData.value.sales_id = sales_id; // Set the sales_id
             formData.value.customer_name = customerName; // Set the customer_name
-            formData.value.customer_id = customerId; // Set the customer_id
+            formData.value.user_id = customerId; // Set the user_id
             formData.value.shipping_address = address; // Set address
 
             console.log("Updated formData:", formData.value);
@@ -1135,7 +1153,14 @@ export default {
                 formData.value.order_status = "ordered";
                 formData.value.label = "sales";
                 warehouseSearchLabelPrefix.value = "from";
-            } else if (orderType.value == "sales-returns") {
+            } 
+            else if (orderType.value == "delivery_order") {
+                allOrderStatus.value = deliveryOrderStatus;
+                formData.value.order_status = "open";
+                formData.value.label = "sales";
+                warehouseSearchLabelPrefix.value = "from";
+            }
+            else if (orderType.value == "sales-returns") {
                 allOrderStatus.value = salesReturnStatus;
                 formData.value.order_status = "received";
                 warehouseSearchLabelPrefix.value = "to";
@@ -1179,9 +1204,9 @@ console.log(deliveryOrderStatus);
                 data: newFormDataObject,
                 successMessage: t(`${orderPageObject.value.langKey}.created`),
                 success: (res) => {
-                    router.push({
-                        name: `admin.${orderPageObject.value.menuKey}.index`,
-                    });
+                    //router.push({
+                    //    name: `admin.${orderPageObject.value.menuKey}.index`,
+                    //});
                 },
             });
         };

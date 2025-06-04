@@ -1102,7 +1102,7 @@ class Common
             'payment-in' => 'PAY-IN-',
             'payment-out' => 'PAY-OUT-',
             'quotations' => 'QUOT-',
-            'sales' => 'SALE-',
+            'sales' => 'DO',
             'purchases' => 'PUR-',
             'purchase-returns' => 'PUR-RET-',
             'sales-returns' => 'SALE-RET-',

@@ -197,7 +197,7 @@ trait OrderTraits
     
     public function store()
     {
-		$this->validate();
+        $this->validate();
 
         $request = request();
 		$meta = $this->getMetaData(true);
@@ -217,7 +217,7 @@ trait OrderTraits
             ],
         ];
             
-		return ApiResponse::make("Resource is being processed", $response, $meta);
+	return ApiResponse::make("Resource is being processed", $response, $meta);
     }
 
 //    public function stored(Order $order)
