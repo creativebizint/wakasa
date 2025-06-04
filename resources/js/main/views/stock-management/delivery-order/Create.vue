@@ -37,7 +37,7 @@
         <a-card class="page-content-container mt-20 mb-20">
             <a-form layout="vertical">
                 <a-row :gutter="16">
-                    <a-col :xs="24" :sm="24" :md="8" :lg="8">
+                    <a-col :xs="24" :sm="24" :md="8" :lg="8" :style="{ display: 'none' }">
                         <a-form-item
                             :label="$t(`${orderPageObject.langKey}.invoice_number`)"
                             name="invoice_number"
@@ -106,9 +106,16 @@
                             :rules="rules"
                             :usersList="[]"
                             :editOrderDisable="false"
-                            @onSuccess="(outputUser) => (formData.user_id = outputUser)"
+                            @onSuccess="handleSalesSearchSuccess"
                         />
-                        
+                        <a-input
+                                v-model:value="formData.sales_id"
+                                :placeholder="
+                                    $t('common.placeholder_default_text', [
+                                        $t('user.id'),
+                                    ])
+                                " readonly=true 
+                            />
                     </a-col>
 
                     <!--* ADDENDUM -->
@@ -207,6 +214,58 @@
                         </a-form-item>
                     </a-col>
                 </a-row>
+
+
+                <a-row :gutter="16">
+                    <a-col :xs="24" :sm="24" :md="8" :lg="8">
+                        <a-form-item
+                            :label="$t(`${orderPageObject.langKey}.user`)"
+                            name="customer_name"
+                            :help="
+                                rules.user_id ? rules.user_id.message : null
+                            "
+                            :validateStatus="rules.user_id ? 'error' : null"
+                        >
+                            <a-input
+                                v-model:value="formData.customer_name"
+                                :placeholder="
+                                    $t('common.placeholder_default_text', [
+                                        $t('user.name'),
+                                    ])
+                                "
+                                readonly=true
+                            />
+                            <a-input
+                                v-model:value="formData.customer_id"
+                                :placeholder="
+                                    $t('common.placeholder_default_text', [
+                                        $t('user.id'),
+                                    ])
+                                " readonly=true type="hidden"
+                            />
+                        </a-form-item>
+                    </a-col>
+                    <a-col :xs="24" :sm="24" :md="8" :lg="8">
+                        <a-form-item
+                            :label="$t(`delivery_order.shipping_address`)"
+                            name="address">
+                            <a-input
+                                v-model:value="formData.shipping_address"
+                                :placeholder="
+                                    $t('common.placeholder_default_text', [
+                                        $t('delivery_.shipping_address'),
+                                    ])
+                                "
+                                readonly=true
+                            />
+                            
+                        </a-form-item>
+                    </a-col>
+
+                    
+                </a-row>
+
+
                 <a-row :gutter="16">
                     <a-col :xs="24" :sm="24" :md="24" :lg="24">
                         <a-form-item
@@ -952,6 +1011,18 @@ export default {
         WarehouseSearch,
     },
     setup() {
+        
+        const handleSalesSearchSuccess = ({ sales_id, customerId, customerName, address }) => {
+            console.log("Received in handleSalesSearchSuccess:", { sales_id, customerId, customerName, address });
+            formData.value.sales_id = sales_id; // Set the sales_id
+            formData.value.customer_name = customerName; // Set the customer_name
+            formData.value.customer_id = customerId; // Set the customer_id
+            formData.value.shipping_address = address; // Set address
+
+            console.log("Updated formData:", formData.value);
+        };
+
+
         const { addEditRequestAdmin, loading, rules } = apiAdmin();
         const {
             appSetting,
@@ -960,6 +1031,7 @@ export default {
             taxTypes,
             orderStatus,
             purchaseOrderStatus,
+            deliveryOrderStatus,
             salesOrderStatus,
             salesReturnStatus,
             purchaseReturnStatus,
@@ -1079,6 +1151,12 @@ export default {
                 allOrderStatus.value = salesOrderStatus;
                 formData.value.order_status = "delivered";
                 formData.value.label = "stock-transfers";
+            }
+            else if (orderType.value == "delivery_order") {
+                allOrderStatus.value = deliveryOrderStatus;
+console.log(deliveryOrderStatus);
+                formData.value.order_status = "open";
+                formData.value.label = "delivery-order";
             }
         });
 
@@ -1248,6 +1326,7 @@ export default {
 
         return {
             ...toRefs(state),
+            handleSalesSearchSuccess,
             formData,
             productsAmount,
             rules,
@@ -1299,6 +1378,7 @@ export default {
 
             //addition
             checkInvoiceNumber,
+            deliveryOrderStatus,
         };
     },
 };

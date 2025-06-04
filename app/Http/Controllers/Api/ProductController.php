@@ -397,6 +397,7 @@ class ProductController extends ApiBaseController
         $searchTerm = trim(strtolower($request->search_term));
         $orderType = $request->order_type;
         $warehouseId = $warehouse->id;
+        $salesId = isset($request->sales_id) ? $this->getIdFromHash($request->sales_id) : '';
 
         $products = Product::select('products.id', 'products.name', 'products.image', 'products.unit_id', 'products.product_type','products.product_type','products.description','products.item_code','products.item_id','products.subgroup2','products.text1','products.uom_sale_in','products.uom_buy_in','products.kemasan_jual_qty','products.text1')
             ->where(function ($query) use ($searchTerm) {
@@ -405,7 +406,12 @@ class ProductController extends ApiBaseController
                     ->orWhere(DB::raw('LOWER(products.item_id)'), 'LIKE', "%$searchTerm%")
                     ->orWhere(DB::raw('LOWER(products.parent_item_code)'), 'LIKE', "%$searchTerm%");
             });
-
+            
+        if($salesId != ''){
+            $products->join('order_items','order_items.product_id', '=', 'products.id')
+                     ->where('order_items.order_id','=', $salesId);
+        }
+        
         if ($warehouse->products_visibility == 'warehouse') {
             $products->where('products.warehouse_id', '=', $warehouse->id);
         }

@@ -398,6 +398,17 @@ const common = () => {
 //        },
     ];
 
+    const deliveryOrderStatus = [
+        {
+            key: "open",
+            value: t("common.open"),
+        },
+        {
+            key: "posted",
+            value: t("common.posted"),
+        },
+    ];
+    
     const purchaseReturnStatus = [
         {
             key: "completed",
@@ -432,12 +443,7 @@ const common = () => {
         ...onlineOrderChangeStatus,        
     ];
     
-    const deliveryOrderStatus = [
-        {
-            key: "delivered",
-            value: t("common.delivered"),
-        },
-    ];
+    
 
     const salesReturnStatus = [
         {
@@ -570,6 +576,7 @@ const common = () => {
         salesOrderStatus,
         purchaseReturnStatus,
         salesReturnStatus,
+        deliveryOrderStatus,
 
         getRecursiveCategories,
         filterTreeNode,

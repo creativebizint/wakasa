@@ -43,6 +43,7 @@ const stockManagement = () => {
         discount: 0,
         shipping: 0,
         subtotal: 0,
+        sales_id: undefined,
     });
     const taxes = ref([]);
     const productsAmount = ref({
@@ -78,6 +79,7 @@ const stockManagement = () => {
                     order_type: order_type,
                     search_term: value,
                     warehouse_id: formData.value.warehouse_id,
+                    sales_id: formData.value.sales_id,
                 })
                 .then((response) => {
                     if (response.data.length == 1) {

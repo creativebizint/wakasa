@@ -13,7 +13,7 @@
                 :filter-option="false"
                 :placeholder="
                     $t('common.select_default_text', [
-                        $t(`${orderPageObject.langKey}.user`),
+                        $t(`sales_order.invoice_number`),
                     ])
                 "
                 style="width: 100%"
@@ -38,8 +38,6 @@
                     
                 </a-select-option>
             </a-select>
-            <SupplierAddButton v-if="orderPageObject.userType == 'suppliers'" />
-            <CustomerAddButton v-else />
         </span>
     </a-form-item>
 </template>
@@ -78,23 +76,28 @@ export default defineComponent({
 
                 axiosAdmin.get(url).then((response) => {
                     state.products = response.data;
-console.log(state.products);
                     state.productFetching = false;
                 });
             }
         }, 300);
 
         const searchValueSelected = (value, option) => {
-console.log(option);
-            emit("onSuccess", value);
+            const customerName = option.product?.user?.name || "Unknown Customer";
+            const customerId = option.product?.user?.xid || "";
+            const shipping_address = option.product?.shipping_address || "";
+            const customer_address = option.product?.user?.address || "";
+            const address = shipping_address !== '' ? shipping_address : customer_address;
+            const sales_id = option.product.xid;
+            console.log("Emitting Data:", { sales_id, customerId, customerName, address });
+            emit("onSuccess", { sales_id,customerId, customerName, address });
         };
 
         watch(
             () => props.usersList,
             (newVal, oldVal) => {
-                state.products = [newVal];
-                state.orderSearchTerm = newVal.xid;
-            }
+                    state.products = [newVal];
+                    state.orderSearchTerm = newVal.xid;
+                }
         );
 
         return {
