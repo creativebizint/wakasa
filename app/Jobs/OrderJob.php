@@ -126,7 +126,7 @@ class OrderJob implements ShouldQueue, ShouldBeUnique
                 // Update Stock
                 $newOrder = Common::storeAndUpdateOrder($newOrder, "", $productItems);
            
-            if(!in_array(strtolower($newOrder->order_status),['ordered','confirmed','processing','shipping','posted'])){    
+            if(!in_array(strtolower($newOrder->order_status),['ordered','confirmed','processing','shipping','open'])){    
                 // Updating Warehouse History
                 Common::updateWarehouseHistory('order', $newOrder, "add_edit");
 
@@ -172,7 +172,7 @@ class OrderJob implements ShouldQueue, ShouldBeUnique
                 Common::updateUserAmount($oldUserId, $object->warehouse_id);
             }
 
-            if(!in_array(strtolower($newOrder->order_status),['ordered','confirmed','processing','shipping','posted'])){    
+            if(!in_array(strtolower($newOrder->order_status),['ordered','confirmed','processing','shipping','open'])){    
                 // Updating Warehouse History
                 Common::updateWarehouseHistory('order', $object, "add_edit");
 
