@@ -1129,6 +1129,7 @@ class Common
                 ->first();
         } else {
             $lastOrderOfTheMonth = Order::where('invoice_number', 'like', $selectedPrefix . '%')
+                ->where('invoice_number', 'not like', '%#%')
                 ->orderBy('invoice_number', 'desc')
                 ->first();
         }

@@ -115,6 +115,19 @@ class OrderJob implements ShouldQueue, ShouldBeUnique
             $newOrder->staff_user_id = $this->userId;
             $newOrder->invoice_number = $this->request["invoice_number"];
             
+            if(isset($this->request["combine_shipment_number"]) && $this->request["combine_shipment_number"] != ''){
+                $combine_invoice_number = Order::where('invoice_number', 'like','%'.$this->request["combine_shipment_number"].'%')
+                    ->orderBy('id','desc')
+                    ->select('invoice_number')
+                    ->first();
+                if($combine_invoice_number == null){
+                    throw new ApiException("Invalid Invoice Number");
+                }
+                $combine_invoice_number_ = $combine_invoice_number->invoice_number;
+                $newOrder->invoice_number = $this->incrementCombineDeliveryCode($combine_invoice_number_);
+            }
+            
+            
             if (!$newOrder->invoice_number || $newOrder->invoice_number == "") {
                 $newOrder->invoice_number = Common::getTransactionNumber($orderType);
             }
@@ -234,4 +247,33 @@ class OrderJob implements ShouldQueue, ShouldBeUnique
         }
         
     }
+    
+    function incrementCombineDeliveryCode($delivery_code) {
+        // Check if the code contains #
+        if (strpos($delivery_code, '#') !== false) {
+            // Extract the prefix and suffix
+            list($base, $suffix) = explode('#', $delivery_code);
+
+            // Increment the character if it's A–Y
+            if (strlen($suffix) === 1 && ctype_upper($suffix)) {
+                if ($suffix !== 'Z') {
+                    $nextChar = chr(ord($suffix) + 1);
+                    return $base . '#' . $nextChar;
+                } else {
+                    // If Z is reached, you can decide what to do
+                    // Option 1: Reset to A
+                    // return $base . '#A';
+
+                    // Option 2: Throw an error
+                    throw new Exception("Delivery code has reached the limit: $delivery_code");
+                }
+            } else {
+                throw new Exception("Invalid delivery code suffix format: $delivery_code");
+            }
+        } else {
+            // If no # exists, add #A
+            return $delivery_code . '#A';
+        }
+    }
+
 }
