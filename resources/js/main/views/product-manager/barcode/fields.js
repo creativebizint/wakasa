@@ -38,7 +38,7 @@ const fields = () => {
                     sorter:true
             },
             {
-                    title: t("barcode.sales_order_number"),
+                    title: t("barcode.delivery_order_number"),
                     dataIndex: "sales_order_number",
                     sorter:true
             },

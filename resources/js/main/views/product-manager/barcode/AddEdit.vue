@@ -133,6 +133,25 @@
             </a-row>
 
             <a-row :gutter="16">
+                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                    <a-form-item
+                        :label="$t('delivery_order.invoice_number')"
+                        name="delivery_invoice_number"
+                        @input="logFormData"
+                        :help="rules.comment ? rules.comment.message : null"
+                        :validateStatus="rules.comment ? 'error' : null"
+                    >
+                        <a-input
+                            v-model:value="formData.order_item_out.order.invoice_number"
+                            :placeholder="
+                                $t('common.placeholder_default_text', [$t('delivery_order.invoice_number')])
+                            "
+                        />
+                    </a-form-item>
+                </a-col>
+            </a-row>
+
+            <a-row :gutter="16">
                 <a-col :xs="24" :sm="24" :md="12" :lg="12">
                     <a-form-item
                         :label="$t('barcode.status')"
@@ -223,30 +242,36 @@ export default defineComponent({
                 invoice_number: props.formData?.order_item?.order?.invoice_number ?? ''
               },
               ...props.formData?.order_item // merge any existing order_item fields
+            },
+            order_item_out: {
+              order: {
+                invoice_number: props.formData?.order_item_out?.order?.invoice_number ?? ''
+              },
+              ...props.formData?.order_item_out // merge any existing order_item fields
             }
           });
-          console.log('data',formData);
+          console.log('data: ',formData);
         const { addEditRequestAdmin, loading, rules } = apiAdmin();
         const { slugify } = common();
         
         const onSubmit = () => {
     // clone the formData first
     const payload = { ...formData };
-
-    // manually flatten the invoice_number
     payload.invoice_number = formData.order_item?.order?.invoice_number ?? '';
-
-    // optionally remove nested object to avoid confusion on backend
+    payload.delivery_invoice_number = formData.order_item_out?.order?.invoice_number ?? ''; // Add this line
     delete payload.order_item;
-
+    delete payload.order_item_out; // Remove nested order_item_out
     addEditRequestAdmin({
         url: props.url,
         data: payload,
         successMessage: props.successMessage,
         success: (res) => {
+            console.log('props.formData:', props.formData);
             emit("addEditSuccess", res.xid);
         },
     });
+
+console.log('dataaaa: ',formData);
 };
         
         const onClose = () => {
@@ -264,6 +289,12 @@ export default defineComponent({
           invoice_number: newVal?.order_item?.order?.invoice_number ?? '',
         },
         ...newVal?.order_item,
+      },
+      order_item_out: {
+        order: {
+          invoice_number: newVal?.order_item_out?.order?.invoice_number ?? '',
+        },
+        ...newVal?.order_item_out,
       },
     });
   },

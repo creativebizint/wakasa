@@ -78,6 +78,13 @@ const crud = () => {
                 order: { ...item.order_item.order }
             };
         }
+        
+        if (item?.order_item_out?.order) {
+            itemDetails.order_item_out = {
+                ...item.order_item_out,
+                order: { ...item.order_item_out.order }
+            };
+        }
     
         itemDetails["_method"] = "PUT";
         formData.value = itemDetails;

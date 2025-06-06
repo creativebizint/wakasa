@@ -67,6 +67,23 @@ class BarcodeController extends ApiBaseController
           else{
             $barcode->order_item_id = $order->id;  
           }
+          
+          
+          if(isset($request->delivery_invoice_number) && $request->delivery_invoice_number != ''){
+              $delivery_order = OrderItem::join('orders','orders.id','=','order_items.order_id')
+              ->where('orders.invoice_number',$request->delivery_invoice_number)
+              ->where('order_items.product_id','=',$product->id)
+              ->select('order_items.id')->first();
+              if($delivery_order == null){
+                throw new ApiException('No DO tidak ditemukan');
+              }
+              else{
+                $barcode->order_item_out_id = $delivery_order->id;  
+                $barcode->status = Barcode::STATUS_DO;  
+                $barcode->isactive = 0;  
+              }
+          }
+          
         }
         $barcode->box_id = Common::generateOrderUniqueId();
         $barcode->reg_bungkus_id = Common::generateOrderUniqueId();
