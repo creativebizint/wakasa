@@ -116,40 +116,40 @@
                                 <span>{{ $t("menu.parties") }}</span>
                             </span>
                         </template>
-                        <a-menu-item
-                            v-if="
-                                permsArray.includes('customers_view') ||
-                                permsArray.includes('admin')
-                            "
-                            @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.customers.index',
-                                    });
-                                }
-                            "
-                            key="customers"
-                        >
-                            {{ $t("menu.customers") }}
-                        </a-menu-item>
-                        <a-menu-item
-                            v-if="
-                                permsArray.includes('suppliers_view') ||
-                                permsArray.includes('admin')
-                            "
-                            @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.suppliers.index',
-                                    });
-                                }
-                            "
-                            key="suppliers"
-                        >
-                            {{ $t("menu.suppliers") }}
-                        </a-menu-item>
+                            <a-menu-item
+                                v-if="
+                                    permsArray.includes('customers_view') ||
+                                    permsArray.includes('admin')
+                                "
+                                @click="
+                                    () => {
+                                        menuSelected();
+                                        $router.push({
+                                            name: 'admin.customers.index',
+                                        });
+                                    }
+                                "
+                                key="customers"
+                            >
+                                {{ $t("menu.customers") }}
+                            </a-menu-item>
+                            <a-menu-item
+                                v-if="
+                                    permsArray.includes('suppliers_view') ||
+                                    permsArray.includes('admin')
+                                "
+                                @click="
+                                    () => {
+                                        menuSelected();
+                                        $router.push({
+                                            name: 'admin.suppliers.index',
+                                        });
+                                    }
+                                "
+                                key="suppliers"
+                            >
+                                {{ $t("menu.suppliers") }}
+                            </a-menu-item>
                     </a-sub-menu>
 
                     <a-sub-menu
@@ -404,170 +404,220 @@
                             </span>
                         </template>
                         
-                        <a-menu-item
-                            @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.inventory_in.index',
-                                    });
-                                }
-                            "
-                            key="inventory_in"
+                        
+                        <a-sub-menu
                             v-if="
                                 permsArray.includes('inventory_in_view') ||
                                 permsArray.includes('admin')
                             "
-                        >
-                            {{ $t("menu.inventory_in") }}
-                        </a-menu-item>
+                            key="stock_in">
+                            <template #title>
+                                <span>
+                                    <ClusterOutlined />
+                                    <span>{{ $t("menu.stock_in") }}</span>
+                                </span>
+                            </template>
+                            
+                            <a-menu-item
+                                @click="
+                                    () => {
+                                        menuSelected();
+                                        $router.push({
+                                            name: 'admin.inventory_in.index',
+                                        });
+                                    }
+                                "
+                                key="inventory_in"
+                                v-if="
+                                    permsArray.includes('inventory_in_view') ||
+                                    permsArray.includes('admin')
+                                "
+                            >
+                                {{ $t("menu.inventory_in") }}
+                            </a-menu-item>
+                            <a-menu-item
+                                @click="
+                                    () => {
+                                        menuSelected();
+                                        $router.push({
+                                            name: 'admin.barcode_registration.index',
+                                        });
+                                    }
+                                "
+                                key="barcode_registration"
+                                v-if="
+                                    permsArray.includes('barcode_registration_view') ||
+                                    permsArray.includes('admin')
+                                "
+                            >
+                                {{ $t("menu.barcode_registration") }}
+                            </a-menu-item>
+                        </a-sub-menu>
                         
-                        <a-menu-item
-                            @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.barcode_registration.index',
-                                    });
-                                }
-                            "
-                            key="barcode_registration"
+                        <a-sub-menu
+                            key="product_placement"
                             v-if="
-                                permsArray.includes('barcode_registration_view') ||
+                                permsArray.includes('product_placement_view') ||
                                 permsArray.includes('admin')
                             "
                         >
-                            {{ $t("menu.barcode_registration") }}
-                        </a-menu-item>
+                            <template #title>
+                                <span>
+                                    <ClusterOutlined />
+                                    <span>{{ $t("menu.product_placement") }}</span>
+                                </span>
+                            </template>
 
-                        <a-menu-item
-                            @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.stock.stock-transfers.index',
-                                    });
-                                }
-                            "
-                            key="stock_transfer"
-                            v-if="
-                                (permsArray.includes('stock_transfers_view') ||
-                                    permsArray.includes('admin')) &&
-                                willSubscriptionModuleVisible('stock_transfer')
-                            "
-                        >
-                            <span>{{ $t("menu.stock_transfer") }}</span>
-                        </a-menu-item>
+                            <a-menu-item
+                                @click="
+                                    () => {
+                                        menuSelected();
+                                        $router.push({
+                                            name: 'admin.product_placement.placement_in',
+                                        });
+                                    }
+                                "
+                                key="placement_in"
+                                v-if="
+                                    permsArray.includes('placement_in_view') ||
+                                    permsArray.includes('admin')
+                                "
+                            >
+                                <span>{{ $t("menu.placement_in") }}</span>
+                            </a-menu-item>
+
+                            <a-menu-item
+                                @click="
+                                    () => {
+                                        menuSelected();
+                                        $router.push({
+                                            name: 'admin.product_placement.placement_in_history',
+                                        });
+                                    }
+                                "
+                                key="placement_in_history"
+                                v-if="
+                                    permsArray.includes('placement_in_view') ||
+                                    permsArray.includes('admin')
+                                "
+                            >
+                                <span>{{ $t("menu.placement_in_history") }}</span>
+                            </a-menu-item>
                         
-                        <a-menu-item
-                            @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.stock.stock-adjustment-orders.index',
-                                    });
-                                }
-                            "
-                            key="stock_adjustment"
-                            v-if="
-                                (permsArray.includes('stock_adjustments_view') ||
-                                    permsArray.includes('admin')) &&
-                                willSubscriptionModuleVisible('stock_adjustment')
-                            "
-                        >
-                            <span>{{ $t("menu.stock_adjustment") }}</span>
-                        </a-menu-item>
-
-                        <a-menu-item
-                            @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.inventory_out.index',
-                                    });
-                                }
-                            "
-                            key="inventory_out"
+                        </a-sub-menu>
+                        
+                        <a-sub-menu
+                            key="stock_out"
                             v-if="
                                 permsArray.includes('inventory_out_view') ||
                                 permsArray.includes('admin')
                             "
                         >
-                            {{ $t("menu.inventory_out") }}
-                        </a-menu-item>
+                            <template #title>
+                                <span>
+                                    <ClusterOutlined />
+                                    <span>{{ $t("menu.stock_out") }}</span>
+                                </span>
+                            </template>
+                            
+                            <a-menu-item
+                                @click="
+                                    () => {
+                                        menuSelected();
+                                        $router.push({
+                                            name: 'admin.inventory_out.index',
+                                        });
+                                    }
+                                "
+                                key="inventory_out"
+                                v-if="
+                                    permsArray.includes('inventory_out_view') ||
+                                    permsArray.includes('admin')
+                                "
+                            >
+                                {{ $t("menu.inventory_out") }}
+                            </a-menu-item>
 
-                        <a-menu-item
-                            @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.delivery_order.index',
-                                    });
-                                }
-                            "
-                            key="delivery_order"
-                            v-if="
-                                permsArray.includes('delivery_order_view') ||
-                                permsArray.includes('admin')
-                            "
-                        >
-                            {{ $t("menu.delivery_order") }}
-                        </a-menu-item>
-
-                    </a-sub-menu>
-
-                    <a-sub-menu
-                        key="product_placement"
-                        v-if="
-                            permsArray.includes('product_placement_view') ||
-                            permsArray.includes('admin')
-                        "
-                    >
-                        <template #title>
-                            <span>
-                                <ClusterOutlined />
-                                <span>{{ $t("menu.product_placement") }}</span>
-                            </span>
-                        </template>
+                            <a-menu-item
+                                @click="
+                                    () => {
+                                        menuSelected();
+                                        $router.push({
+                                            name: 'admin.delivery_order.index',
+                                        });
+                                    }
+                                "
+                                key="delivery_order"
+                                v-if="
+                                    permsArray.includes('delivery_order_view') ||
+                                    permsArray.includes('admin')
+                                "
+                            >
+                                {{ $t("menu.delivery_order") }}
+                            </a-menu-item>
+                            
+                        </a-sub-menu>    
                         
-                        <a-menu-item
-                            @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.product_placement.placement_in',
-                                    });
-                                }
-                            "
-                            key="placement_in"
+                            
+                        <a-sub-menu
+                            key="adjustment"
                             v-if="
-                                permsArray.includes('placement_in_view') ||
+                                permsArray.includes('inventory_out_view') ||
                                 permsArray.includes('admin')
                             "
                         >
-                            <span>{{ $t("menu.placement_in") }}</span>
-                        </a-menu-item>
+                            <template #title>
+                                <span>
+                                    <ClusterOutlined />
+                                    <span>{{ $t("menu.adjustment") }}</span>
+                                </span>
+                            </template>
+                            
+                            
+                            <a-menu-item
+                                @click="
+                                    () => {
+                                        menuSelected();
+                                        $router.push({
+                                            name: 'admin.stock.stock-transfers.index',
+                                        });
+                                    }
+                                "
+                                key="stock_transfer"
+                                v-if="
+                                    (permsArray.includes('stock_transfers_view') ||
+                                        permsArray.includes('admin')) &&
+                                    willSubscriptionModuleVisible('stock_transfer')
+                                "
+                            >
+                                <span>{{ $t("menu.stock_transfer") }}</span>
+                            </a-menu-item>
 
-                        <a-menu-item
-                            @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.product_placement.placement_in_history',
-                                    });
-                                }
-                            "
-                            key="placement_in_history"
-                            v-if="
-                                permsArray.includes('placement_in_view') ||
-                                permsArray.includes('admin')
-                            "
-                        >
-                            <span>{{ $t("menu.placement_in_history") }}</span>
-                        </a-menu-item>
-                    </a-sub-menu>
+                            <a-menu-item
+                                @click="
+                                    () => {
+                                        menuSelected();
+                                        $router.push({
+                                            name: 'admin.stock.stock-adjustment-orders.index',
+                                        });
+                                    }
+                                "
+                                key="stock_adjustment"
+                                v-if="
+                                    (permsArray.includes('stock_adjustments_view') ||
+                                        permsArray.includes('admin')) &&
+                                    willSubscriptionModuleVisible('stock_adjustment')
+                                "
+                            >
+                                <span>{{ $t("menu.stock_adjustment") }}</span>
+                            </a-menu-item>
 
-                    <a-sub-menu
+                        </a-sub-menu>    
+
+                </a-sub-menu>        
+                    
+
+<!--                    <a-sub-menu
                         key="order_fullfillment"
                         v-if="
                             permsArray.includes('order_fullfillment_view') ||
@@ -634,7 +684,7 @@
                         >
                             <span>{{ $t("menu.qc_packing") }}</span>
                         </a-menu-item>
-                    </a-sub-menu>
+                    </a-sub-menu>-->
 
 
                     <a-menu-item
@@ -675,7 +725,7 @@
                         <span>{{ $t("menu.placement_listing") }}</span>
                     </a-menu-item>
 
-                    <a-sub-menu
+<!--                    <a-sub-menu
                         v-if="
                             (((permsArray.includes('purchases_view') ||
                                 permsArray.includes('sales_view') ||
@@ -749,7 +799,7 @@
                         >
                             {{ $t("menu.users_reports") }}
                         </a-menu-item>
-                    </a-sub-menu>
+                    </a-sub-menu>-->
 
                     
                     
