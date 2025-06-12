@@ -556,6 +556,24 @@
                                 {{ $t("menu.delivery_order") }}
                             </a-menu-item>
                             
+                            <a-menu-item
+                                @click="
+                                    () => {
+                                        menuSelected();
+                                        $router.push({
+                                            name: 'admin.delivery_list.index',
+                                        });
+                                    }
+                                "
+                                key="delivery_list"
+                                v-if="
+                                    permsArray.includes('delivery_order_view') ||
+                                    permsArray.includes('admin')
+                                "
+                            >
+                                {{ $t("menu.delivery_list") }}
+                            </a-menu-item>
+                            
                         </a-sub-menu>    
                         
                             

@@ -68,6 +68,16 @@ class OrderJob implements ShouldQueue, ShouldBeUnique
             $warehouseId = isset($this->request["warehouse_id"]) ? Common::getIdFromHash($this->request["warehouse_id"]) : null;
             $fromWarehouseId = isset($this->request["from_warehouse_id"]) ? Common::getIdFromHash($this->request["from_warehouse_id"]) : null;
             $userId = isset($this->request["user_id"]) ? Common::getIdFromHash($this->request["user_id"]) : null;
+            $sales_id = isset($this->request["sales_id"]) ? Common::getIdFromHash($this->request["sales_id"]) : null;
+            
+            if($sales_id != ''){
+                $sales_order = Order::where('id',$sales_id)->select('invoice_number')->first();
+                $refference = $sales_order->invoice_number;
+            }
+            else{
+                $refference = '';
+            }
+            
 //            $label = isset($this->request['label']) ? $this->request['label'] : null;
 //            $boxNumber = isset($this->request['box_number']) ? $this->request['box_number'] : null;
 //            $packingListNumber = isset($this->request['packing_list_number']) ? $this->request['packing_list_number'] : null;
@@ -114,6 +124,7 @@ class OrderJob implements ShouldQueue, ShouldBeUnique
             $newOrder->due_amount = $orderSubtotal;
             $newOrder->staff_user_id = $this->userId;
             $newOrder->invoice_number = $this->request["invoice_number"];
+            $newOrder->refference = $refference;
             
             if(isset($this->request["combine_shipment_number"]) && $this->request["combine_shipment_number"] != ''){
                 $combine_invoice_number = Order::where('invoice_number', 'like','%'.$this->request["combine_shipment_number"].'%')

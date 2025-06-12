@@ -110,4 +110,10 @@ class Order extends BaseModel
     {
         return $this->belongsTo(OrderShippingAddress::class, 'id', 'order_id');
     }
+    
+    public function deliveryOrders()
+    {
+        return $this->hasMany(Order::class, 'refference', 'invoice_number');
+    }
+    
 }

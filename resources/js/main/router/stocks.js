@@ -330,6 +330,20 @@ export default [
             },
             
             {
+                path: "delivery-list",
+                component: () =>
+                    import("../views/stock-management/delivery-list/index.vue"),
+                name: "admin.delivery_list.index",
+                meta: {
+                    requireAuth: true,
+                    menuParent: "stock_management",
+                    menuKey: (route) => "delivery_list",
+                    permission: (route) => "delivery_order_view",
+                    orderType: "delivery_list",
+                },
+            },
+            
+            {
                 path: "delivery-order/create",
                 component: () =>
                     import("../views/stock-management/delivery-order/Create.vue"),
