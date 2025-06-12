@@ -458,9 +458,7 @@
     >
         <template #bodyCell="{ column, record }">
             <template v-if="column.dataIndex === 'invoice_number'">
-                <a-typography-link @click="viewItem(record)">
                     {{ record.invoice_number }}
-                </a-typography-link>
             </template>
             <template v-if="column.dataIndex === 'order_status'">
                 <OrderStatus :data="record" />
