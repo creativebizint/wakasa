@@ -50,7 +50,7 @@ import SupplierAddButton from "../../users/SupplierAddButton.vue";
 import CustomerAddButton from "../../users/CustomerAddButton.vue";
 
 export default defineComponent({
-    props: ["orderPageObject", "rules", "usersList", "editOrderDisable"],
+    props: ["orderPageObject", "rules", "usersList", "editOrderDisable","resetTrigger"],
     emits: ["onSuccess"],
     components: {
         SearchOutlined,
@@ -64,6 +64,16 @@ export default defineComponent({
             productFetching: false,
             products: [],
         });
+        
+        // Watch for changes in resetTrigger to reset state
+        watch(
+            () => props.resetTrigger,
+            () => {
+                state.orderSearchTerm = null;
+                state.products = [];
+                state.productFetching = false;
+            }
+        );
 
         const fetchProducts = debounce((value) => {
             state.products = [];

@@ -106,6 +106,7 @@
                             :rules="rules"
                             :usersList="[]"
                             :editOrderDisable="false"
+                            :resetTrigger="resetTrigger"
                             @onSuccess="handleSalesSearchSuccess"
                         />
                         <a-input
@@ -813,6 +814,17 @@
                             <a-button
                                 type="primary"
                                 :loading="loading"
+                                @click="onSubmitNew"
+                                block
+                            >
+                                <template #icon> <SaveOutlined /> </template>
+                                {{ $t("common.save_and_new") }}
+                            </a-button>
+                        </a-row>
+                        <a-row :gutter="16" class="mt-20 mb-20">
+                            <a-button
+                                type="primary"
+                                :loading="loading"
                                 @click="onSubmit"
                                 block
                             >
@@ -1029,6 +1041,7 @@ export default {
         WarehouseSearch,
     },
     setup() {
+        const resetTrigger = ref(0); // Reactive prop to trigger reset
         
         const handleSalesSearchSuccess = ({ sales_id, customerId, customerName, address }) => {
             console.log("Received in handleSalesSearchSuccess:", { sales_id, customerId, customerName, address });
@@ -1206,6 +1219,65 @@ console.log(deliveryOrderStatus);
                 success: (res) => {
                     router.push({
                         name: `admin.${orderPageObject.value.menuKey}.index`,
+                    });
+                },
+            });
+        };
+        
+        const onSubmitNew = () => {
+            allPayments.value = [];
+            allPayments.value.push(payment.value);
+
+            const newFormDataObject = {
+                ...formData.value,
+                order_type: orderPageObject.value.type,
+                total: formData.value.subtotal,
+                total_items: selectedProducts.value.length,
+                product_items: selectedProducts.value,
+                pay_object: formFields.value,
+                all_payments: allPayments.value,
+            };
+
+            addEditRequestAdmin({
+                url: orderType.value,
+                data: newFormDataObject,
+                successMessage: t(`${orderPageObject.value.langKey}.created`),
+                success: (res) => {
+                    // Preserve some fields
+                    const preservedData = {
+                        warehouse_id: formData.value.warehouse_id,
+                        from_warehouse_id: formData.value.from_warehouse_id,
+                        order_date: formData.value.order_date,
+                    };
+
+                    // Reset form data
+                    formData.value = {
+                        ...formData.value,
+                        ...preservedData,
+                        invoice_number: "",
+                        customer_name: "",
+                        user_id: null,
+                        sales_id: null,
+                        shipping_address: "",
+                        combine_shipment_number: "",
+                        notes: "",
+                        tax_id: null,
+                        discount: 0,
+                        shipping: 0,
+                        subtotal: 0,
+                        tax_amount: 0,
+                    };
+                    
+                    // Trigger reset in SalesSearch
+                    resetTrigger.value += 1;
+                    
+                    selectedProducts.value = [];
+                    formFields.value = [{ pay_amount: 0, payment_mode_id: undefined }];
+                    payment.value = { amount: 0, payment_mode_id: undefined };
+                    rules.value = {}; // Clear validation errors
+            
+                    router.push({
+                        name: `admin.delivery_order.create`,
                     });
                 },
             });
@@ -1404,6 +1476,8 @@ console.log(deliveryOrderStatus);
             //addition
             checkInvoiceNumber,
             deliveryOrderStatus,
+            resetTrigger,
+            onSubmitNew,
         };
     },
 };
