@@ -537,9 +537,9 @@
                         </a-col>
                     </a-row>
                 </a-tab-pane>
-                <a-tab-pane key="pos_settings">
+                <a-tab-pane key="pos_settings" style="display:none">
                     <template #tab>
-                        <span>
+                        <span style="display:none">
                             <SettingOutlined />
                             {{ $t("menu.pos_settings") }}
                         </span>
@@ -570,7 +570,7 @@
                                     :placeholder="
                                         $t('warehouse.default_pos_order_status')
                                     "
-                                    style="width: 100%"
+                                    style="width: 100%" 
                                 >
                                     <a-select-option
                                         v-for="orderStatus in salesOrderStatus"

@@ -41,9 +41,7 @@
                         <a-form-item
                             :label="$t(`${orderPageObject.langKey}.invoice_number`)"
                             name="invoice_number"
-                            :help="
-                                rules.invoice_number ? rules.invoice_number.message : null
-                            "
+                            :help="rules.invoice_number ? rules.invoice_number.message : null"
                             :validateStatus="rules.invoice_number ? 'error' : null"
                         >
                             <a-input

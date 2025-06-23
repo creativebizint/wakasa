@@ -112,9 +112,7 @@
                         :rules="rules"
                         :usersList="users"
                         :editOrderDisable="editOrderDisable"
-                        @onSuccess="
-                            (outputUser) => (formData.user_id = outputUser)
-                        "
+                        @onSuccess="(outputUser) => (formData.user_id = outputUser)"
                     />
                 </a-col>
 

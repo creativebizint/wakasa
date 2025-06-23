@@ -10,23 +10,10 @@
             <a-page-header style="padding: 0px">
                 <template #title>
                     #{{ order.invoice_number }}
-                    <PaymentStatus :paymentStatus="order.payment_status" />
                 </template>
             </a-page-header>
             <a-breadcrumb>
-                <div style="width: 50%">
-                    <a-progress
-                        :percent="
-                            parseFloat(
-                                parseFloat(
-                                    (parseFloat(order.paid_amount) /
-                                        parseFloat(order.total)) *
-                                        100
-                                ).toFixed(2)
-                            )
-                        "
-                    />
-                </div>
+                <div style="width: 50%"></div>
             </a-breadcrumb>
         </template>
         <template #extra>

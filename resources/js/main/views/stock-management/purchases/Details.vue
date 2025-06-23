@@ -34,6 +34,14 @@
                             {{ selectedItem.invoice_number }}
                         </a-descriptions-item>
                         
+                        <a-descriptions-item v-if="selectedItem.refference" :label="$t('sales.reference')">
+                            {{ selectedItem.refference || '-' }}
+                        </a-descriptions-item>
+                        
+                        <a-descriptions-item v-if="selectedItem.combined_shipment_number" :label="$t('sales.combined_shipment_number')">
+                            {{ selectedItem.combined_shipment_number || '-' }}
+                        </a-descriptions-item>
+                        
                         <a-descriptions-item
                             v-if="selectedItem.user && selectedItem.user.name"
                             :label="
