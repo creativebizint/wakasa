@@ -16,6 +16,8 @@ class QueueImportController extends ApiBaseController
     
 	public function import(ImportRequest $request)
     {
+        ini_set('max_execution_time', -1);
+        ini_set('memory_limit', -1);    
         if ($request->hasFile('file')) {
             $fileName = 'import_' . Carbon::now()->timestamp . '_' . Common::generateOrderUniqueId();
             $file = $fileName . '.xlsx';
