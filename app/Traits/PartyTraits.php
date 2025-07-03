@@ -39,8 +39,8 @@ trait PartyTraits
             });
         }
 
-        $query = $query->join('user_details', 'user_details.user_id', '=', 'users.id')
-            ->where('user_details.warehouse_id', $warehouse->id);
+//        $query = $query->join('user_details', 'user_details.user_id', '=', 'users.id')
+//            ->where('user_details.warehouse_id', $warehouse->id);
 
         return $query;
     }

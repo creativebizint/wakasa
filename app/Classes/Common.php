@@ -1114,6 +1114,7 @@ class Common
             'stock-adjustment-add' => 'AI-',
             'stock-adjustment-subtract' => 'AO-',
             'picking-assignment' => 'PA-',
+            'sales_order' => 'SO-',
         ];
 
         $currentMonth = Carbon::now()->format('ym');
