@@ -48,7 +48,7 @@ class WarehouseImport implements ToArray, WithHeadingRow, WithMultipleSheets
 			foreach ($warehouses as $warehouse) {
 
 				if (
-					!array_key_exists('code', $warehouse) || !array_key_exists('name', $warehouse) || !array_key_exists('store_code', $warehouse) ||
+					!array_key_exists('code', $warehouse) || !array_key_exists('name', $warehouse) ||
 					!array_key_exists('phone', $warehouse) || !array_key_exists('email', $warehouse) || !array_key_exists('address', $warehouse) 
 					
 				) {
