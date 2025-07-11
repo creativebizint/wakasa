@@ -52,9 +52,12 @@ class ShelfGroupController extends ApiBaseController
       public function updating(ProductPlacementShelfGroup $product_placement_shelf_group)
 	{
 		$request = request();
-            $shelf_group_used = PlacementItem::where('shelf_group', $product_placement_shelf_group->id)->count();
+            $shelf_group_used = PlacementItem::join('product_placement_row','product_placement_row.id','=','placement_items.row')
+                                ->join('product_placement_shelf_number','product_placement_shelf_number.id','product_placement_row.product_placement_shelf_number_id')
+                                ->join('product_placement_shelf_group','product_placement_shelf_group.id','product_placement_shelf_number.product_placement_shelf_group_id')
+                                ->where('product_placement_shelf_group.id','=',$product_placement_shelf_group->id )->count();
             if ($shelf_group_used > 0) {
-                throw new ApiException('Shelf group already have placement cannot be updated');
+                throw new ApiException('Lorong telah terpakai dan tidak bisa diedit');
             }
 		$product_placement_shelf_group->product_placement_floor_id = $this->getIdFromHash($request->product_placement_floor_id);
 		
@@ -63,9 +66,12 @@ class ShelfGroupController extends ApiBaseController
       
       public function destroying(ProductPlacementShelfGroup $product_placement_shelf_group)
       {
-        $shelf_group_used = PlacementItem::where('shelf_group', $product_placement_shelf_group->id)->count();
+        $shelf_group_used = PlacementItem::join('product_placement_row','product_placement_row.id','=','placement_items.row')
+                                ->join('product_placement_shelf_number','product_placement_shelf_number.id','product_placement_row.product_placement_shelf_number_id')
+                                ->join('product_placement_shelf_group','product_placement_shelf_group.id','product_placement_shelf_number.product_placement_shelf_group_id')
+                                ->where('product_placement_shelf_group.id','=',$product_placement_shelf_group->id )->count();
         if ($shelf_group_used > 0) {
-            throw new ApiException('Shelf group already have placement cannot be deleted');
+            throw new ApiException('Lorong telah terpakai dan tidak bisa diedit');
         }
 
             return $product_placement_shelf_group;

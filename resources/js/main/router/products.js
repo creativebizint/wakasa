@@ -153,7 +153,7 @@ export default [
             },
             
             {
-                path: '/admin/shelf-numbers',
+                path: '/admin/shelf-groups',
                 component: () =>
                     import('../views/product-manager/shelfgroups/index.vue'),
                 name: 'admin.shelfGroups.index',
