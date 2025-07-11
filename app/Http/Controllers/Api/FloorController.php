@@ -11,6 +11,7 @@ use App\Http\Requests\Api\Floor\ImportRequest;
 use App\Imports\FloorImport;
 use App\Exports\FloorExport;
 use App\Models\ProductPlacementFloor;
+use App\Models\ProductPlacementShelfGroup;
 use Examyou\RestAPI\ApiResponse;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Cache;
@@ -43,9 +44,9 @@ class FloorController extends ApiBaseController
     
     public function updating(ProductPlacementFloor $product_placement_floor)
     {
-      $floor_used = ProductPlacement::where('floor', $product_placement_floor->id)->count();
+      $floor_used = ProductPlacementShelfGroup::where('product_placement_floor_id', $product_placement_floor->id)->count();
       if ($floor_used > 0) {
-          throw new ApiException('Floor already have placement cannot be updated');
+          throw new ApiException('Lantai telah terhubung dengan lorong');
       }
 
           return $product_placement_floor;
@@ -53,9 +54,9 @@ class FloorController extends ApiBaseController
     
     public function destroying(ProductPlacementFloor $product_placement_floor)
     {
-      $floor_used = ProductPlacement::where('floor', $product_placement_floor->id)->count();
+      $floor_used = ProductPlacementShelfGroup::where('product_placement_floor_id', $product_placement_floor->id)->count();
       if ($floor_used > 0) {
-          throw new ApiException('Floor already have placement cannot be deleted');
+          throw new ApiException('Lantai telah terhubung dengan lorong');
       }
 
           return $product_placement_floor;
