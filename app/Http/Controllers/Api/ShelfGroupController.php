@@ -57,7 +57,7 @@ class ShelfGroupController extends ApiBaseController
                                 ->join('product_placement_shelf_group','product_placement_shelf_group.id','product_placement_shelf_number.product_placement_shelf_group_id')
                                 ->where('product_placement_shelf_group.id','=',$product_placement_shelf_group->id )->count();
             if ($shelf_group_used > 0) {
-                throw new ApiException('Lorong telah terpakai dan tidak bisa diedit');
+                throw new ApiException('Lorong telah digunakan dan tidak bisa diedit');
             }
 		$product_placement_shelf_group->product_placement_floor_id = $this->getIdFromHash($request->product_placement_floor_id);
 		
@@ -71,7 +71,7 @@ class ShelfGroupController extends ApiBaseController
                                 ->join('product_placement_shelf_group','product_placement_shelf_group.id','product_placement_shelf_number.product_placement_shelf_group_id')
                                 ->where('product_placement_shelf_group.id','=',$product_placement_shelf_group->id )->count();
         if ($shelf_group_used > 0) {
-            throw new ApiException('Lorong telah terpakai dan tidak bisa diedit');
+            throw new ApiException('Lorong telah digunakan dan tidak bisa diubah');
         }
 
             return $product_placement_shelf_group;

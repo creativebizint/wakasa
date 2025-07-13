@@ -57,9 +57,11 @@ class ShelfNumberController extends ApiBaseController
       public function updating(ProductPlacementShelfNumber $product_placement_shelf_number)
 	{
 		$request = request();
-		$shelf_number_used = PlacementItem::where('shelf_number', $product_placement_shelf_number->id)->count();
+                $shelf_number_used = PlacementItem::join('product_placement_row','product_placement_row.id','=','placement_items.row')
+                                ->join('product_placement_shelf_number','product_placement_shelf_number.id','product_placement_row.product_placement_shelf_number_id')
+                                ->where('product_placement_shelf_number.id','=',$product_placement_shelf_number->id )->count();
             if ($shelf_number_used > 0) {
-                throw new ApiException('Shelf group already have placement cannot be updated');
+                throw new ApiException('Nomer Rak telah digunakan dan tidak bisa diubah');
             }
             $product_placement_shelf_number->product_placement_shelf_group_id = $this->getIdFromHash($request->product_placement_shelf_group_id);
 		
@@ -73,9 +75,11 @@ class ShelfNumberController extends ApiBaseController
     
     public function destroying(ProductPlacementShelfNumber $product_placement_shelf_number)
       {
-        $shelf_number_used = PlacementItem::where('shelf_number', $product_placement_shelf_number->id)->count();
+        $shelf_number_used = PlacementItem::join('product_placement_row','product_placement_row.id','=','placement_items.row')
+                                ->join('product_placement_shelf_number','product_placement_shelf_number.id','product_placement_row.product_placement_shelf_number_id')
+                                ->where('product_placement_shelf_number.id','=',$product_placement_shelf_number->id )->count();
         if ($shelf_number_used > 0) {
-            throw new ApiException('Shelf group already have placement cannot be deleted');
+            throw new ApiException('Nomer Rak telah digunakan dan tidak bisa dihapus');
         }
 
             return $product_placement_shelf_number;

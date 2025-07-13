@@ -11,6 +11,7 @@ use App\Http\Requests\Api\Floor\ImportRequest;
 use App\Imports\FloorImport;
 use App\Exports\FloorExport;
 use App\Models\ProductPlacementFloor;
+use App\Models\PlacementItem;
 use App\Models\ProductPlacementShelfGroup;
 use Examyou\RestAPI\ApiResponse;
 use Maatwebsite\Excel\Facades\Excel;
@@ -44,9 +45,13 @@ class FloorController extends ApiBaseController
     
     public function updating(ProductPlacementFloor $product_placement_floor)
     {
-      $floor_used = ProductPlacementShelfGroup::where('product_placement_floor_id', $product_placement_floor->id)->count();
+      $floor_used = PlacementItem::join('product_placement_row','product_placement_row.id','=','placement_items.row')
+                                ->join('product_placement_shelf_number','product_placement_shelf_number.id','product_placement_row.product_placement_shelf_number_id')
+                                ->join('product_placement_shelf_group','product_placement_shelf_group.id','product_placement_shelf_number.product_placement_shelf_group_id')
+                                ->join('product_placement_floor','product_placement_floor.id','product_placement_shelf_group.product_placement_floor_id')
+                                ->where('product_placement_floor.id','=',$product_placement_floor->id )->count();
       if ($floor_used > 0) {
-          throw new ApiException('Lantai telah terhubung dengan lorong');
+          throw new ApiException('Lantai telah digunakan dan tidak bisa diubah');
       }
 
           return $product_placement_floor;
@@ -54,9 +59,13 @@ class FloorController extends ApiBaseController
     
     public function destroying(ProductPlacementFloor $product_placement_floor)
     {
-      $floor_used = ProductPlacementShelfGroup::where('product_placement_floor_id', $product_placement_floor->id)->count();
+      $floor_used = PlacementItem::join('product_placement_row','product_placement_row.id','=','placement_items.row')
+                                ->join('product_placement_shelf_number','product_placement_shelf_number.id','product_placement_row.product_placement_shelf_number_id')
+                                ->join('product_placement_shelf_group','product_placement_shelf_group.id','product_placement_shelf_number.product_placement_shelf_group_id')
+                                ->join('product_placement_floor','product_placement_floor.id','product_placement_shelf_group.product_placement_floor_id')
+                                ->where('product_placement_floor.id','=',$product_placement_floor->id )->count();
       if ($floor_used > 0) {
-          throw new ApiException('Lantai telah terhubung dengan lorong');
+          throw new ApiException('Lantai telah digunakan dan tidak bisa dihapus');
       }
 
           return $product_placement_floor;

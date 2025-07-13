@@ -50,7 +50,7 @@ class RowController extends ApiBaseController
       $row_used = PlacementItem::where('row', $product_placement_row->id)->count();
       
       if ($row_used > 0) {
-          throw new ApiException('Row already have placement cannot be updated');
+          throw new ApiException('Baris Rak telah digunakan dan tidak bisa diubah');
       }
       $product_placement_row->product_placement_shelf_number_id = $this->getIdFromHash($request->product_placement_shelf_number_id);
 
@@ -66,7 +66,7 @@ class RowController extends ApiBaseController
   {
     $row_used = PlacementItem::where('row', $product_placement_row->id)->count();
     if ($row_used > 0) {
-        throw new ApiException('Row already have placement cannot be deleted');
+        throw new ApiException('Baris Rak telah digunakan dan tidak bisa dihapus');
     }
 
         return $product_placement_row;
