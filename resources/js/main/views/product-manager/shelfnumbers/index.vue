@@ -147,7 +147,7 @@
                                     record.product_placement_shelf_group
                                         ? record.product_placement_shelf_group
                                               .value +
-                                          " (Floor: " +
+                                          " (Lantai: " +
                                           (record.product_placement_shelf_group
                                               .product_placement_floor
                                               ? record

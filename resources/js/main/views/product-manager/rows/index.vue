@@ -147,11 +147,11 @@
                                     record.product_placement_shelf_number
                                         ? record.product_placement_shelf_number
                                               .value +
-                                          " (Group: " +
+                                          " (Lorong: " +
                                           (record.product_placement_shelf_number.product_placement_shelf_group != null
                                               ? record.product_placement_shelf_number.product_placement_shelf_group.value
                                               : "-") +
-                                          ", Floor: " +
+                                          ", Lantai: " +
                                           (record.product_placement_shelf_number != null && record.product_placement_shelf_number.product_placement_shelf_group != null && record.product_placement_shelf_number.product_placement_shelf_group.product_placement_floor != null
                                               ? record.product_placement_shelf_number.product_placement_shelf_group.product_placement_floor.value
                                               : "-") +
