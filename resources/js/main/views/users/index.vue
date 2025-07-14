@@ -492,9 +492,15 @@ export default {
             ) {
                 filterString += ` status eq "${searchStatus.value}"`;
             }
+            else if (searchStatus.value == "all" ){
+                //do not add filter
+            }
             else{
                 filterString += ` status eq "enabled"`;
             }
+            
+            console.log(searchStatus.value);
+            
             
             if (
                 searchDueType.value != undefined &&
