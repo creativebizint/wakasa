@@ -119,6 +119,14 @@
                             optionFilterProp="label"
                         >
                             <a-select-option
+                                :key="'all'"
+                                :value="'all'"
+                                :label="$t('common.all')"
+                            >
+                                {{ $t('common.all') }}
+                            </a-select-option>
+                            
+                            <a-select-option
                                 v-for="usrStatus in userStatus"
                                 :key="usrStatus.key"
                                 :value="usrStatus.key"
