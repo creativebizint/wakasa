@@ -31,10 +31,15 @@
                 () => {
                     //console.log('orderType in click handler:', orderType.value);
                     //console.log('props.orderType in click handler:', props.orderType);
-                    const routeName = props.orderType === 'inventory_in'
-                        ? 'admin.inventory_in.item'
-                        : 'admin.placement_in.item';
-                    //console.log('routeName:', routeName);
+                    const routeMap = {
+                        inventory_in: 'admin.inventory_in.item',
+                        placement_in: 'admin.placement_in.item',
+                        inventory_out: 'admin.inventory_out.item',
+                        placement_out: 'admin.placement_out.item',
+                    };
+
+                    const routeName = routeMap[props.orderType] || 'admin.inventory_in.item';
+
                     if (routeName) {
                         $router.push({
                             name: routeName,
@@ -733,7 +738,7 @@ export default {
             const tableFilter = props.filters;
 
             const filterString = calculateOrderFilterString(tableFilter);
-console.log('tableFilter: ',tableFilter);
+            
             var extraFilterObject = {};
             if (tableFilter.dates) {
                 extraFilterObject.dates = tableFilter.dates;

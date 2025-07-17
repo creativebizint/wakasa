@@ -650,4 +650,86 @@ trait OrderTraits
         return ['total' =>count($product_items), 'message' => $message];
     }
     
+    public function barcodeOut(Request $request){
+        $message = '';
+        DB::beginTransaction();
+        try{
+            $request = $request::all();        
+            $xorder_item_id = $request['order_item_id'];
+            $item_id = $request['item_id'];
+            $nik = isset($request['nik'])?$request['nik']:'';
+            $row = isset($request['row']) ? $request['row'] : '';
+            $order_item_id = Common::getIdFromHash($xorder_item_id);
+            $loggedUser = user();
+            $user_id = Common::getIdFromHash($loggedUser->xid);
+            $product_items = $request['product_items'];
+
+            $order = OrderItem::where('id',$order_item_id)->first();
+            
+            $company = company();
+            $warehouse = warehouse();
+            $row_detail = ProductPlacementRow::where('value',$row)->first();
+
+            if($row_detail == null){
+                throw new ApiException('Rak tidak teregistrasi: '.$row);
+            }
+                
+            $placement = new Placement();
+            $placement->company_id = $company->id;
+            $placement->invoice_number = '';
+            $placement->unique_id = Common::generateOrderUniqueId();
+            $placement->invoice_type = "product-placement";
+            $placement->placement_type = "out";
+            $placement->placement_date = date('Y-m-d H:i:s');
+            $placement->warehouse_id = $warehouse->id;
+            $placement->notes = '';
+            $placement->staff_user_id = $loggedUser->id;
+            $placement->user_id = $loggedUser->id;
+            $placement->total_items = count($product_items);
+            $placement->total_quantity = 0;
+            $placement->reference = $order_item_id;
+            $placement->save();
+
+            $type = 'product-placement-out';
+            $placement->invoice_number = Common::getTransactionNumber($type);
+            $placement->save();
+            $total_qty = 0;
+            foreach($product_items as $product_item){
+                $placement_item = new PlacementItem();
+                $placement_item->placement_id = $placement->id;
+                $placement_item->barcode_id = Common::getIdFromHash($product_item['xid']);
+                $placement_item->row = $row_detail->id;
+                $placement_item->save();
+
+                $product_placement = new ProductPlacement();
+                $product_placement->placement_id = $placement->id;
+                $product_placement->barcode_id = Common::getIdFromHash($product_item['xid']);
+                $product_placement->row = $row_detail->id;
+                $product_placement->warehouse_id = $warehouse->id;
+                $product_placement->save();
+
+                $total_qty += $product_item['qty_bungkus'];                     
+                Barcode::where('id',Common::getIdFromHash($product_item['xid']))->update(['status' => Barcode::STATUS_SO ]);
+            }
+
+
+            $placement->total_quantity = $total_qty;
+            $placement->save();
+
+            //calculate total scanned
+            $placements = Placement::where('reference',$order_item_id)->selectRaw("sum(total_quantity) as total_scanned, sum(total_items) as total_qrcode")
+                    ->groupBy('reference')
+                    ->first();
+
+            OrderItem::where('id',$order_item_id)->update(['quantity_scanned'=>$placements->total_scanned, 'quantity_qrcode'=>$placements->total_qrcode]);
+
+            $message = 'Picking produk telah berhasil';
+        } catch (\Exception $ex) {
+            DB::rollback();
+            throw new ApiException($ex->getMessage());
+        }
+        DB::commit();
+        return ['total' =>count($product_items), 'message' => $message];
+    }
+    
 };

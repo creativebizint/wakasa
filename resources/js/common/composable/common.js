@@ -254,7 +254,7 @@ const common = () => {
                 userType: "suppliers",
                 permission: "purchases",
             };
-        } else if (orderType.value == "inventory_out") {
+        } else if (orderType.value == "inventory_out" || orderType.value == "placement_out") {
             pageObjectDetails = {
                 type: "inventory_out",
                 langKey: "inventory_out",

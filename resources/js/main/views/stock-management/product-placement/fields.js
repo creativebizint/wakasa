@@ -319,6 +319,26 @@ const fields = () => {
         
     ];
     
+    const orderItemBarcodeOut = [
+        {
+            title: "#",
+            dataIndex: "sn",
+        },
+        {
+            title: t("product.item_id"),
+            dataIndex: "product_item_id",
+        },
+        {
+            title: t("product.quantity_faktur"),
+            dataIndex: "unit_quantity",
+        },
+        {
+            title: t("product.qty_scanned"),
+            dataIndex: "qty_scanned",
+        },
+        
+    ];
+    
     return {
         initData,
         initPaymentData,

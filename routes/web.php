@@ -171,6 +171,7 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         ApiRoute::get('scanned/barcode/{id}', ['as' => 'api.inventory_in.barcode', 'uses' => 'PurchaseController@scannedBarcode']);
         ApiRoute::get('inventory-detail/barcode/{id}', ['as' => 'api.inventory_in.barcode', 'uses' => 'PurchaseController@barcode']);
         ApiRoute::post('inventory-detail/barcode/register', ['as' => 'api.inventory_in.barcode', 'uses' => 'PurchaseController@barcodeRegister']);
+        ApiRoute::post('inventory-detail/barcode/out', ['as' => 'api.inventory_out.barcode', 'uses' => 'PurchaseController@barcodeOut']);
         ApiRoute::get('invoices/check', ['as' => 'api.invoice.check', 'uses' => 'PurchaseController@invoiceCheck']);
         
         ApiRoute::resource('floors', 'FloorController', $options, ['as' => 'api', 'except' => ['index']]);
@@ -182,6 +183,7 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         ApiRoute::resource('inventory_out', 'SalesController', $options);
         ApiRoute::resource('delivery_order', 'DeliveryOrderController', $options);
         ApiRoute::resource('placement_in', 'PurchaseController', $options);
+        ApiRoute::resource('placement_out', 'SalesController', $options);
     });
 });
 

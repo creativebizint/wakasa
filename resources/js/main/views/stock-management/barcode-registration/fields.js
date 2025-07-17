@@ -154,7 +154,7 @@ const fields = () => {
                 permission: "inventory_in",
             };
         }
-        else if (orderType.value == "inventory_out") {
+        else if (orderType.value == "inventory_out" || orderType.value == "placement_out") {
             pageObjectDetails = {
                 type: "inventory_out",
                 langKey: "inventory_out",
@@ -219,7 +219,7 @@ const fields = () => {
     const setupTableColumns = () => {
         var allColumns = [
             {
-                title: t(`stock.invoice_number`),
+                title: t(`${pageObject.value.langKey}.invoice_number`),
                 dataIndex: "invoice_number",
                 sorter:true
             },

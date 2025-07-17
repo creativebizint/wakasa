@@ -165,6 +165,20 @@ export default [
             },
             
             {
+                path: "/admin/place-out/item/:id",
+                component: () =>
+                    import("../views/stock-management/product-placement/ItemOut.vue"),
+                name: "admin.placement_out.item",
+                meta: {
+                    requireAuth: true,
+                    menuParent: "product_placement",
+                    menuKey: (route) => "placement_out",
+                    permission: (route) => "product_placement_view",
+                    orderType: "placement_out",
+                },
+            },
+            
+            {
                 path: "/admin/place-in/barcode/:id",
                 component: () =>
                     import("../views/stock-management/product-placement/Barcode.vue"),
@@ -179,6 +193,20 @@ export default [
             },
             
             {
+                path: "/admin/place-out/barcode/:id",
+                component: () =>
+                    import("../views/stock-management/product-placement/BarcodeOut.vue"),
+                name: "admin.placement_out.barcode",
+                meta: {
+                    requireAuth: true,
+                    menuParent: "product_placement",
+                    menuKey: (route) => "placement_out",
+                    permission: (route) => "product_placement_view",
+                    orderType: "placement_out",
+                },
+            },
+            
+            {
                 path: "/admin/product-placement/place-in",
                 component: () =>
                     import("../views/stock-management/product-placement/index.vue"),
@@ -189,6 +217,20 @@ export default [
                     menuKey: (route) => "placement_in",
                     permission: (route) => "product_placement_view",
                     orderType: "placement_in",
+                },
+            },
+            
+            {
+                path: "/admin/product-placement/place-out",
+                component: () =>
+                    import("../views/stock-management/product-placement/PlacementOut.vue"),
+                name: "admin.product_placement.placement_out",
+                meta: {
+                    requireAuth: true,
+                    menuParent: "product_placement",
+                    menuKey: (route) => "placement_out",
+                    permission: (route) => "product_placement_view",
+                    orderType: "placement_out",
                 },
             },
             
