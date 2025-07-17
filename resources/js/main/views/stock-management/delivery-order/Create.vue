@@ -1041,14 +1041,55 @@ export default {
     setup() {
         const resetTrigger = ref(0); // Reactive prop to trigger reset
         
-        const handleSalesSearchSuccess = ({ sales_id, customerId, customerName, address }) => {
-            console.log("Received in handleSalesSearchSuccess:", { sales_id, customerId, customerName, address });
+        const handleSalesSearchSuccess = ({ sales_id, customerId, customerName, address, items }) => {
+            console.log("Received in handleSalesSearchSuccess:", { sales_id, customerId, customerName, address, items });
             formData.value.sales_id = sales_id; // Set the sales_id
             formData.value.customer_name = customerName; // Set the customer_name
             formData.value.user_id = customerId; // Set the user_id
             formData.value.shipping_address = address; // Set address
 
+            // Process items to autofill selectedProducts
+            if (items && items.length > 0) {
+                selectedProducts.value = items
+                    .map(item => {
+                        const quantity = (item.quantity_scanned || 0) - (item.quantity_done || 0);
+                        if (quantity <= 0) return null; // Exclude items with non-positive quantity
+
+                        return {
+                            xid: item.xid,
+                            product_id: item.product_id,
+                            product_item_id: item.product?.item_id || item.item_id,
+                            name: item.product?.name || "Unknown Product",
+                            item_code: item.product?.item_code || "",
+                            subgroup2: item.product?.subgroup2 || "",
+                            text1: item.product?.text1 || "",
+                            description: item.product?.description || "",
+                            unit_buy_in: item.product?.uomBuyIn || item.unit || null,
+                            unit_short_name: item.unit?.short_name || "",
+                            stock_quantity: item.product?.details?.current_stock || 0,
+                            quantity: quantity,
+                            single_unit_price: item.single_unit_price || 0,
+                            unit_price: item.unit_price || 0,
+                            total_discount: item.total_discount || 0,
+                            total_tax: item.total_tax || 0,
+                            tax_rate: item.tax_rate || 0,
+                            tax_type: item.tax_type || "",
+                            subtotal: item.subtotal || 0,
+                            mrp: item.mrp || 0,
+                            shelf: "", // Initialize as empty or set based on your logic
+                            // Add other fields as required by your table
+                        };
+                    })
+                    .filter(item => item !== null); // Remove null entries
+
+                // Recalculate totals after updating selectedProducts
+                recalculateFinalTotal();
+            } else {
+                selectedProducts.value = []; // Clear selectedProducts if no items
+            }
+            
             console.log("Updated formData:", formData.value);
+            console.log("Updated selectedProducts:", selectedProducts.value);
         };
 
 
