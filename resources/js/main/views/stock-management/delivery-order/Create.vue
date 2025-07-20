@@ -360,7 +360,7 @@
                                         </a-typography-text>
                                     </small>
                                 </template>
-                                <template v-if="column.dataIndex === 'unit_quantity'">
+                                <template v-if="column.dataIndex === 'quantity_real'">
                                     <a-input-number
                                         id="inputNumber"
                                         v-model:value="record.quantity"
@@ -1068,6 +1068,8 @@ export default {
                             unit_short_name: item.unit?.short_name || "",
                             stock_quantity: item.product?.details?.current_stock || 0,
                             quantity: quantity,
+                            unit_quantity: quantity,
+                            quantity_real: quantity,
                             single_unit_price: item.single_unit_price || 0,
                             unit_price: item.unit_price || 0,
                             total_discount: item.total_discount || 0,
@@ -1075,6 +1077,7 @@ export default {
                             tax_rate: item.tax_rate || 0,
                             tax_type: item.tax_type || "",
                             subtotal: item.subtotal || 0,
+                            quantity_qr: item.quantity_scanned,
                             mrp: item.mrp || 0,
                             shelf: "", // Initialize as empty or set based on your logic
                             // Add other fields as required by your table
