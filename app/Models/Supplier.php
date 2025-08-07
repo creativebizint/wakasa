@@ -21,7 +21,7 @@ class Supplier extends BaseModel
 
     protected $hidden = ['id', 'role_id', 'warehouse_id', 'password', 'remember_token'];
 
-    protected $filterable = ['users.name', 'name', 'user_type', 'email', 'status', 'phone', 'due_amount'];
+    protected $filterable = ['users.name', 'name', 'user_type', 'email', 'status', 'phone', 'due_amount','code'];
 
     protected $appends = ['xid', 'profile_image_url', 'x_warehouse_id'];
 

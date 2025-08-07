@@ -28,7 +28,7 @@ class Customer extends BaseModel implements AuthenticatableContract, JWTSubject
 
     protected $appends = ['xid', 'profile_image_url', 'x_warehouse_id'];
 
-    protected $filterable = ['users.name', 'name', 'user_type', 'email', 'status', 'phone'];
+    protected $filterable = ['users.name', 'name', 'user_type', 'email', 'status', 'phone','code'];
 
     protected $hashableGetterFunctions = [
         'getXWarehouseIdAttribute' => 'warehouse_id',

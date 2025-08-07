@@ -44,7 +44,7 @@ class User extends BaseModel implements AuthenticatableContract, JWTSubject
     ];
 
     protected $filterable = [
-        'users.name', 'name', 'user_type', 'email', 'status', 'phone',
+        'users.name', 'name', 'user_type', 'email', 'status', 'phone', 'code',
 
         // For HRM Module
         'shift_id'

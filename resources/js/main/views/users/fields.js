@@ -136,6 +136,10 @@ const fields = () => {
             key: "phone",
             value: t("user.phone")
         },
+        {
+            key: "code",
+            value: t("user.code")
+        },
     ];
 
     return {
