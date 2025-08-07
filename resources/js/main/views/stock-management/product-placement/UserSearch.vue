@@ -34,10 +34,10 @@
                     :label="user.name"
                     :product="user"
                 >
-                    {{ user.name }}
-                    <span v-if="user.phone && user.phone != ''">
+                    {{ user.code }}
+                    <span v-if="user.name && user.name != ''">
                         <br />
-                        {{ user.phone }}
+                        {{ user.name }}
                     </span>
                 </a-select-option>
             </a-select>
@@ -76,10 +76,10 @@ export default defineComponent({
             if (value != "") {
                 const newValue = value.trim();
                 state.productFetching = true;
-                const filterString = `name lk "${newValue}%" or (phone lk "${newValue}%")`;
+                const filterString = `name lk "${newValue}%" or (phone lk "${newValue}%") or (code lk "${newValue}%")`;
                 let url = `${
                     props.orderPageObject.userType
-                }?fields=id,xid,name,phone&filters=${encodeURIComponent(filterString)}`;
+                }?fields=id,xid,name,code,phone&filters=${encodeURIComponent(filterString)}`;
 
                 axiosAdmin.get(url).then((response) => {
                     state.products = response.data;
