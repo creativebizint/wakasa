@@ -441,20 +441,20 @@ class ProductController extends ApiBaseController
             $productDetails = $product->details;
             if($productDetails ==null){
                 //insert product detail is null
-                $product_detail = new ProductDetails();
-                $product_detail->product_id = $product->id;
-                $product_detail->warehouse_id = $warehouseId;
-                $product_detail->current_stock = 0;
-                $product_detail->purchase_price = 0;
-                $product_detail->sales_price = 0;
-                $product_detail->tax_id = 1;
-                $product_detail->purchase_tax_type = 'exclusive';
-                $product_detail->sales_tax_type = 'exclusive';
-                $product_detail->stock_quantitiy_alert = 5;
-                $product_detail->opening_stock = 0;
-                $product_detail->opening_stock_date = date('Y-m-d');
-                $product_detail->status = 'in_stock';
-                $product_detail->save();
+                $product_details = new ProductDetails();
+                $product_details->product_id = $product->id;
+                $product_details->warehouse_id = $warehouseId;
+                $product_details->current_stock = 0;
+                $product_details->purchase_price = 0;
+                $product_details->sales_price = 0;
+                $product_details->tax_id = 1;
+                $product_details->purchase_tax_type = 'exclusive';
+                $product_details->sales_tax_type = 'exclusive';
+                $product_details->stock_quantitiy_alert = 5;
+                $product_details->opening_stock = 0;
+                $product_details->opening_stock_date = date('Y-m-d');
+                $product_details->status = 'in_stock';
+                $product_details->save();
             }
             $tax = Tax::find($productDetails->tax_id);
 
