@@ -439,22 +439,22 @@ class ProductController extends ApiBaseController
 
         foreach ($products as $product) {
             $productDetails = $product->details;
-            if($productDetails ==null){
+            if($productDetails == null){
                 //insert product detail is null
-                $product_details = new ProductDetails();
-                $product_details->product_id = $product->id;
-                $product_details->warehouse_id = $warehouseId;
-                $product_details->current_stock = 0;
-                $product_details->purchase_price = 0;
-                $product_details->sales_price = 0;
-                $product_details->tax_id = 1;
-                $product_details->purchase_tax_type = 'exclusive';
-                $product_details->sales_tax_type = 'exclusive';
-                $product_details->stock_quantitiy_alert = 5;
-                $product_details->opening_stock = 0;
-                $product_details->opening_stock_date = date('Y-m-d');
-                $product_details->status = 'in_stock';
-                $product_details->save();
+                $productDetails = new ProductDetails();
+                $productDetails->product_id = $product->id;
+                $productDetails->warehouse_id = $warehouseId;
+                $productDetails->current_stock = 0;
+                $productDetails->purchase_price = 0;
+                $productDetails->sales_price = 0;
+                $productDetails->tax_id = 1;
+                $productDetails->purchase_tax_type = 'exclusive';
+                $productDetails->sales_tax_type = 'exclusive';
+                $productDetails->stock_quantitiy_alert = 5;
+                $productDetails->opening_stock = 0;
+                $productDetails->opening_stock_date = date('Y-m-d');
+                $productDetails->status = 'in_stock';
+                $productDetails->save();
             }
             $tax = Tax::find($productDetails->tax_id);
 
