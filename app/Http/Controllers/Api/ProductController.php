@@ -450,7 +450,7 @@ class ProductController extends ApiBaseController
                 $product_detail->tax_id = 1;
                 $product_detail->purchase_tax_type = 'exclusive';
                 $product_detail->sales_tax_type = 'exclusive';
-                $product_detail->stock_quantity_alert = 5;
+                $product_detail->stock_quantitiy_alert = 5;
                 $product_detail->opening_stock = 0;
                 $product_detail->opening_stock_date = date('Y-m-d');
                 $product_detail->status = 'in_stock';
