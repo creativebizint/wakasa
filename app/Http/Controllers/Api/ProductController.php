@@ -439,6 +439,23 @@ class ProductController extends ApiBaseController
 
         foreach ($products as $product) {
             $productDetails = $product->details;
+            if($productDetails ==null){
+                //insert product detail is null
+                $product_detail = new ProductDetails();
+                $product_detail->product_id = $product->id;
+                $product_detail->warehouse_id = $warehouseId;
+                $product_detail->current_stock = 0;
+                $product_detail->purchase_price = 0;
+                $product_detail->sales_price = 0;
+                $product_detail->tax_id = 1;
+                $product_detail->purchase_tax_type = 'exclusive';
+                $product_detail->sales_tax_type = 'exclusive';
+                $product_detail->stock_quantity_alert = 5;
+                $product_detail->opening_stock = 0;
+                $product_detail->opening_stock_date = date('Y-m-d');
+                $product_detail->status = 'in_stock';
+                $product_detail->save();
+            }
             $tax = Tax::find($productDetails->tax_id);
 
             if ($orderType == 'product-placement' || $orderType == 'purchases' || $orderType == 'quotations' || $orderType == 'sales' || $orderType == 'sales-returns' || $orderType == 'repeat-order'
