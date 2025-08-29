@@ -298,7 +298,7 @@
                                         :label="product.name"
                                         :product="product"
                                     >
-                                        => {{ product.name }}
+                                        => {{ product.name }} | {{ product.description }} | {{ product.subgroup2 }}
                                     </a-select-option>
                                 </a-select>
                                 <ProductAddButton size="large" />

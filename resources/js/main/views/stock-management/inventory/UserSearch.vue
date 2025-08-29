@@ -31,13 +31,13 @@
                     v-for="user in products"
                     :key="user.xid"
                     :value="user.xid"
-                    :label="user.name"
+                    :label="user.code"
                     :product="user"
                 >
-                    {{ user.code }}
-                    <span v-if="user.name && user.name != ''">
+                    {{ user.name }}
+                    <span v-if="user.code && user.code != ''">
                         <br />
-                        {{ user.name }}
+                        {{ user.code }}
                     </span>
                 </a-select-option>
             </a-select>
