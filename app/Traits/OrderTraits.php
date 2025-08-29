@@ -622,7 +622,7 @@ trait OrderTraits
                         $scanned_history_items->barcode_id = Common::getIdFromHash($product_item['xid']);
                         $scanned_history_items->qty = $product_item['qty_bungkus'];
                         $scanned_history_items->save();
-                        Barcode::where('id',Common::getIdFromHash($product_item['xid']))->update(['isactive'=>'1','order_item_id' => $order_item_id,'item_id' => $item_id,'scanned_in_by'=> $user_id, 'status' => Barcode::STATUS_SCANNED, 'nik' => $nik, 'qty_bungkus' => $product_item['qty_bungkus'], 'comment' => $product_item['comment']  ,'reg_bungkus_id' => Common::generateOrderUniqueId(),'box_id' => Common::generateOrderUniqueId()]);
+                        Barcode::where('id',Common::getIdFromHash($product_item['xid']))->update(['isactive'=>'1','order_item_id' => $order_item_id,'item_id' => $item_id,'scanned_in_by'=> $user_id, 'status' => Barcode::STATUS_SCANNED, 'nik' => $nik, 'qty_bungkus' => $product_item['qty_bungkus'], 'comment' => isset($product_item['comment'])?$product_item['comment']:''  ,'reg_bungkus_id' => Common::generateOrderUniqueId(),'box_id' => Common::generateOrderUniqueId()]);
                         $total_scanned += $product_item['qty_bungkus'];
                     }                    
                 }
