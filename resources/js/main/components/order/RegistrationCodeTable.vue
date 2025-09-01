@@ -1045,6 +1045,15 @@ export default {
             restSelectedItem();
         });
 
+        watch(
+            () => props.filters,
+            (newFilters) => {
+                console.log("OrderTable filters prop updated:", newFilters);
+                setUrlData();
+            },
+            { deep: true }
+        );
+
         watch(selectedWarehouse, (newVal, oldVal) => {
             resetSelectedRows();
 
