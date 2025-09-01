@@ -195,6 +195,7 @@ const datatable = () => {
     };
 
     const fetch = (params = {}) => {
+        console.log('fetch');
         table.loading = true;
         queryData({
             limit: table.pagination.pageSize,
@@ -242,6 +243,7 @@ const datatable = () => {
     };
 
     const onTableSearch = debounce(() => {
+        console.log('search');
         fetch({
             page: 1,
         });
