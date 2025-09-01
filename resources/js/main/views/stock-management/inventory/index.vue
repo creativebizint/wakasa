@@ -174,8 +174,12 @@ export default {
         const sampleFileUrl = ref([]);
 
         onMounted(() => {
+            console.log("window.config:", window.config);
+            console.log("Permissions:", permsArray.value);
             fetchUsers();
             fetchWarehouses();
+            console.log("Users:", users.value);
+            console.log("Warehouses:", warehouses.value);
             sampleFileUrl.value =
                 window.config[orderType.value+`_sample_file`];
         });
@@ -187,6 +191,9 @@ export default {
 
             Promise.all([usersPromise]).then(([usersResponse]) => {
                 users.value = usersResponse.data;
+            })
+            .catch((error) => {
+                console.error("Error fetching users:", error);
             });
         };
 
@@ -201,12 +208,24 @@ export default {
                     warehousesResponse.data
                 );
                 warehouses.value = warehouses__;
+            })
+            .catch((error) => {
+                console.error("Error fetching users:", error);
             });
         };
 
         watch(
+            () => filters.value,
+            (newFilters) => {
+                console.log("Filters updated:", newFilters);
+            },
+            { deep: true }
+        );
+
+        watch(
             () => route.meta.orderType,
             (newVal, oldVal) => {
+                console.log("OrderType changed:", newVal, oldVal);
                 if (
                     newVal == "purchases" ||
                     newVal == "inventory_in" ||
