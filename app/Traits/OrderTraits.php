@@ -55,9 +55,10 @@ trait OrderTraits
         }
         
         if ($request->has('item_id') && $request->item_id != "") {
-            $product = Product::where('item_id','like','%'.$request->item_id.'%')->select('id')->first();
+            //$product = Product::where('item_id','like','%'.$request->item_id.'%')->select('id')->first();
             $query = $query->join('order_items','order_items.order_id','=','orders.id')
-                ->where('order_items.product_id','=',$product->id);
+                    ->join('products','products.id','=','order_items.product_id')
+                    ->where('products.item_id','like','%'.$request->item_id.'%');
         }
 
         // Can see only order of warehouses which is assigned to him
