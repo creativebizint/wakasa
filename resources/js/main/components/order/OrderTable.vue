@@ -427,7 +427,37 @@
                                             {{ $t("common.pos_invoice") }}
                                         </a-menu-item>
 
-                                        <a-menu-item key="download_invoice">
+                                        <a-menu-item key="download_invoice"  v-if="record.order_type === 'purchases'">
+                                            <a-typography-link 
+                                                @click="
+                                                    () => {
+
+                                                        const routeName = 'admin.inventory_in.item';
+
+                                                        if (routeName) {
+                                                            $router.push({
+                                                                name: routeName,
+                                                                params: {
+                                                                    id: record.xid,
+                                                                },
+                                                            });
+                                                        } else {
+
+                                                        }
+                                                    }
+                                                ">
+                                                {{ $t("menu.barcode_registration") }}
+                                            </a-typography-link>
+                                            
+                                        </a-menu-item>
+                                        
+                                        
+
+                                        
+                                        <a-menu-item 
+                                            key="no_invoice" 
+                                            v-else
+                                        >
                                             <a-typography-link
                                                 :href="`${invoiceBaseUrl}/${record.unique_id}/${selectedLang}`"
                                                 target="_blank"
@@ -438,9 +468,10 @@
                                                         "common.download_invoice"
                                                     )
                                                 }}
+                                                
                                             </a-typography-link>
                                         </a-menu-item>
-
+                                        
                                         <a-menu-divider />
                                         
                                     </a-menu>

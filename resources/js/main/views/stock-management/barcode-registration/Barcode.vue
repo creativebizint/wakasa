@@ -44,7 +44,36 @@
             class="mb-30"
             showIcon
         />
+        
+        <a-row :gutter="8">
+                <a-col :xs="24" :sm="24" :md="24" :lg="24">
 
+                    <a-form-item label="Invoice Number">
+                        <a-typography-link 
+                            @click="
+                                () => {
+
+                                    const routeName = 'admin.inventory_in.item';
+
+                                    if (routeName) {
+                                        $router.push({
+                                            name: routeName,
+                                            params: {
+                                                id: formData.invoice_id,
+                                            },
+                                        });
+                                    } else {
+
+                                    }
+                                }
+                            ">
+                            {{ formData.invoice_number }}
+                        </a-typography-link>
+                    </a-form-item>
+                    
+                </a-col>
+        </a-row>
+        
         <a-row :gutter="8">
                 <a-col :xs="24" :sm="24" :md="24" :lg="24">
                     <a-form-item
@@ -127,7 +156,7 @@
                             style="width: 100%"
                         >
 
-                        </a-input-number>
+                        </a-input-number>                        
                     </a-form-item>
                 </a-col>
             </a-row>
@@ -435,7 +464,9 @@ export default {
                 formData.value = {
                     item_id: orderResponseData.order_item.item_id,
                     total_items : orderResponseData.order_item.quantity,
-                    total_items_scanned : orderResponseData.order_item.quantity_scanned == null ? 0 : orderResponseData.order_item.quantity_scanned
+                    total_items_scanned : orderResponseData.order_item.quantity_scanned == null ? 0 : orderResponseData.order_item.quantity_scanned,
+                    invoice_number : orderResponseData.order.invoice_number,
+                    invoice_id : orderResponseData.order.xid
                 };
             });
 

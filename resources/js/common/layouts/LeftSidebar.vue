@@ -435,7 +435,7 @@
                             >
                                 {{ $t("menu.inventory_in") }}
                             </a-menu-item>
-                            <a-menu-item
+<!--                            <a-menu-item
                                 @click="
                                     () => {
                                         menuSelected();
@@ -451,7 +451,7 @@
                                 "
                             >
                                 {{ $t("menu.barcode_registration") }}
-                            </a-menu-item>
+                            </a-menu-item>-->
                         </a-sub-menu>
                         
                         <a-sub-menu

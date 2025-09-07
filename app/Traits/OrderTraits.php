@@ -502,6 +502,7 @@ trait OrderTraits
             
           $selectProductIds[] = Common::getHashFromId($barcode_detail->id);  
         }
+        $order = Order::where('id',$id)->first();
         $order_item = OrderItem::where('order_items.id',$id)
                        ->join('products','products.id','order_items.product_id')
                        ->select('order_items.id','order_items.quantity','products.item_id','order_items.order_id','quantity_scanned','nik')
@@ -520,7 +521,7 @@ trait OrderTraits
             $order_item->quantity_in = $barcode_in->total_in;
         }
         
-        return ['total' =>count($barcode), 'data' => $barcode,'ids'=>$selectProductIds, 'order_item' => $order_item];
+        return ['order' => $order,'total' =>count($barcode), 'data' => $barcode,'ids'=>$selectProductIds, 'order_item' => $order_item];
     }
     
     public function barcodeRegister(Request $request){
