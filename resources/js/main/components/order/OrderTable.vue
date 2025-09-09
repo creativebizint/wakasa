@@ -354,7 +354,7 @@
                                             <EyeOutlined />
                                             {{ $t("common.view") }}
                                         </a-menu-item>
-                                        <a-menu-item
+<!--                                        <a-menu-item
                                             key="edit"
                                             v-if="
                                                 record.order_type !=
@@ -384,7 +384,7 @@
                                         >
                                             <EditOutlined />
                                             {{ $t("common.edit") }}
-                                        </a-menu-item>
+                                        </a-menu-item>-->
                                         <a-menu-item
                                             key="delete"
                                             v-if="

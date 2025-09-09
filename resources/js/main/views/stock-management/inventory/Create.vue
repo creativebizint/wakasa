@@ -278,7 +278,11 @@
                                     @search="
                                         (searchedValue) => {
                                             orderSearchTerm = searchedValue;
-                                            fetchProducts(searchedValue);
+                                            if (searchedValue.length >= 5) {
+                                                fetchProductsDebounced(searchedValue);
+                                            } else {
+                                                products = []; // Clear products if search term is less than 5 characters
+                                            }
                                         }
                                     "
                                     size="large"
@@ -298,10 +302,10 @@
                                         :label="product.name"
                                         :product="product"
                                     >
-                                        => {{ product.name }} | {{ product.description }} | {{ product.subgroup2 }}
+                                      {{ product.product_item_id }}  => {{ product.name }} | {{ product.description }} | {{ product.subgroup2 }}
                                     </a-select-option>
                                 </a-select>
-                                <ProductAddButton size="large" />
+<!--                                <ProductAddButton size="large" />-->
                             </span>
                         </a-form-item>
                     </a-col>
@@ -1062,6 +1066,11 @@ export default {
         //* ADDENDUM
         const warehouseSearchLabelPrefix = ref([]);
 
+        // Create a debounced version of fetchProducts
+        const fetchProductsDebounced = debounce((searchTerm) => {
+            fetchProducts(searchTerm);
+        }, 500); // 500ms debounce delay
+        
         onMounted(() => {
             const taxesPromise = axiosAdmin.get(taxUrl);
             const unitsPromise = axiosAdmin.get(unitUrl);
@@ -1303,6 +1312,7 @@ export default {
             taxes,
             onSubmit,
             fetchProducts,
+            fetchProductsDebounced,
             searchValueSelected,
             selectedProducts,
             showDeleteConfirm,

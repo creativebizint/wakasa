@@ -41,8 +41,8 @@
                     </span>
                 </a-select-option>
             </a-select>
-            <SupplierAddButton v-if="orderPageObject.userType == 'suppliers'" />
-            <CustomerAddButton v-else />
+<!--            <SupplierAddButton v-if="orderPageObject.userType == 'suppliers'" />
+            <CustomerAddButton v-else />-->
         </span>
     </a-form-item>
 </template>
