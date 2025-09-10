@@ -152,16 +152,13 @@
                             </a-menu-item>
                     </a-sub-menu>
 
-                    <a-sub-menu
-                        key="shelf"
-                        v-if="
+                    <a-sub-menu key="shelf" v-if="
                             permsArray.includes('floors_view') ||
                             permsArray.includes('rows_view') ||
                             permsArray.includes('shelf_groups_view') ||
                             permsArray.includes('shelf_numbers_view') ||
                             permsArray.includes('admin')
-                        "
-                    >
+                        ">
                         <template #title>
                             <span>
                                 <ContainerOutlined />
@@ -1103,109 +1100,109 @@ export default defineComponent({
             }
         };
 
-        watch(route, (newVal, oldVal) => {
-            const menuKey =
-                typeof newVal.meta.menuKey == "function"
-                    ? newVal.meta.menuKey(newVal)
-                    : newVal.meta.menuKey;
-
-            if (innerWidth <= 991) {
-                openKeys.value = [];
-            } else if (
-                newVal.meta.menuParent == "staff" ||
-                newVal.meta.menuParent == "leaves" ||
-                newVal.meta.menuParent == "attendances" ||
-                newVal.meta.menuParent == "payrolls" ||
-                newVal.meta.menuParent == "appreciations" ||
-                newVal.meta.menuParent == "holidays"
-            ) {
-                openKeys.value = ["hrm"];
-            } else {
-                openKeys.value = [newVal.meta.menuParent];
-            }
-
-            if (newVal.meta.menuParent == "settings") {
-                selectedKeys.value = ["settings"];
-            } else if (newVal.meta.menuParent == "subscription") {
-                selectedKeys.value = ["subscription"];
-            } else if (newVal.meta.menuParent == "staff") {
-                selectedKeys.value = ["staff"];
-            } else if (newVal.meta.menuParent == "leaves") {
-                selectedKeys.value = ["leaves"];
-            } else if (newVal.meta.menuParent == "holidays") {
-                selectedKeys.value = ["holidays"];
-            } else if (newVal.meta.menuParent == "payrolls") {
-                selectedKeys.value = ["payrolls"];
-            } else if (newVal.meta.menuParent == "attendances") {
-                selectedKeys.value = ["attendances"];
-            } else if (newVal.meta.menuParent == "appreciations") {
-                selectedKeys.value = ["appreciations"];
-            } else {
-                selectedKeys.value = [menuKey.replace("-", "_")];
-            }
-        });
-
-        watch(
-            () => menuCollapsed.value,
-            (newVal, oldVal) => {
-                const menuKey =
-                    typeof route.meta.menuKey == "function"
-                        ? route.meta.menuKey(route)
-                        : route.meta.menuKey;
-
-                if (innerWidth <= 991 && menuCollapsed.value) {
-                    openKeys.value = [];
-                } else {
-                    openKeys.value = menuCollapsed.value
-                        ? []
-                        : [route.meta.menuParent];
-                }
-
-                if (
-                    route.meta.menuParent &&
-                    route.meta.menuParent == "settings"
-                ) {
-                    selectedKeys.value = ["settings"];
-                } else if (
-                    route.meta.menuParent &&
-                    route.meta.menuParent == "subscription"
-                ) {
-                    selectedKeys.value = ["subscription"];
-                } else if (
-                    route.meta.menuParent &&
-                    route.meta.menuParent == "staff"
-                ) {
-                    selectedKeys.value = ["staff"];
-                } else if (
-                    route.meta.menuParent &&
-                    route.meta.menuParent == "leaves"
-                ) {
-                    selectedKeys.value = ["leaves"];
-                } else if (
-                    route.meta.menuParent &&
-                    route.meta.menuParent == "holidays"
-                ) {
-                    selectedKeys.value = ["holidays"];
-                } else if (
-                    route.meta.menuParent &&
-                    route.meta.menuParent == "payrolls"
-                ) {
-                    selectedKeys.value = ["payrolls"];
-                } else if (
-                    route.meta.menuParent &&
-                    route.meta.menuParent == "appreciations"
-                ) {
-                    selectedKeys.value = ["appreciations"];
-                } else if (
-                    route.meta.menuParent &&
-                    route.meta.menuParent == "attendances"
-                ) {
-                    selectedKeys.value = ["attendances"];
-                } else {
-                    selectedKeys.value = [menuKey.replace("-", "_")];
-                }
-            }
-        );
+//        watch(route, (newVal, oldVal) => {
+//            const menuKey =
+//                typeof newVal.meta.menuKey == "function"
+//                    ? newVal.meta.menuKey(newVal)
+//                    : newVal.meta.menuKey;
+//
+//            if (innerWidth <= 991) {
+//                openKeys.value = [];
+//            } else if (
+//                newVal.meta.menuParent == "staff" ||
+//                newVal.meta.menuParent == "leaves" ||
+//                newVal.meta.menuParent == "attendances" ||
+//                newVal.meta.menuParent == "payrolls" ||
+//                newVal.meta.menuParent == "appreciations" ||
+//                newVal.meta.menuParent == "holidays"
+//            ) {
+//                openKeys.value = ["hrm"];
+//            } else {
+//                openKeys.value = [newVal.meta.menuParent];
+//            }
+//
+//            if (newVal.meta.menuParent == "settings") {
+//                selectedKeys.value = ["settings"];
+//            } else if (newVal.meta.menuParent == "subscription") {
+//                selectedKeys.value = ["subscription"];
+//            } else if (newVal.meta.menuParent == "staff") {
+//                selectedKeys.value = ["staff"];
+//            } else if (newVal.meta.menuParent == "leaves") {
+//                selectedKeys.value = ["leaves"];
+//            } else if (newVal.meta.menuParent == "holidays") {
+//                selectedKeys.value = ["holidays"];
+//            } else if (newVal.meta.menuParent == "payrolls") {
+//                selectedKeys.value = ["payrolls"];
+//            } else if (newVal.meta.menuParent == "attendances") {
+//                selectedKeys.value = ["attendances"];
+//            } else if (newVal.meta.menuParent == "appreciations") {
+//                selectedKeys.value = ["appreciations"];
+//            } else {
+//                selectedKeys.value = [menuKey.replace("-", "_")];
+//            }
+//        });
+//
+//        watch(
+//            () => menuCollapsed.value,
+//            (newVal, oldVal) => {
+//                const menuKey =
+//                    typeof route.meta.menuKey == "function"
+//                        ? route.meta.menuKey(route)
+//                        : route.meta.menuKey;
+//
+//                if (innerWidth <= 991 && menuCollapsed.value) {
+//                    openKeys.value = [];
+//                } else {
+//                    openKeys.value = menuCollapsed.value
+//                        ? []
+//                        : [route.meta.menuParent];
+//                }
+//
+//                if (
+//                    route.meta.menuParent &&
+//                    route.meta.menuParent == "settings"
+//                ) {
+//                    selectedKeys.value = ["settings"];
+//                } else if (
+//                    route.meta.menuParent &&
+//                    route.meta.menuParent == "subscription"
+//                ) {
+//                    selectedKeys.value = ["subscription"];
+//                } else if (
+//                    route.meta.menuParent &&
+//                    route.meta.menuParent == "staff"
+//                ) {
+//                    selectedKeys.value = ["staff"];
+//                } else if (
+//                    route.meta.menuParent &&
+//                    route.meta.menuParent == "leaves"
+//                ) {
+//                    selectedKeys.value = ["leaves"];
+//                } else if (
+//                    route.meta.menuParent &&
+//                    route.meta.menuParent == "holidays"
+//                ) {
+//                    selectedKeys.value = ["holidays"];
+//                } else if (
+//                    route.meta.menuParent &&
+//                    route.meta.menuParent == "payrolls"
+//                ) {
+//                    selectedKeys.value = ["payrolls"];
+//                } else if (
+//                    route.meta.menuParent &&
+//                    route.meta.menuParent == "appreciations"
+//                ) {
+//                    selectedKeys.value = ["appreciations"];
+//                } else if (
+//                    route.meta.menuParent &&
+//                    route.meta.menuParent == "attendances"
+//                ) {
+//                    selectedKeys.value = ["attendances"];
+//                } else {
+//                    selectedKeys.value = [menuKey.replace("-", "_")];
+//                }
+//            }
+//        );
 
         return {
             mode,

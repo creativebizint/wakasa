@@ -94,7 +94,7 @@
                                 :title="user.name"
                                 :value="user.xid"
                             >
-                                {{ user.name }}
+                                {{ user.code }}
                             </a-select-option>
                         </a-select>
                     </a-col>

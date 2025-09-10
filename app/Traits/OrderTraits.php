@@ -502,12 +502,12 @@ trait OrderTraits
             
           $selectProductIds[] = Common::getHashFromId($barcode_detail->id);  
         }
-        $order = Order::where('id',$id)->first();
+        
         $order_item = OrderItem::where('order_items.id',$id)
                        ->join('products','products.id','order_items.product_id')
-                       ->select('order_items.id','order_items.quantity','products.item_id','order_items.order_id','quantity_scanned','nik')
+                       ->select('order_items.id','order_items.quantity','products.item_id','order_items.order_id','quantity_scanned','nik','order_id')
                        ->first();
-        
+        $order = Order::where('id',$order_item->order_id)->first();
         $barcode_in = Barcode::where('order_item_id',$id)
                         ->where('item_id',$order_item->item_id)
                         ->where('status','>=',Barcode::STATUS_IN)
