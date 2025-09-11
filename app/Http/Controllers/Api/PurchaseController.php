@@ -89,15 +89,15 @@ class PurchaseController extends ApiBaseController
         $previous = (($offset-1)*$limit);
         $previous_url = url()->current().'?offset='.$previous;
         if($previous <=0){
-            $link = ['next' => $next_url,'total' => $total];
+            $link = ['next' => $next_url];
         }
         else{
-            $link = ['next' => $next_url,'previous' => $previous_url,'total' => $total];
+            $link = ['next' => $next_url,'previous' => $previous_url];
         }
         
         return [
             'data' => $result,
-            'meta' => ['paging'=>['links'=>$link]]
+            'meta' => ['paging'=>['links'=>$link,'total' => $total]]
         ];
     }
         
