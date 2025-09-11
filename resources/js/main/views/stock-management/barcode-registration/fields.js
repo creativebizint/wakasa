@@ -217,18 +217,41 @@ const fields = () => {
     });
 
     const setupTableColumns = () => {
-        var allColumns = [
-            {
-                title: t(`${pageObject.value.langKey}.invoice_number`),
-                dataIndex: "invoice_number",
-                sorter:true
-            },
-            {
-                title: t(`stock.warehouse`),
-                dataIndex: "warehouse",
-                sorter:true
-            }
-        ];
+        
+        if(orderType.value == "placement_in"){
+            var allColumns = [
+                {
+                    title: t(`${pageObject.value.langKey}.item_id`),
+                    dataIndex: "item_id",
+                    sorter:false
+                },
+                {
+                    title: t(`${pageObject.value.langKey}.invoice_number`),
+                    dataIndex: "invoice_number",
+                    sorter:false
+                },
+                {
+                    title: t(`stock.warehouse`),
+                    dataIndex: "warehouse",
+                    sorter:false
+                }
+            ];
+        }
+        else{
+            var allColumns = [
+                {
+                    title: t(`${pageObject.value.langKey}.invoice_number`),
+                    dataIndex: "invoice_number",
+                    sorter:true
+                },
+                {
+                    title: t(`stock.warehouse`),
+                    dataIndex: "warehouse",
+                    sorter:true
+                }
+            ];
+        }
+        
 
         if (pageObject.value.type == 'stock-transfers') {
             allColumns.push({
@@ -252,6 +275,22 @@ const fields = () => {
                 sorter:true,
                 sorter_field:"orders.user_id"
             });
+        }
+        
+        if(orderType.value == "placement_in"){
+            allColumns.push({
+                title: t(`${pageObject.value.langKey}.quantity`),
+                dataIndex: "quantity",
+                sorter:true,
+                sorter_field:"orders.quantity"
+            });
+            allColumns.push({
+                title: t(`${pageObject.value.langKey}.quantity_scanned`),
+                dataIndex: "quantity_scanned",
+                sorter:true,
+                sorter_field:"orders.quantity_scanned"
+            });
+            
         }
 
         columns.value = [

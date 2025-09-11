@@ -35,18 +35,7 @@
             </a-col>    
             <a-col :xs="24" :sm="24" :md="12" :lg="14" :xl="14">
                 <a-row :gutter="[16, 16]" justify="end">
-                    <a-col :xs="24" :sm="24" :md="12" :lg="8" :xl="6">
-                        <a-input-search
-                            style="width: 100%"
-                            v-model:value="filters.searchString"
-                            show-search
-                            :placeholder="
-                                $t('common.placeholder_search_text', [
-                                    $t('stock.invoice_number'),
-                                ])
-                            "
-                        />
-                    </a-col>
+                    
                     <a-col :xs="24" :sm="24" :md="12" :lg="8" :xl="6">
                         <a-input-search
                             style="width: 100%"
@@ -78,7 +67,7 @@
                                 :title="user.name"
                                 :value="user.xid"
                             >
-                                {{ user.name }}
+                                {{ user.code }}
                             </a-select-option>
                         </a-select>
                     </a-col>
@@ -112,7 +101,7 @@ import { onMounted, watch, ref } from "vue";
 import { PlusOutlined, DeleteOutlined } from "@ant-design/icons-vue";
 import { useRoute } from "vue-router";
 import common from "../../../../common/composable/common";
-import OrderTable from "../../../components/order/RegistrationCodeTable.vue";
+import OrderTable from "../../../components/order/RegistrationCodeTable2.vue";
 import DateRangePicker from "../../../../common/components/common/calendar/DateRangePicker.vue";
 import AdminPageHeader from "../../../../common/layouts/AdminPageHeader.vue";
 import QueueImport from "../../../../common/core/ui/QueueImport.vue";

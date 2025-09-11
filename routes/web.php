@@ -1,7 +1,7 @@
 <?php
 
 use Examyou\RestAPI\Facades\ApiRoute;
-
+use App\Http\Controllers\Api\PurchaseController;
 
 Route::get('admin/session', ['as' => 'api.session.index', 'uses' => 'Api\SessionController@index']);
 Route::get('admin/stock-management/invoice/export', ['as' => 'api.stockInvoice.export', 'uses' => 'Api\ProductPlacementController@stockInvoiceExport']);
@@ -184,6 +184,7 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         ApiRoute::resource('delivery_order', 'DeliveryOrderController', $options);
         ApiRoute::resource('placement_in', 'PurchaseController', $options);
         ApiRoute::resource('placement_out', 'SalesController', $options);
+        ApiRoute::get('/placement_in_item', [PurchaseController::class, 'indexPlacementInItem']);
     });
 });
 

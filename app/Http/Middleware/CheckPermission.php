@@ -26,6 +26,10 @@ class CheckPermission
             $user = auth('api')->user();
 
             $resourceRequests = ['index', 'store', 'update', 'show', 'destroy'];
+            file_put_contents(storage_path('logs') . '/test.log', "[" . date('Y-m-d H:i:s') . "]test : \n" . $request->route()->action['as'] . "\n\n", FILE_APPEND);
+            if($request->route()->action['as'] == '.v1'){
+                $request->route()->action['as'] = 'api.placement_in_item.index.v1';
+            }
             $urlArray = explode('.', $request->route()->action['as']);
             $resourceRequestString = $urlArray[2];
 

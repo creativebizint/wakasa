@@ -25,7 +25,8 @@
                     :size="tableSize"
                 >
                     <template #bodyCell="{ column, record }">
-                        <template v-if="column.dataIndex === 'invoice_number'">
+                        
+                        <template v-if="column.dataIndex === 'item_id'">
                             <a-typography-link 
             @click="
                 () => {
@@ -42,18 +43,22 @@
 
                     if (routeName) {
                         $router.push({
-                            name: routeName,
+                            name: `admin.placement_in.barcode`,
                             params: {
                                 id: record.xid,
                             },
-                        });
+                        })
                     } else {
                         console.warn('Invalid orderType:', orderType.value, 'props.orderType:', props.orderType);
                     }
                 }
             ">
-                                {{ record.invoice_number }}
+                                {{ record.item_id }}
                             </a-typography-link>
+                        </template>
+                        
+                        <template v-if="column.dataIndex === 'invoice_number'">
+                            {{ record.invoice_number }}
                         </template>
                         <template v-if="column.dataIndex === 'order_date'">
                             {{ formatDate(record.order_date) }}
@@ -97,16 +102,18 @@
                         </template>
                         <template v-if="column.dataIndex === 'warehouse'">
                             <span
-                                v-if="record.warehouse && record.warehouse.xid"
+                                v-if="record.warehouse_name"
                             >
-                                {{ record.warehouse.name }}
+                                {{ record.warehouse_name }}
                             </span>
                         </template>
-                        <a-typography-link @click="userView(record)">
-                            <template v-if="column.dataIndex === 'user_id'">
-                                <user-info :user="record.user" />
-                            </template>
-                        </a-typography-link>
+                        <template v-if="column.dataIndex === 'user_id'">
+                            <span
+                                v-if="record.user_code"
+                            >
+                                {{ record.user_code }}
+                            </span>
+                        </template>
                         <template v-if="column.dataIndex === 'paid_amount'">
                             {{ formatAmountCurrency(record.paid_amount) }}
                         </template>
