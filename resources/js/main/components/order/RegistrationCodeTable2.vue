@@ -753,6 +753,9 @@ export default {
             if (tableFilter.item_id) {
                 extraFilterObject.item_id = tableFilter.item_id;
             }
+            if (tableFilter.user_id) {
+                extraFilterObject.user_id = tableFilter.user_id;
+            }
             if (tableFilter.transfer_type) {
                 extraFilterObject.transfer_type = tableFilter.transfer_type;
             }
@@ -768,14 +771,7 @@ export default {
                 
                 url: url,
                 filterString,
-                filters: {
-                    user_id: tableFilter.user_id
-                        ? tableFilter.user_id
-                        : undefined,
-                    warehouse_id: tableFilter.warehouse_id
-                        ? tableFilter.warehouse_id
-                        : undefined,
-                },
+                filters: {},
                 extraFilters: extraFilterObject,
             };
             datatableVariables.table.filterableColumns = filterableColumns;

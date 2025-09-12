@@ -64,7 +64,7 @@
                             <a-select-option
                                 v-for="user in users"
                                 :key="user.xid"
-                                :title="user.name"
+                                :title="user.code"
                                 :value="user.xid"
                             >
                                 {{ user.code }}

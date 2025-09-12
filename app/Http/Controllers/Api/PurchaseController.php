@@ -78,6 +78,14 @@ class PurchaseController extends ApiBaseController
             $query->where('products.item_id','like','%'.$request->item_id.'%');
         }
         
+        if ($request->has('user_id')) {
+            $query->where('orders.user_id','=',$this->getIdFromHash($request->user_id));
+        }
+        if ($request->has('dates')) {
+            $date_arr = explode(',',$request->dates);
+            $query->whereBetween('orders.order_date',$date_arr);
+        }
+        
         $total = $query->count();
         // Apply pagination
         $offset = $request->input('offset', 0);
