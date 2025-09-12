@@ -285,7 +285,7 @@ const fields = () => {
                 sorter_field:"orders.quantity"
             });
             allColumns.push({
-                title: t(`product.quantity_scanned`),
+                title: t(`product.qty_scanned`),
                 dataIndex: "quantity_scanned",
                 sorter:true,
                 sorter_field:"orders.quantity_scanned"
