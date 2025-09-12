@@ -221,7 +221,7 @@ const fields = () => {
         if(orderType.value == "placement_in"){
             var allColumns = [
                 {
-                    title: t(`${pageObject.value.langKey}.item_id`),
+                    title: t(`product.item_id`),
                     dataIndex: "item_id",
                     sorter:false
                 },
@@ -279,13 +279,13 @@ const fields = () => {
         
         if(orderType.value == "placement_in"){
             allColumns.push({
-                title: t(`${pageObject.value.langKey}.quantity`),
+                title: t(`product.quantity`),
                 dataIndex: "quantity",
                 sorter:true,
                 sorter_field:"orders.quantity"
             });
             allColumns.push({
-                title: t(`${pageObject.value.langKey}.quantity_scanned`),
+                title: t(`product.quantity_scanned`),
                 dataIndex: "quantity_scanned",
                 sorter:true,
                 sorter_field:"orders.quantity_scanned"
