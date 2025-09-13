@@ -498,8 +498,8 @@ trait OrderTraits
         $id = Common::getIdFromHash($xid);
         $barcode = Barcode::where('order_item_id',$id)->get();
         $selectProductIds = [];
-        foreach($barcode as $barcode_detail){
-            
+        foreach($barcode as $k => $barcode_detail){
+          $barcode[$k]->sn = $k+1;  
           $selectProductIds[] = Common::getHashFromId($barcode_detail->id);  
         }
         
