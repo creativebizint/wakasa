@@ -25,10 +25,43 @@
                     :size="tableSize"
                 >
                     <template #bodyCell="{ column, record }">
-                        <template v-if="column.dataIndex === 'invoice_number'">
-                            <a-typography-link @click="viewItem(record)">
-                                {{ record.invoice_number }}
+                        
+                        <template v-if="column.dataIndex === 'item_id'">
+                            <a-typography-link 
+            @click="
+                () => {
+                    //console.log('orderType in click handler:', orderType.value);
+                    //console.log('props.orderType in click handler:', props.orderType);
+                    const routeMap = {
+                        inventory_in: 'admin.inventory_in.item',
+                        placement_in: 'admin.placement_in.item',
+                        inventory_out: 'admin.inventory_out.item',
+                        placement_out: 'admin.placement_out.item',
+                    };
+
+                    const routeName = routeMap[props.orderType] || 'admin.inventory_in.item';
+
+                    if (routeName) {
+                        $router.push({
+                            name: `admin.placement_out.barcode`,
+                            params: {
+                                id: record.xid,
+                            },
+                        })
+                    } else {
+                        console.warn('Invalid orderType:', orderType.value, 'props.orderType:', props.orderType);
+                    }
+                }
+            ">
+                                {{ record.item_id }}
                             </a-typography-link>
+                        </template>
+                        
+                        <template v-if="column.dataIndex === 'invoice_number'">
+                            {{ record.invoice_number }}
+                        </template>
+                        <template v-if="column.dataIndex === 'picker'">
+                            {{ record.picker_by_name }}
                         </template>
                         <template v-if="column.dataIndex === 'order_date'">
                             {{ formatDate(record.order_date) }}
@@ -72,16 +105,18 @@
                         </template>
                         <template v-if="column.dataIndex === 'warehouse'">
                             <span
-                                v-if="record.warehouse && record.warehouse.xid"
+                                v-if="record.warehouse_name"
                             >
-                                {{ record.warehouse.name }}
+                                {{ record.warehouse_name }}
                             </span>
                         </template>
-                        <a-typography-link @click="userView(record)">
-                            <template v-if="column.dataIndex === 'user_id'">
-                                <user-info :user="record.user" />
-                            </template>
-                        </a-typography-link>
+                        <template v-if="column.dataIndex === 'user_id'">
+                            <span
+                                v-if="record.user_code"
+                            >
+                                {{ record.user_code }}
+                            </span>
+                        </template>
                         <template v-if="column.dataIndex === 'paid_amount'">
                             {{ formatAmountCurrency(record.paid_amount) }}
                         </template>
@@ -354,7 +389,7 @@
                                             <EyeOutlined />
                                             {{ $t("common.view") }}
                                         </a-menu-item>
-<!--                                        <a-menu-item
+                                        <a-menu-item
                                             key="edit"
                                             v-if="
                                                 record.order_type !=
@@ -369,13 +404,7 @@
                                             @click="
                                                 () =>
                                                     $router.push({
-                                                        name: pageObject.type === 'purchases'
-                ? 'admin.inventory_in.edit'
-                : pageObject.type === 'inventory_out'
-                ? 'admin.inventory_out.edit'
-                : pageObject.type === 'sales'
-                ? 'admin.delivery_order.edit'
-                : null,
+                                                        name: (pageObject.type == 'purchases') ? `admin.inventory-in.edit` :'',
                                                         params: {
                                                             id: record.xid,
                                                         },
@@ -384,7 +413,7 @@
                                         >
                                             <EditOutlined />
                                             {{ $t("common.edit") }}
-                                        </a-menu-item>-->
+                                        </a-menu-item>
                                         <a-menu-item
                                             key="delete"
                                             v-if="
@@ -427,58 +456,7 @@
                                             {{ $t("common.pos_invoice") }}
                                         </a-menu-item>
 
-                                        <a-menu-item key="picking_request" v-if="record.order_type === 'sales_order'">
-                                            <a-typography-link
-                                                @click="
-                                                () =>
-                                                    $router.push({
-                                                        name: 'admin.order_fullfillment.picking_assignment_so',
-                                                        params: {
-                                                            id: record.xid,
-                                                        },
-                                                    })
-                                                "
-                                            >
-                                                {{
-                                                    $t(
-                                                        "menu.picking_request"
-                                                    )
-                                                }}
-                                                
-                                            </a-typography-link>
-                                        </a-menu-item>
-                                        
-                                        <a-menu-item key="download_invoice"  v-if="record.order_type === 'purchases'">
-                                            <a-typography-link 
-                                                @click="
-                                                    () => {
-
-                                                        const routeName = 'admin.inventory_in.item';
-
-                                                        if (routeName) {
-                                                            $router.push({
-                                                                name: routeName,
-                                                                params: {
-                                                                    id: record.xid,
-                                                                },
-                                                            });
-                                                        } else {
-
-                                                        }
-                                                    }
-                                                ">
-                                                {{ $t("menu.barcode_registration") }}
-                                            </a-typography-link>
-                                            
-                                        </a-menu-item>
-                                        
-                                        
-
-                                        
-                                        <a-menu-item 
-                                            key="no_invoice" 
-                                            v-else
-                                        >
+                                        <a-menu-item key="download_invoice">
                                             <a-typography-link
                                                 :href="`${invoiceBaseUrl}/${record.unique_id}/${selectedLang}`"
                                                 target="_blank"
@@ -489,10 +467,9 @@
                                                         "common.download_invoice"
                                                     )
                                                 }}
-                                                
                                             </a-typography-link>
                                         </a-menu-item>
-                                        
+
                                         <a-menu-divider />
                                         
                                     </a-menu>
@@ -500,106 +477,7 @@
                             </a-dropdown>
                         </template>
                     </template>
-                    <template #expandedRowRender="orderItemData">
-                        <a-table
-                            v-if="
-                                orderItemData &&
-                                orderItemData.record &&
-                                orderItemData.record.items
-                            "
-                            :row-key="(record) => record.xid"
-                            :columns="orderItemDetailsColumns"
-                            :data-source="orderItemData.record.items"
-                            :pagination="false"
-                        >
-                            <template #bodyCell="{ column, record }">
-                                <template v-if="column.dataIndex === 'product_id'">
-                                        {{ record.product.item_id }}
-                                </template>
-                                <template v-if="column.dataIndex === 'product_code'">
-                                        {{ record.product.item_code }}
-                                </template>
-                                <template v-if="column.dataIndex === 'name'">
-                                        {{ record.product.name }}
-                                </template>
-                                <template v-if="column.dataIndex === 'description'">
-                                        {{ record.product.description }}
-                                </template>
-                                <template v-if="column.dataIndex === 'subgroup2'">
-                                        {{ record.product.subgroup2 }}
-                                </template>
-                                <template v-if="column.dataIndex === 'text1'">
-                                        {{ record.product.text1 }}
-                                </template>
-                                <template v-if="column.dataIndex === 'sat'">
-                                        {{ record.product.uom_buy_in !== null ? record.product.uom_buy_in.short_name : record.product.unit.short_name }}
-                                </template>
-                                <template
-                                    v-if="column.dataIndex === 'quantity'"
-                                >
-                                    {{
-                                        `${record.quantity} ${record.product.unit.short_name}`
-                                    }}
-                                </template>
-                                <template
-                                    v-if="
-                                        column.dataIndex === 'single_unit_price'
-                                    "
-                                >
-                                    {{
-                                        formatAmountCurrency(
-                                            record.single_unit_price
-                                        )
-                                    }}
-                                </template>
-                                <template
-                                    v-if="column.dataIndex === 'total_discount'"
-                                >
-                                    {{
-                                        formatAmountCurrency(
-                                            record.total_discount
-                                        )
-                                    }}
-                                </template>
-                                <template
-                                    v-if="column.dataIndex === 'total_tax'"
-                                >
-                                    <span
-                                        v-if="
-                                            record.order_item_taxes.length > 0
-                                        "
-                                    >
-                                        <span
-                                            v-for="order_item_tax in record.order_item_taxes"
-                                            :key="order_item_tax.xid"
-                                        >
-                                            <span>
-                                                {{ order_item_tax.tax_name }} :
-                                                {{
-                                                    formatAmountCurrency(
-                                                        order_item_tax.tax_amount
-                                                    )
-                                                }}
-                                            </span>
-                                            <br />
-                                        </span>
-                                    </span>
-                                    <span v-else>
-                                        {{
-                                            formatAmountCurrency(
-                                                record.total_tax
-                                            )
-                                        }}
-                                    </span>
-                                </template>
-                                <template
-                                    v-if="column.dataIndex === 'subtotal'"
-                                >
-                                    {{ formatAmountCurrency(record.subtotal) }}
-                                </template>
-                            </template>
-                        </a-table>
-                    </template>
+                    
                     
                 </a-table>
             </div>
@@ -682,7 +560,7 @@ import { useStore } from "vuex";
 import { find, forEach } from "lodash-es";
 import { useI18n } from "vue-i18n";
 import print from "print-js";
-import fields from "../../views/stock-management/purchases/fields";
+import fields from "../../views/stock-management/barcode-registration/fields";
 import common from "../../../common/composable/common";
 import datatable from "../../../common/composable/datatable";
 import PaymentStatus from "../../../common/components/order/PaymentStatus.vue";
@@ -709,8 +587,16 @@ export default {
             default: false,
         },
         orderType: {
-            default: "",
-        },
+            type: String,
+            default: '',
+            validator: (value) => {
+                if (value && !['inventory_in', 'place_in'].includes(value)) {
+                    console.warn(`Invalid orderType: ${value}. Expected 'inventory_in' or 'place_in'.`);
+                    return false;
+                }
+                return true;
+            },
+        },        
         filters: {
             default: {},
         },
@@ -844,6 +730,7 @@ export default {
         };
 
         const initialSetup = () => {
+            console.log('props.orderType:', props.orderType);
             orderType.value = props.orderType;
             if (props.perPageItems) {
                 datatableVariables.table.pagination.pageSize =
@@ -859,33 +746,35 @@ export default {
 
         const setUrlData = () => {
             const tableFilter = props.filters;
-            if (!props.orderType) {
-                console.error("orderType is undefined");
-                return;
-            }
-            const filterString = calculateOrderFilterString(tableFilter);
 
+            const filterString = calculateOrderFilterString(tableFilter);
+            
             var extraFilterObject = {};
             if (tableFilter.dates) {
                 extraFilterObject.dates = tableFilter.dates;
+            }
+            if (tableFilter.item_id) {
+                extraFilterObject.item_id = tableFilter.item_id;
+            }
+            if (tableFilter.user_id) {
+                extraFilterObject.user_id = tableFilter.user_id;
             }
             if (tableFilter.transfer_type) {
                 extraFilterObject.transfer_type = tableFilter.transfer_type;
             }
 
-            console.log("API URL:", `${props.orderType}?${filterString}`);
-            
+            if(props.orderType == 'placement_out'){
+                var url = `placement_out_item?`;
+            }
+            else{
+                var url = `${props.orderType}?fields=id,total_items,total_quantity,xid,unique_id,warehouse_id,x_warehouse_id,warehouse{id,xid,name},from_warehouse_id,x_from_warehouse_id,fromWarehouse{id,xid,name},invoice_number,order_type,order_date,tax_amount,discount,shipping,subtotal,paid_amount,due_amount,order_status,payment_status,total,tax_rate,staff_user_id,x_staff_user_id,staffMember{id,xid,name,profile_image,profile_image_url,shipping_address,tax_number,email,user_type},user_id,x_user_id,user{id,xid,user_type,name,email,address,tax_number,profile_image,profile_image_url,phone},user:details{opening_balance,opening_balance_type,credit_period,credit_limit,due_amount,warehouse_id,x_warehouse_id},orderPayments{id,xid,amount,payment_id,x_payment_id},orderPayments:payment{id,xid,payment_number,amount,payment_mode_id,x_payment_mode_id,date,notes},orderPayments:payment:paymentMode{id,xid,name},items{id,xid,product_id,x_product_id,unit_id,x_unit_id,single_unit_price,unit_price,quantity,tax_rate,total_tax,tax_type,total_discount,subtotal,mrp},items:unit{id,xid,name,short_name},items:product{id,xid,name,item_id,item_code,subgroup2,text1,image,image_url,description,uom_sale_in},items:product:unit{id,xid,name,short_name},items:product:uomBuyIn{id,xid,name,short_name},items:product:details{id,xid,warehouse_id,x_warehouse_id,product_id,x_product_id,current_stock},items:orderItemTaxes{id,xid,order_item_id,order_item_id,tax_name,tax_amount},cancelled,terms_condition,shippingAddress{id,xid,order_id,name,email,phone,address,address,city,state,country,zipcode}`;
+            }
+                
             datatableVariables.tableUrl.value = {
-                url: `${props.orderType}?fields=id,total_items,total_quantity,xid,unique_id,warehouse_id,x_warehouse_id,warehouse{id,xid,name},from_warehouse_id,x_from_warehouse_id,fromWarehouse{id,xid,name},invoice_number,refference,combined_shipment_number,order_type,order_date,tax_amount,discount,shipping,subtotal,paid_amount,due_amount,order_status,payment_status,total,tax_rate,staff_user_id,x_staff_user_id,staffMember{id,xid,name,profile_image,profile_image_url,shipping_address,tax_number,email,user_type},user_id,x_user_id,user{id,xid,user_type,name,email,address,tax_number,profile_image,profile_image_url,phone},user:details{opening_balance,opening_balance_type,credit_period,credit_limit,due_amount,warehouse_id,x_warehouse_id},orderPayments{id,xid,amount,payment_id,x_payment_id},orderPayments:payment{id,xid,payment_number,amount,payment_mode_id,x_payment_mode_id,date,notes},orderPayments:payment:paymentMode{id,xid,name},items{id,xid,product_id,x_product_id,unit_id,x_unit_id,single_unit_price,unit_price,quantity,tax_rate,total_tax,tax_type,total_discount,subtotal,mrp,quantity_scanned,quantity_qrcode},items:unit{id,xid,name,short_name},items:product{id,xid,name,item_id,item_code,subgroup2,text1,image,image_url,description,uom_sale_in},items:product:unit{id,xid,name,short_name},items:product:uomBuyIn{id,xid,name,short_name},items:product:details{id,xid,warehouse_id,x_warehouse_id,product_id,x_product_id,current_stock},items:orderItemTaxes{id,xid,order_item_id,order_item_id,tax_name,tax_amount},cancelled,terms_condition,shippingAddress{id,xid,order_id,name,email,phone,address,address,city,state,country,zipcode},sales_by`,
+                
+                url: url,
                 filterString,
-                filters: {
-                    user_id: tableFilter.user_id
-                        ? tableFilter.user_id
-                        : undefined,
-                    warehouse_id: tableFilter.warehouse_id
-                        ? tableFilter.warehouse_id
-                        : undefined,
-                },
+                filters: {},
                 extraFilters: extraFilterObject,
             };
             datatableVariables.table.filterableColumns = filterableColumns;
@@ -906,17 +795,6 @@ export default {
 
             datatableVariables.fetch({
                 page: datatableVariables.table.pagination.currentPage,
-                success: (results) => {
-                    console.log("Fetch results:", results);
-                },
-                error: (error) => {
-                    console.error("Failed to fetch table data:", error);
-                    notification.error({
-                        message: t("common.error"),
-                        description: t("common.fetch_failed"),
-                        placement: "bottomRight",
-                    });
-                },
             });
         };
 
@@ -1334,6 +1212,8 @@ export default {
             userView,
 
             printInvoicePDF,
+            props, // Make props available
+            orderType, // Ensure orderType is available
         };
     },
 };

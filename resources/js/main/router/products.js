@@ -268,6 +268,20 @@ export default [
             },
             
             {
+                path: '/admin/order-fullfillment/picking-assignment/:id',
+                component:  () =>
+                    import('../views/order-fullfillment/picking-assignment-per-so/index.vue'),
+                name: 'admin.order_fullfillment.picking_assignment_so',
+                meta: {
+                    requireAuth: true,
+                    menuParent: "order_fullfillment",
+                    menuKey: (route) => "picking_assignment_so",
+                    permission: (route) => "order_fullfillment_view",
+                    orderType: "inventory_out",
+                }
+            },
+            
+            {
                 path: '/admin/warehouse',
                 component: () =>
                     import('../views/product-manager/warehouses/index.vue'),

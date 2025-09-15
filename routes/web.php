@@ -2,6 +2,7 @@
 
 use Examyou\RestAPI\Facades\ApiRoute;
 use App\Http\Controllers\Api\PurchaseController;
+use App\Http\Controllers\Api\pickingAssignmentController;
 
 Route::get('admin/session', ['as' => 'api.session.index', 'uses' => 'Api\SessionController@index']);
 Route::get('admin/stock-management/invoice/export', ['as' => 'api.stockInvoice.export', 'uses' => 'Api\ProductPlacementController@stockInvoiceExport']);
@@ -167,6 +168,9 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         ApiRoute::get('picking-request', ['as' => 'api.pickingRequest.index', 'uses' => 'PickingRequestController@index']);
         ApiRoute::post('picking-request', ['as' => 'api.pickingRequest.save', 'uses' => 'PickingRequestController@save']);
         ApiRoute::get('picking-assignment', ['as' => 'api.pickingAssignment.index', 'uses' => 'PickingAssignmentController@index']);
+        ApiRoute::get('/picking-assignment-item', [pickingAssignmentController::class, 'indexItem']);
+        ApiRoute::post('/assign-picking', ['as' => 'api.pickingAssignment.save', 'uses' => 'PickingAssignmentController@assignPicking']);
+        ApiRoute::post('/unassign-picking', ['as' => 'api.unpickingAssignment.save', 'uses' => 'PickingAssignmentController@unassignPicking']);
         
         ApiRoute::get('scanned/barcode/{id}', ['as' => 'api.inventory_in.barcode', 'uses' => 'PurchaseController@scannedBarcode']);
         ApiRoute::get('inventory-detail/barcode/{id}', ['as' => 'api.inventory_in.barcode', 'uses' => 'PurchaseController@barcode']);
@@ -185,6 +189,7 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         ApiRoute::resource('placement_in', 'PurchaseController', $options);
         ApiRoute::resource('placement_out', 'SalesController', $options);
         ApiRoute::get('/placement_in_item', [PurchaseController::class, 'indexPlacementInItem']);
+        ApiRoute::get('/placement_out_item', [PurchaseController::class, 'indexPlacementOutItem']);
     });
 });
 

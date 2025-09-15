@@ -225,7 +225,7 @@ export default {
         watch(
             () => route.meta.orderType,
             (newVal, oldVal) => {
-                console.log("OrderType changed:", newVal, oldVal);
+                //console.log("OrderType changed:", newVal, oldVal);
                 if (
                     newVal == "purchases" ||
                     newVal == "inventory_in" ||

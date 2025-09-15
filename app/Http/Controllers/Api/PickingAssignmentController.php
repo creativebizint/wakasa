@@ -34,6 +34,8 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
 use PDF;
 use PHPExcel_Style_Fill;
+use App\Http\Requests\Api\Sales\IndexItemRequest;
+use Session;
 
 class pickingAssignmentController extends ApiBaseController
 {
@@ -110,4 +112,119 @@ class pickingAssignmentController extends ApiBaseController
             return $pdf->download($download_name . '.pdf');
         }
     }
+    
+    public function indexItem(IndexItemRequest $request)
+    {
+        $order_id = $this->getIdFromHash($request->order_id);
+        
+        $query = \App\Models\OrderItem::join('orders','orders.id','=','order_items.order_id')
+                ->join('products','products.id','=','order_items.product_id')
+                ->leftJoin('warehouses','warehouses.id','=','orders.warehouse_id')
+                ->leftJoin('users','users.id','=','orders.user_id')
+                ->where('orders.id', $order_id)
+                ->where('order_type', 'sales_order')
+                ->select('orders.invoice_number','orders.order_date as date','products.item_id','order_items.quantity_scanned','order_items.quantity',
+                        'orders.warehouse_id','warehouses.code as warehouse_code','warehouses.name as warehouse_name','orders.user_id','users.name as user_name',
+                        'users.code as user_code','order_items.product_id','order_items.id')
+                ->orderBy('orders.id','desc');
+        
+        if ($request->has('item_id')) {
+            $query->where('products.item_id','like','%'.$request->item_id.'%');
+        }
+        
+        if ($request->has('user_id')) {
+            $query->where('orders.user_id','=',$this->getIdFromHash($request->user_id));
+        }
+        if ($request->has('dates')) {
+            $date_arr = explode(',',$request->dates);
+            $query->whereBetween('orders.order_date',$date_arr);
+        }
+        
+        $total = $query->count();
+        // Apply pagination
+        $offset = $request->input('offset', 0);
+        $limit = $request->input('limit', 10);
+
+        $result = $query->skip($offset)->take($limit)->get();
+        $next = (($offset+1)*$limit);
+        $next_url = url()->current().'?offset='.$next;
+        $previous = (($offset-1)*$limit);
+        $previous_url = url()->current().'?offset='.$previous;
+        if($previous <=0){
+            $link = ['next' => $next_url];
+        }
+        else{
+            $link = ['next' => $next_url,'previous' => $previous_url];
+        }
+        
+        return [
+            'data' => $result,
+            'meta' => ['paging'=>['links'=>$link,'total' => $total]]
+        ];
+    }
+    
+    public function assignPicking(Request $request){
+        $data  = $request->all();
+        
+        $order_item_ids = $request->item_ids;
+        $order_id = $request->order_id;
+        $user = Session::get('user');
+        $user_id = $this->getIdFromHash($user['xid']); 
+        $name = $user['name']; 
+        foreach($order_item_ids as $item_id){
+            $order_id = $this->getIdFromHash($item_id);
+            $order_item = OrderItem::where('id',$order_id)->first();
+            
+            $picker_by = json_decode($order_item->picker_by,1);
+            if($picker_by != '' && !in_array($user['id'],$picker_by)){
+                $picker_by[] = $user['id'];
+            }
+            else{
+                $picker_by = array($user['id']);
+            }
+            
+            $picker_by_name = json_decode($order_item->picker_by_name,1);
+            if($picker_by_name != '' && !in_array($user['name'],$picker_by_name)){
+                $picker_by_name[] = $user['name'];
+            }
+            else{
+                $picker_by_name = array($user['name']);
+            }
+             
+            OrderItem::where('id',$order_id)->update(['picker_by'=> json_encode($picker_by),'picker_by_name'=>json_encode($picker_by_name)]);
+        }
+        
+        
+        return $user;
+    }
+    
+    public function unassignPicking(Request $request){
+        $data  = $request->all();
+        
+        $order_item_ids = $request->item_ids;
+        $order_id = $request->order_id;
+        $user = Session::get('user');
+        $user_id = $this->getIdFromHash($user['xid']); 
+        $name = $user['name']; 
+        foreach($order_item_ids as $item_id){
+            $order_id = $this->getIdFromHash($item_id);
+            $order_item = OrderItem::where('id',$order_id)->first();
+            
+            $picker_by = json_decode($order_item->picker_by,1) ?? [];
+            if(in_array($user['id'],$picker_by)){
+                 $picker_by = array_values(array_diff($picker_by, [$user['id']]));
+            }
+            
+            $picker_by_name = json_decode($order_item->picker_by_name,1) ?? [];
+            if(in_array($user['name'],$picker_by_name)){
+                $picker_by_name[] =  $picker_by = array_values(array_diff($picker_by_name, [$user['name']]));
+            }
+             
+            OrderItem::where('id',$order_id)->update(['picker_by'=> json_encode($picker_by),'picker_by_name'=>json_encode($picker_by_name)]);
+        }
+        
+        
+        return $user;
+    }
+    
 }

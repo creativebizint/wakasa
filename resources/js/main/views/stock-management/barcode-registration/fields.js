@@ -234,6 +234,35 @@ const fields = () => {
                     title: t(`stock.warehouse`),
                     dataIndex: "warehouse",
                     sorter:false
+                },
+                {
+                    title: t(`${pageObject.value.langKey}.${pageObject.value.langKey}_date`),
+                    dataIndex: "order_date",
+                    sorter:true
+                }
+            ];
+        }
+        else if(orderType.value == "placement_out"){
+            var allColumns = [
+                {
+                    title: t(`product.item_id`),
+                    dataIndex: "item_id",
+                    sorter:false
+                },
+                {
+                    title: t(`${pageObject.value.langKey}.invoice_number`),
+                    dataIndex: "invoice_number",
+                    sorter:false
+                },
+                {
+                    title: t(`stock.warehouse`),
+                    dataIndex: "warehouse",
+                    sorter:false
+                },
+                {
+                    title: t(`common.picker`),
+                    dataIndex: "picker",
+                    sorter:false
                 }
             ];
         }
@@ -247,6 +276,11 @@ const fields = () => {
                 {
                     title: t(`stock.warehouse`),
                     dataIndex: "warehouse",
+                    sorter:true
+                },
+                {
+                    title: t(`${pageObject.value.langKey}.${pageObject.value.langKey}_date`),
+                    dataIndex: "order_date",
                     sorter:true
                 }
             ];
@@ -262,11 +296,6 @@ const fields = () => {
             });
         }
 
-        allColumns.push({
-            title: t(`${pageObject.value.langKey}.${pageObject.value.langKey}_date`),
-            dataIndex: "order_date",
-            sorter:true
-        });
 
         if (pageObject.value.type != 'stock-transfers') {
             allColumns.push({
@@ -278,6 +307,22 @@ const fields = () => {
         }
         
         if(orderType.value == "placement_in"){
+            allColumns.push({
+                title: t(`product.quantity`),
+                dataIndex: "quantity",
+                sorter:true,
+                sorter_field:"orders.quantity"
+            });
+            allColumns.push({
+                title: t(`product.qty_scanned`),
+                dataIndex: "quantity_scanned",
+                sorter:true,
+                sorter_field:"orders.quantity_scanned"
+            });
+            
+        }
+        
+        if(orderType.value == "placement_out"){
             allColumns.push({
                 title: t(`product.quantity`),
                 dataIndex: "quantity",
