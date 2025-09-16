@@ -50,7 +50,7 @@
 <body>
     
     
-    <h1>Picking Assignment {{ $qcPicking->invoice_number }}</h1>
+    <h1>Invoice {{ $qcPicking->invoice_number }}</h1>
     <div class="header">
         <p><strong>Name:</strong> {{ $qcPicking->user_name ?? 'N/A' }}</p>
         <p><strong>Date:</strong> {{ $qcPicking->order_date ? \Carbon\Carbon::parse($qcPicking->order_date)->format('Y-m-d H:i:s') : 'N/A' }}</p>
