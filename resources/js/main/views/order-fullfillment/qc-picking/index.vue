@@ -24,60 +24,34 @@
                     <a-button
                         v-if="
                             table.selectedRowKeys.length > 0 &&
-                            (permsArray.includes('order_fullfillment_view') ||
+                            (permsArray.includes('parts_delete') ||
                                 permsArray.includes('admin'))
                         "
                         type="primary"
-                        @click="showAssigntoMeConfirm"
+                        @click="showSelectedDeleteConfirm"
                         danger
                     >
-                        <template #icon></template>
-                        {{ $t("common.assign to me") }}
+                        <template #icon><DeleteOutlined /></template>
+                        {{ $t("common.delete") }}
                     </a-button>
                 </a-space>
             </a-col>
-            
             <a-col :xs="24" :sm="24" :md="12" :lg="14" :xl="14">
                 <a-row :gutter="[16, 16]" justify="end">
                     <a-col :xs="24" :sm="24" :md="12" :lg="8" :xl="6">
                         <a-input-search
                             style="width: 100%"
-                            v-model:value="filters.item_id"
+                            v-model:value="filters.invoice_number"
                             show-search
                             :placeholder="
                                 $t('common.placeholder_search_text', [
-                                    $t('product.item_id'),
+                                    $t('product.invoice_number'),
                                 ])
                             "
                             @search="onItemIdSearch"
                             @change="onItemIdSearch"
                         />
                     </a-col>
-                    
-<!--                    <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="8">
-                        <a-input-group compact>
-                            <a-select
-                                style="width: 25%"
-                                v-model:value="table.searchColumn"
-                                :placeholder="$t('common.select_default_text', [''])"
-                            >
-                                <a-select-option
-                                    v-for="filterableColumn in filterableColumns"
-                                    :key="filterableColumn.key"
-                                >
-                                    {{ filterableColumn.value }}
-                                </a-select-option>
-                            </a-select>
-                            <a-input-search
-                                style="width: 75%"
-                                v-model:value="table.searchString"
-                                show-search
-                                @change="onTableSearch"
-                                @search="onTableSearch"
-                                :loading="table.filterLoading"
-                            />
-                        </a-input-group>
-                    </a-col>-->
                 </a-row>
             </a-col>
         </a-row>
@@ -92,7 +66,7 @@
             @closed="onCloseAddEdit"
             :formData="formData"
             :data="viewData"
-            :pageTitle="$t('menu.picking_assignment')"
+            :pageTitle="$t('menu.qc_picking')"
             :successMessage="successMessage"
         />
 
@@ -118,9 +92,6 @@
                         size="middle"
                     >
                         <template #bodyCell="{ column, text, record }">
-                            <template v-if="column.dataIndex === 'image_url'">
-                                <a-image :width="32" :src="text" />
-                            </template>
                             <template v-if="column.dataIndex === 'name'">
                                 {{record.name}}
                             </template>
@@ -138,12 +109,6 @@
                                         {{ $t(`common.${"complete"}`) }}
                                     </a-tag>
                                 </div>
-                            </template>
-                            <template v-if="column.dataIndex === 'unit_quantity'">
-                                {{record.quantity}}
-                            </template>
-                            <template v-if="column.dataIndex === 'qty_scanned'">
-                                {{record.quantity_scanned}}
                             </template>
                             <template v-if="column.dataIndex === 'action'">
                                 <a-button
@@ -195,9 +160,6 @@ import common from "../../../../common/composable/common";
 import AddEdit from "./AddEdit.vue";
 import AdminPageHeader from "../../../../common/layouts/AdminPageHeader.vue";
 import QueueImport from "../../../../common/core/ui/QueueImport.vue";
-import { useRoute } from "vue-router";
-import { Modal } from 'ant-design-vue'; // Import Modal for confirmation
-import apiAdmin from "../../../../common/composable/apiAdmin";
 
 export default {
     components: {
@@ -210,36 +172,30 @@ export default {
         QueueImport,
     },
     setup() {
-        const { addEditRequestAdmin, loading, rules } = apiAdmin();
         const { addEditUrl, initData, columns, filterableColumns } = fields();
         const crudVariables = crud();
         const { permsArray,formatDate } = common();
         const sampleFileUrl = window.config.part_sample_file;
         const exportUrl = window.config.part_export_url;
-        const route = useRoute();
         const filters = ref({
-            item_id: ""
+            invoice_number: ""
         });
-        onMounted(() => {
-            setUrlData();
-        });
+        
         const onItemIdSearch = () => {
             setUrlData();
         };
+        
+        onMounted(() => {
+            setUrlData();
+        });
 
         const setUrlData = () => {
-            const id = route.params.id;
             crudVariables.tableUrl.value = {
-                url: `picking-assignment-item?`,
+                url: "qc-picking?",
                 extraFilters: {
-                    order_id: id,
-                    item_id: filters.value.item_id
-                },
-                order: 'id desc',
-                offset:0,
-                limit:10,
+                    invoice_number: filters.value.invoice_number,
+                }
             };
-            
             crudVariables.table.filterableColumns = filterableColumns;
 
             crudVariables.fetch({
@@ -251,46 +207,6 @@ export default {
             crudVariables.initData.value = { ...initData };
             crudVariables.formData.value = { ...initData };
         };
-        
-        // Function to show confirmation and handle assignment
-        const showAssigntoMeConfirm = () => {
-            Modal.confirm({
-                title: 'Do you want to assign picking to you?',
-                okText: 'Yes',
-                okType: 'primary',
-                cancelText: 'No',
-                onOk() {
-                    // Prepare data to send
-                    const selectedIds = crudVariables.table.selectedRowKeys;;
-                    if (selectedIds.length === 0) {
-                        Modal.error({
-                            title: 'Error',
-                            content: 'Please select at least one item to assign.',
-                        });
-                        return;
-                    }
-
-                    var data = {
-                        order_id: route.params.id,
-                        item_ids: selectedIds
-                    }
-
-            addEditRequestAdmin({
-                url: `assign-picking`,
-                data: data,
-                successMessage: 'ok',
-                success: (res) => {
-                    console.log(res);
-                },
-            });
-            
-            
-                },
-                onCancel() {
-                    // Do nothing or add custom cancel logic
-                },
-            });
-        };
 
         return {
             columns,
@@ -301,10 +217,8 @@ export default {
             setUrlData,
             exportUrl,
             formatDate,
-            route,
-            filters,
-            onItemIdSearch,
-            showAssigntoMeConfirm,
+            filters, // Add filters to the return statement
+            onItemIdSearch, // Ensure this is returned for the template to use
         };
     },
 };

@@ -47,6 +47,35 @@
 
         <a-row :gutter="8">
                 <a-col :xs="24" :sm="24" :md="24" :lg="24">
+
+                    <a-form-item label="Invoice Number">
+                        <a-typography-link 
+                            @click="
+                                () => {
+
+                                    const routeName = 'admin.placement_out.item';
+
+                                    if (routeName) {
+                                        $router.push({
+                                            name: routeName,
+                                            params: {
+                                                id: formData.order_id,
+                                            },
+                                        });
+                                    } else {
+
+                                    }
+                                }
+                            ">
+                            {{ formData.invoice_number }}
+                        </a-typography-link>
+                    </a-form-item>
+                    
+                </a-col>
+        </a-row>
+        
+        <a-row :gutter="8">
+                <a-col :xs="24" :sm="24" :md="24" :lg="24">
                     <a-form-item
                         :label="$t('product.item_id')"
                         name="item_id"
@@ -521,6 +550,8 @@ export default {
                     item_id: orderResponseData.order_item.item_id,
                     total_items : orderResponseData.order_item.quantity,
                     total_items_scanned : orderResponseData.order_item.quantity_scanned == null ? 0 : orderResponseData.order_item.quantity_scanned,
+                    invoice_number : orderResponseData.order.invoice_number,
+                    order_id : orderResponseData.order.xid,
                     total_items_in : orderResponseData.order_item.quantity_in == null ? 0 : orderResponseData.order_item.quantity_in
                 };
             });

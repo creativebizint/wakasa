@@ -33,7 +33,7 @@
                     <a-button
                         v-if="
                             selectedRowIds.length > 0 &&
-                            (permsArray.includes('picking_view') ||
+                            (permsArray.includes('order_fullfillment_view') ||
                                 permsArray.includes('admin'))
                         "
                         type="primary"

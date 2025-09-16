@@ -268,6 +268,20 @@ export default [
             },
             
             {
+                path: '/admin/order-fullfillment/qc-picking',
+                component:  () =>
+                    import('../views/order-fullfillment/qc-picking/index.vue'),
+                name: 'admin.order_fullfillment.qc_picking',
+                meta: {
+                    requireAuth: true,
+                    menuParent: "order_fullfillment",
+                    menuKey: (route) => "qc_picking",
+                    permission: (route) => "order_fullfillment_view",
+                    orderType: "inventory_out",
+                }
+            },
+            
+            {
                 path: '/admin/order-fullfillment/picking-assignment/:id',
                 component:  () =>
                     import('../views/order-fullfillment/picking-assignment-per-so/index.vue'),

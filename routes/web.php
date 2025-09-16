@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\pickingAssignmentController;
 Route::get('admin/session', ['as' => 'api.session.index', 'uses' => 'Api\SessionController@index']);
 Route::get('admin/stock-management/invoice/export', ['as' => 'api.stockInvoice.export', 'uses' => 'Api\ProductPlacementController@stockInvoiceExport']);
 Route::get('/admin/order-fullfillment/picking-assignment/export', ['as' => 'api.pickingAssignment.export', 'uses' => 'Api\pickingAssignmentController@pickingAssignmentExport']);
+Route::get('/admin/order-fullfillment/qc-picking/export', ['as' => 'api.qcpicking.export', 'uses' => 'Api\pickingAssignmentController@qcPickingExport']);
 Route::get('/admin/test', ['as' => 'api.test', 'uses' => 'Api\TestController@connectSqlServer']);
 
 
@@ -168,6 +169,7 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         ApiRoute::get('picking-request', ['as' => 'api.pickingRequest.index', 'uses' => 'PickingRequestController@index']);
         ApiRoute::post('picking-request', ['as' => 'api.pickingRequest.save', 'uses' => 'PickingRequestController@save']);
         ApiRoute::get('picking-assignment', ['as' => 'api.pickingAssignment.index', 'uses' => 'PickingAssignmentController@index']);
+        ApiRoute::get('/qc-picking', ['as' => 'api.qcpinking.index', 'uses' => 'PickingAssignmentController@qcPicking']);
         ApiRoute::get('/picking-assignment-item', [pickingAssignmentController::class, 'indexItem']);
         ApiRoute::post('/assign-picking', ['as' => 'api.pickingAssignment.save', 'uses' => 'PickingAssignmentController@assignPicking']);
         ApiRoute::post('/unassign-picking', ['as' => 'api.unpickingAssignment.save', 'uses' => 'PickingAssignmentController@unassignPicking']);

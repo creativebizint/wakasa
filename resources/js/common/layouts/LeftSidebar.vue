@@ -558,6 +558,24 @@
                                     () => {
                                         menuSelected();
                                         $router.push({
+                                            name: 'admin.order_fullfillment.qc_picking',
+                                        });
+                                    }   
+                                "
+                                key="qc_picking"
+                                v-if="
+                                    permsArray.includes('delivery_order_view') ||
+                                    permsArray.includes('admin')
+                                "
+                            >
+                                {{ $t("menu.qc_picking") }}
+                            </a-menu-item>
+                            
+                            <a-menu-item
+                                @click="
+                                    () => {
+                                        menuSelected();
+                                        $router.push({
                                             name: 'admin.delivery_order.index',
                                         });
                                     }

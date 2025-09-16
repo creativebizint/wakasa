@@ -478,7 +478,7 @@ trait OrderTraits
                        ->join('products','products.id','order_items.product_id')
                        ->select('order_items.id','order_items.quantity','products.item_id','order_items.order_id','quantity_scanned')
                        ->first();
-        
+        $order = Order::where('id',$order_item->order_id)->first();
         $barcode_in = Barcode::where('order_item_id',$id)
                         ->where('item_id',$order_item->item_id)
                         ->where('status','>=',Barcode::STATUS_IN)
@@ -492,7 +492,7 @@ trait OrderTraits
             $order_item->quantity_in = $barcode_in->total_in;
         }
         
-        return ['total' =>count($barcode), 'data' => $barcode,'ids'=>$selectProductIds, 'order_item' => $order_item];
+        return ['order' => $order,'total' =>count($barcode), 'data' => $barcode,'ids'=>$selectProductIds, 'order_item' => $order_item];
     }
     public function barcode($xid){
         $id = Common::getIdFromHash($xid);
