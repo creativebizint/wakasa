@@ -150,13 +150,13 @@
                         :help="rules.nik ? rules.nik.message : null"
                         :validateStatus="rules.nik ? 'error' : null"
                     >
-                        <a-input-number
+                        <a-input
                             v-model:value="formData.nik"
                             min="0"
                             style="width: 100%"
                         >
 
-                        </a-input-number>                        
+                        </a-input>                        
                     </a-form-item>
                 </a-col>
             </a-row>
