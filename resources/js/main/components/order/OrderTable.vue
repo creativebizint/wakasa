@@ -448,6 +448,17 @@
                                             </a-typography-link>
                                         </a-menu-item>
                                         
+                                        <a-menu-item key="picking_request_all" v-if="record.order_type === 'sales_order'">
+                                            <a-typography-link @click="assignAll(record.xid)">
+                                                {{
+                                                    $t(
+                                                        "common.assign_all_to_me"
+                                                    )
+                                                }}
+                                                
+                                            </a-typography-link>
+                                        </a-menu-item>
+                                        
                                         <a-menu-item key="download_invoice"  v-if="record.order_type === 'purchases'">
                                             <a-typography-link 
                                                 @click="
@@ -787,6 +798,56 @@ export default {
         const modalData = ref({});
         // End For Online Orders
 
+        const assignAll= (xid) => {
+            // Perform any logic here (e.g., API call, state update, etc.)
+            console.log(`Assigning all for ID: ${xid}`);
+
+            Modal.confirm({
+                title: 'Do you want to unassign All the selected items?',
+                okText: 'Yes',
+                okType: 'primary',
+                cancelText: 'No',
+                onOk() {
+                    const selectedIds = xid;
+                    
+                    const data = {
+                        order_id: selectedIds,
+                    };
+
+                    if (!axiosAdmin) {
+                        console.error('axiosAdmin is not defined, cannot make API call');
+                        Modal.error({
+                            title: 'Error',
+                            content: 'API client is not available.',
+                        });
+                        return;
+                    }
+
+                    axiosAdmin.post(`assign-all`, data)
+                        .then((res) => {
+                            console.log('response:', res);
+                            setUrlData();
+                            notification.success({
+                                message: 'Success',
+                                description: 'Items have been assigned successfully.',
+                                placement: 'bottomRight',
+                            });
+                        })
+                        .catch((error) => {
+                            console.error('Unassign error:', error);
+                            Modal.error({
+                                title: 'Error',
+                                content: 'Failed to unassign items. Please try again.',
+                            });
+                        });
+                },
+                onCancel() {
+                    console.log('Confirm cancelled'); // Debug cancel
+                },
+            });
+            
+        }
+    
         const posView = (order) => {
             var totalMrp = 0;
             var totalTax = 0;
@@ -1334,6 +1395,7 @@ export default {
             userView,
 
             printInvoicePDF,
+            assignAll,
         };
     },
 };

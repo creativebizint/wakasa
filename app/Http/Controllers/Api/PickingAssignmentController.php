@@ -266,8 +266,10 @@ class pickingAssignmentController extends ApiBaseController
         $user = Session::get('user');
         $user_id = $this->getIdFromHash($user['xid']); 
         $name = $user['name']; 
+        $order_item_ids_real = [];
         foreach($order_item_ids as $item_id){
             $order_item_id = $this->getIdFromHash($item_id);
+            $order_item_ids_real[] = $order_item_id;
             $order_item = OrderItem::where('id',$order_item_id)->first();
             
             $picker_by = json_decode($order_item->picker_by,1);
@@ -286,12 +288,44 @@ class pickingAssignmentController extends ApiBaseController
                 $picker_by_name = array($user['name']);
             }
              
-            OrderItem::where('id',$order_id)->update(['picker_by'=> json_encode($picker_by),'picker_by_name'=>json_encode($picker_by_name)]);
+            OrderItem::where('id',$order_item_id)->update(['picker_by'=> json_encode($picker_by),'picker_by_name'=>json_encode($picker_by_name)]);
         }
         Order::where('id',$order_id)->update(['order_status'=>'picking']);
         
+        return $order_item_ids_real;
+    }
+    
+    public function assignPickingAll(Request $request){
+        $data  = $request->all();
+        $order_id = $this->getIdFromHash($data['order_id']);
+        $user = Session::get('user');
+        $user_id = $this->getIdFromHash($user['xid']); 
+        $name = $user['name'];
+        
+        $order_items = OrderItem::where('order_id', $order_id)->get();
+        foreach($order_items as $order_item){
+            $picker_by = json_decode($order_item->picker_by,1);
+            if($picker_by != '' && !in_array($user['id'],$picker_by)){
+                $picker_by[] = $user['id'];
+            }
+            else{
+                $picker_by = array($user['id']);
+            }
+            
+            $picker_by_name = json_decode($order_item->picker_by_name,1);
+            if($picker_by_name != '' && !in_array($user['name'],$picker_by_name)){
+                $picker_by_name[] = $user['name'];
+            }
+            else{
+                $picker_by_name = array($user['name']);
+            }
+             
+            OrderItem::where('id',$order_item->id)->update(['picker_by'=> json_encode($picker_by),'picker_by_name'=>json_encode($picker_by_name)]);
+        }
+        
+        Order::where('id',$order_id)->update(['order_status'=>'picking']);
+        
         return $order_id;
-        return $user;
     }
     
     public function unassignPicking(Request $request){

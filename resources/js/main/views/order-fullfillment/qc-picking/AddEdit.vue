@@ -84,7 +84,6 @@
         </a-form>
         <template #footer>
             <a-button
-                :disabled="!canCreateDeliveryOrder"
                 @click="createDeliveryOrder"
                 type="primary"
                 class="mt-3"
@@ -261,25 +260,24 @@ export default defineComponent({
 
         // Handle Create Delivery Order button click
         const createDeliveryOrder = () => {
-            if (canCreateDeliveryOrder.value) {
+//            if (canCreateDeliveryOrder.value) {
                 try {
-                    console.log('Creating delivery order for items:', selectedItems.value);
+//                    console.log('Creating delivery order for items:', selectedItems.value);
                     // Add API call to create delivery order
                     // Example:
-                    // addEditRequestAdmin({
-                    //     url: '/api/v1/delivery-order',
-                    //     data: { item_xids: selectedItems.value },
-                    //     success: (res) => {
-                    //         console.log('Delivery order created:', res);
-                    //         selectedItems.value = [];
-                    //         emit('addEditSuccess', res);
-                    //     }
-                    // });
+                    addEditRequestAdmin({
+                        url: '/api/v1/delivery-order',
+                        data: { invoice_number:  props.formData.invoice_number},
+                        success: (res) => {
+//                            console.log('Delivery order created:', res);
+                            emit('addEditSuccess', res);
+                        }
+                    });
                 } catch (e) {
                     console.error('Error in createDeliveryOrder:', e);
                     error.value = e;
                 }
-            }
+//            }
         };
 
         const exportExcel = () => {

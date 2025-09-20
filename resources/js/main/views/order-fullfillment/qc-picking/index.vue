@@ -21,7 +21,7 @@
         <a-row :gutter="[16, 16]">
             <a-col :xs="24" :sm="24" :md="12" :lg="10" :xl="10">
                 <a-space>
-                    <a-button
+<!--                    <a-button
                         v-if="
                             table.selectedRowKeys.length > 0 &&
                             (permsArray.includes('parts_delete') ||
@@ -33,7 +33,7 @@
                     >
                         <template #icon><DeleteOutlined /></template>
                         {{ $t("common.delete") }}
-                    </a-button>
+                    </a-button>-->
                 </a-space>
             </a-col>
             <a-col :xs="24" :sm="24" :md="12" :lg="14" :xl="14">
