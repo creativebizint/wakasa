@@ -61,54 +61,39 @@
                     </a-button>
                 </a-space>
             </a-col>
-            <a-col :xs="24" :sm="24" :md="12" :lg="14" :xl="14">
-                <a-row :gutter="[16, 16]" justify="end">
-                    <a-col :xs="24" :sm="24" :md="12" :lg="8" :xl="6">
-                        <a-input-search
-                            style="width: 100%"
-                            v-model:value="filters.searchString"
-                            show-search
-                            :placeholder="
-                                $t('common.placeholder_search_text', [
-                                    $t(`${orderType}.invoice_number`),
-                                ])
-                            "
-                        />
-                    </a-col>
-                    <a-col :xs="24" :sm="24" :md="8" :lg="8" :xl="6">
-                        <a-select
-                            v-model:value="filters.user_id"
-                            :placeholder="
-                                $t('common.select_default_text', [
-                                    $t(`${orderType}.user`),
-                                ])
-                            "
-                            :allowClear="true"
-                            style="width: 100%"
-                            optionFilterProp="title"
-                            show-search
-                        >
-                            <a-select-option
-                                v-for="user in users"
-                                :key="user.xid"
-                                :title="user.name"
-                                :value="user.xid"
-                            >
-                                {{ user.code }}
-                            </a-select-option>
-                        </a-select>
-                    </a-col>
-                    <a-col :xs="24" :sm="24" :md="8" :lg="8" :xl="6">
-                        <DateRangePicker
-                            ref="serachDateRangePicker"
-                            @dateTimeChanged="
-                                (changedDateTime) => (filters.dates = changedDateTime)
-                            "
-                        />
-                    </a-col>
-                </a-row>
-            </a-col>
-        </a-row>
+        </a-row>    
+        <a-row :gutter="[16, 16]" justify="end">
+  <a-col :xs="24" :sm="24" :md="12" :lg="14" :xl="14">
+    <a-row :gutter="[16, 16]" justify="end">
+      <a-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
+        <a-input-search style="width: 100%" v-model:value="filters.searchString" show-search :placeholder="$t('common.placeholder_search_text', [$t(`${orderType}.invoice_number`)])" />
+      </a-col>
+      <a-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
+        <a-select v-model:value="filters.status" :placeholder="$t('common.select_default_text', [$t(`common.status`)])" :allowClear="true" style="width: 100%" optionFilterProp="title" show-search>
+          <a-select-option :key="'Ordered'" :title="'Ordered'" :value="'Ordered'">Ordered</a-select-option>
+          <a-select-option :key="'Picking'" :title="'Picking'" :value="'Picking'">Picking</a-select-option>
+          <a-select-option :key="'Qc'" :title="'Qc'" :value="'Qc'">QC</a-select-option>
+        </a-select>
+      </a-col>
+      <a-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
+        <a-select v-model:value="filters.priority" :placeholder="$t('common.select_default_text', [$t(`common.priority`)])" :allowClear="true" style="width: 100%" optionFilterProp="title" show-search>
+          <a-select-option :key="'ditunggu'" :title="'ditunggu'" :value="'ditunggu'">ditunggu</a-select-option>
+          <a-select-option :key="'pesawat'" :title="'pesawat'" :value="'pesawat'">pesawat</a-select-option>
+          <a-select-option :key="'segera'" :title="'segera'" :value="'segera'">segera</a-select-option>
+          <a-select-option :key="'normal'" :title="'normal'" :value="'normal'">normal</a-select-option>
+        </a-select>
+      </a-col>
+      <a-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
+        <a-select v-model:value="filters.user_id" :placeholder="$t('common.select_default_text', [$t(`${orderType}.user`)])" :allowClear="true" style="width: 100%" optionFilterProp="title" show-search>
+          <a-select-option v-for="user in users" :key="user.xid" :title="user.name" :value="user.xid">{{ !user.code ? user.name : user.code }}</a-select-option>
+        </a-select>
+      </a-col>
+      <a-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
+        <DateRangePicker ref="serachDateRangePicker" @dateTimeChanged="(changedDateTime) => (filters.dates = changedDateTime)" />
+      </a-col>
+    </a-row>
+  </a-col>
+</a-row>
     </admin-page-filters>
 
     <admin-page-table-content>

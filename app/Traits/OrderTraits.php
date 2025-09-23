@@ -54,6 +54,18 @@ trait OrderTraits
                 ->whereRaw('orders.order_date <= ?', [$endDate]);
         }
         
+        // status Filters
+        if ($request->has('status') && $request->status != "") {
+            $query = $query->where('orders.order_status', $request->status);
+        }
+        
+        if ($request->has('type') && $request->type == "inventory_out") {
+            $query = $query->where('orders.order_status', '!=' , 'Delivered');
+        }
+        if ($request->has('priority') && $request->priority != "") {
+            $query = $query->where('orders.priority', $request->priority );
+        }
+        
         if ($request->has('item_id') && $request->item_id != "") {
             //$product = Product::where('item_id','like','%'.$request->item_id.'%')->select('id')->first();
             $query = $query->join('order_items','order_items.order_id','=','orders.id')

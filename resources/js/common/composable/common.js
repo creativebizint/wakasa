@@ -382,6 +382,13 @@ const common = () => {
         received: "green",
         pending: "orange",
     };
+    
+    const priorityColors = {
+        ditunggu: "red",
+        pesawat : "pink",
+        segera: "yellow",
+        normal: "blue",
+    };
 
     const purchaseOrderStatus = [
         {
@@ -550,6 +557,7 @@ const common = () => {
         permsArray,
         statusColors,
         orderStatusColors,
+        priorityColors,
         userStatus,
         taxTypes,
         barcodeSymbology,

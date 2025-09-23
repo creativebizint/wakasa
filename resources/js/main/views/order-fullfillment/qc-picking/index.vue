@@ -1,7 +1,7 @@
 <template>
     <AdminPageHeader>
         <template #header>
-            <a-page-header :title="$t(`menu.picking_assignment`)" class="p-0" />
+            <a-page-header :title="$t(`menu.qc_picking`)" class="p-0" />
         </template>
         <template #breadcrumb>
             <a-breadcrumb separator="-" style="font-size: 12px">
@@ -11,7 +11,7 @@
                     </router-link>
                 </a-breadcrumb-item>
                 <a-breadcrumb-item>
-                    {{ $t(`menu.picking_assignment`) }}
+                    {{ $t(`menu.qc_picking`) }}
                 </a-breadcrumb-item>
             </a-breadcrumb>
         </template>

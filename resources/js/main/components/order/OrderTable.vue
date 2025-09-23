@@ -33,6 +33,26 @@
                         <template v-if="column.dataIndex === 'order_date'">
                             {{ formatDate(record.order_date) }}
                         </template>
+                        <template v-if="column.dataIndex === 'priority'">
+                            <a-tag :color="priorityColors[record.priority]">
+                                    {{ record.priority }}
+                            </a-tag>
+                        </template>
+                        <template v-if="column.dataIndex === 'note' && record.notes">
+                            <a-popover placement="top" trigger="click">
+                              <template #content>
+                                <a-button type="link" @click="showNoteModal(record)">
+                                  <MessageOutlined />
+                                  {{ $t('common.note') }}
+                                </a-button>
+                              </template>
+                              <a-button type="default" size="small">
+                                <MessageOutlined />
+                                {{ $t('common.note') }}
+                              </a-button>
+                            </a-popover>
+                          </template>
+                        
                         <template
                             v-if="
                                 column.dataIndex === 'staff_user_id' &&
@@ -296,7 +316,7 @@
                                                 <DownloadOutlined />
                                                 {{
                                                     $t(
-                                                        "common.download_invoice"
+                                                        "common.print_invoice"
                                                     )
                                                 }}
                                             </a-typography-link>
@@ -497,7 +517,7 @@
                                                 <DownloadOutlined />
                                                 {{
                                                     $t(
-                                                        "common.download_invoice"
+                                                        "common.print_invoice"
                                                     )
                                                 }}
                                                 
@@ -617,6 +637,17 @@
         </a-col>
     </a-row>
 
+    <!-- Note Modal -->
+    <a-modal
+        :visible="noteModalVisible"
+        :title="$t('common.note')"
+        @ok="noteModalVisible = false"
+        @cancel="noteModalVisible = false"
+        :footer="null"
+    >
+        <p>{{ selectedNote || $t('common.no_note') }}</p>
+    </a-modal>
+    
     <OrderDetails
         :visible="detailsDrawerVisible"
         :order="selectedItem"
@@ -686,6 +717,7 @@ import {
     WalletOutlined,
     ShoppingCartOutlined,
     PrinterOutlined,
+    MessageOutlined,
 } from "@ant-design/icons-vue";
 import { Modal, notification } from "ant-design-vue";
 import { useRoute } from "vue-router";
@@ -743,6 +775,7 @@ export default {
         WalletOutlined,
         ShoppingCartOutlined,
         PrinterOutlined,
+        MessageOutlined,
         Details,
         UserInfo,
         Details,
@@ -780,6 +813,7 @@ export default {
             selectedWarehouse,
             selectedLang,
             orderStatusColors,
+            priorityColors
         } = common();
         const route = useRoute();
         const { t } = useI18n();
@@ -796,6 +830,18 @@ export default {
         const paymentModalVisible = ref(false);
         const userVisible = ref(false);
         const modalData = ref({});
+        
+        // Note Modal Variables
+        const noteModalVisible = ref(false);
+        const selectedNote = ref("");
+
+        // Function to show note modal
+        const showNoteModal = (record) => {
+            console.log("Record passed to showNoteModal:", record);
+            selectedNote.value = record.notes || "";
+            noteModalVisible.value = true;
+          };
+        
         // End For Online Orders
 
         const assignAll= (xid) => {
@@ -933,11 +979,17 @@ export default {
             if (tableFilter.transfer_type) {
                 extraFilterObject.transfer_type = tableFilter.transfer_type;
             }
+            if (tableFilter.status) {
+                extraFilterObject.status = tableFilter.status;
+            }
+            if (tableFilter.priority) {
+                extraFilterObject.priority = tableFilter.priority;
+            }
 
             console.log("API URL:", `${props.orderType}?${filterString}`);
             
             datatableVariables.tableUrl.value = {
-                url: `${props.orderType}?fields=id,total_items,total_quantity,xid,unique_id,warehouse_id,x_warehouse_id,warehouse{id,xid,name},from_warehouse_id,x_from_warehouse_id,fromWarehouse{id,xid,name},invoice_number,refference,combined_shipment_number,order_type,order_date,tax_amount,discount,shipping,subtotal,paid_amount,due_amount,order_status,payment_status,total,tax_rate,staff_user_id,x_staff_user_id,staffMember{id,xid,name,profile_image,profile_image_url,shipping_address,tax_number,email,user_type},user_id,x_user_id,user{id,xid,user_type,name,email,address,tax_number,profile_image,profile_image_url,phone},user:details{opening_balance,opening_balance_type,credit_period,credit_limit,due_amount,warehouse_id,x_warehouse_id},orderPayments{id,xid,amount,payment_id,x_payment_id},orderPayments:payment{id,xid,payment_number,amount,payment_mode_id,x_payment_mode_id,date,notes},orderPayments:payment:paymentMode{id,xid,name},items{id,xid,product_id,x_product_id,unit_id,x_unit_id,single_unit_price,unit_price,quantity,tax_rate,total_tax,tax_type,total_discount,subtotal,mrp,quantity_scanned,quantity_qrcode},items:unit{id,xid,name,short_name},items:product{id,xid,name,item_id,item_code,subgroup2,text1,image,image_url,description,uom_sale_in},items:product:unit{id,xid,name,short_name},items:product:uomBuyIn{id,xid,name,short_name},items:product:details{id,xid,warehouse_id,x_warehouse_id,product_id,x_product_id,current_stock},items:orderItemTaxes{id,xid,order_item_id,order_item_id,tax_name,tax_amount},cancelled,terms_condition,shippingAddress{id,xid,order_id,name,email,phone,address,address,city,state,country,zipcode},sales_by`,
+                url: `${props.orderType}?type=${props.orderType}&fields=id,notes,priority,total_items,total_quantity,xid,unique_id,warehouse_id,x_warehouse_id,warehouse{id,xid,name},from_warehouse_id,x_from_warehouse_id,fromWarehouse{id,xid,name},invoice_number,refference,combined_shipment_number,order_type,order_date,tax_amount,discount,shipping,subtotal,paid_amount,due_amount,order_status,payment_status,total,tax_rate,staff_user_id,x_staff_user_id,staffMember{id,xid,name,profile_image,profile_image_url,shipping_address,tax_number,email,user_type},user_id,x_user_id,user{id,xid,user_type,name,email,address,tax_number,profile_image,profile_image_url,phone},user:details{opening_balance,opening_balance_type,credit_period,credit_limit,due_amount,warehouse_id,x_warehouse_id},orderPayments{id,xid,amount,payment_id,x_payment_id},orderPayments:payment{id,xid,payment_number,amount,payment_mode_id,x_payment_mode_id,date,notes},orderPayments:payment:paymentMode{id,xid,name},items{id,xid,product_id,x_product_id,unit_id,x_unit_id,single_unit_price,unit_price,quantity,tax_rate,total_tax,tax_type,total_discount,subtotal,mrp,quantity_scanned,quantity_qrcode},items:unit{id,xid,name,short_name},items:product{id,xid,name,item_id,item_code,subgroup2,text1,image,image_url,description,uom_sale_in},items:product:unit{id,xid,name,short_name},items:product:uomBuyIn{id,xid,name,short_name},items:product:details{id,xid,warehouse_id,x_warehouse_id,product_id,x_product_id,current_stock},items:orderItemTaxes{id,xid,order_item_id,order_item_id,tax_name,tax_amount},cancelled,terms_condition,shippingAddress{id,xid,order_id,name,email,phone,address,address,city,state,country,zipcode},sales_by`,
                 filterString,
                 filters: {
                     user_id: tableFilter.user_id
@@ -1338,7 +1390,7 @@ export default {
             formatDate,
             orderStatus,
             orderStatusColors,
-
+            priorityColors,
             setUrlData,
             formatAmountCurrency,
             invoiceBaseUrl,
@@ -1396,6 +1448,11 @@ export default {
 
             printInvoicePDF,
             assignAll,
+            
+            // Note Modal
+            noteModalVisible,
+            selectedNote,
+            showNoteModal,
         };
     },
 };

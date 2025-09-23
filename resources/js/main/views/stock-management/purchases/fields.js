@@ -287,6 +287,17 @@ const fields = () => {
             });
         }
         
+        if (pageObject.value.type == "inventory_out") {
+            allColumns.push({
+                title: t("priority"),
+                dataIndex: "priority",
+            });
+            allColumns.push({
+                title: t("note"),
+                dataIndex: "note",
+            });
+        }
+        
         allColumns.push({
             title: t(`${pageObject.value.langKey}.${pageObject.value.langKey}_date`),
             dataIndex: "order_date",
