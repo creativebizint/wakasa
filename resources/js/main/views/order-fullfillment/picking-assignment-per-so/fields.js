@@ -35,6 +35,10 @@ const fields = () => {
                     title: t("product.quantity_faktur"),
                     dataIndex: "unit_quantity",
                 },
+		{
+                    title: t("product.text2"),
+                    dataIndex: "text2",
+                },
                 {
                     title: t("product.qty_scanned"),
                     dataIndex: "qty_scanned",

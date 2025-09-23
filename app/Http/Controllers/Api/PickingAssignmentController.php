@@ -161,7 +161,7 @@ class pickingAssignmentController extends ApiBaseController
                 ->where('order_type', 'sales_order')
                 ->select('orders.invoice_number','orders.order_date as date','products.item_id','order_items.quantity_scanned','order_items.quantity',
                         'orders.warehouse_id','warehouses.code as warehouse_code','warehouses.name as warehouse_name','orders.user_id','users.name as user_name',
-                        'users.code as user_code','order_items.product_id','order_items.id')
+                        'users.code as user_code','order_items.product_id','order_items.id','text2')
                 ->orderBy('orders.id','desc');
         
         if ($request->has('item_id')) {

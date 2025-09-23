@@ -260,6 +260,11 @@ const fields = () => {
                     sorter:false
                 },
                 {
+                    title: t(`product.text2`),
+                    dataIndex: "text2",
+                    sorter:false
+                },
+                {
                     title: t(`common.picker`),
                     dataIndex: "picker",
                     sorter:false

@@ -66,6 +66,9 @@
                         <template v-if="column.dataIndex === 'order_date'">
                             {{ formatDate(record.order_date) }}
                         </template>
+                        <template v-if="column.dataIndex === 'text2'">
+                            {{ record.text2 }}
+                        </template>
                         <template
                             v-if="
                                 column.dataIndex === 'staff_user_id' &&
