@@ -488,7 +488,7 @@ trait OrderTraits
         }
         $order_item = OrderItem::where('order_items.id',$id)
                        ->join('products','products.id','order_items.product_id')
-                       ->select('order_items.id','order_items.quantity','products.item_id','order_items.order_id','quantity_scanned')
+                       ->select('order_items.id','order_items.quantity','products.item_id','order_items.order_id','quantity_scanned','products.text2')
                        ->first();
         $order = Order::where('id',$order_item->order_id)->first();
         $barcode_in = Barcode::where('order_item_id',$id)

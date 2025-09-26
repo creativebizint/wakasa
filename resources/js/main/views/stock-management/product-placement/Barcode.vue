@@ -70,8 +70,8 @@
                 </a-col>
             </a-row>
 
-        <a-row :gutter="8">
-                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+            <a-row :gutter="8">
+                <a-col :xs="6" :sm="6" :md="6" :lg="6">
                     <a-form-item
                         :label="$t('product.quantity_faktur')"
                         name="total_items"
@@ -93,9 +93,7 @@
                         </a-input-number>
                     </a-form-item>
                 </a-col>
-            </a-row>
-            <a-row :gutter="8">
-                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                <a-col :xs="6" :sm="6" :md="6" :lg="6">
                     <a-form-item
                         :label="$t('barcode.quantity_scanned')"
                         name="total_items_scanned"
@@ -112,9 +110,7 @@
                         </a-input-number>
                     </a-form-item>
                 </a-col>
-            </a-row>
-            <a-row :gutter="8">
-                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                <a-col :xs="6" :sm="6" :md="6" :lg="6">
                     <a-form-item
                         :label="$t('barcode.quantity_in')"
                         name="total_items_in"
@@ -132,8 +128,9 @@
                     </a-form-item>
                 </a-col>
             </a-row>
+            
             <a-row :gutter="8">
-                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                <a-col :xs="6" :sm="6" :md="6" :lg="6">
                     <a-form-item
                         :label="$t('stock_in.row')"
                         name="row"
@@ -147,10 +144,22 @@
                         </a-input>
                     </a-form-item>
                 </a-col>
+                <a-col :xs="6" :sm="6" :md="6" :lg="6">
+                    <a-form-item
+                        :label="$t('common.main_row')"
+                        name="row"
+                    >
+                        <a-input
+                            v-model:value="formData.text2"
+                            min="0"
+                            style="width: 50%" disabled
+                        >
+
+                        </a-input>
+                    </a-form-item>
+                </a-col>
             </a-row>
-            
-            
-            
+           
         <a-form layout="vertical">
             <a-row :gutter="16">
                 <a-col :xs="24" :sm="24" :md="24" :lg="24">
@@ -521,7 +530,8 @@ export default {
                     item_id: orderResponseData.order_item.item_id,
                     total_items : orderResponseData.order_item.quantity,
                     total_items_scanned : orderResponseData.order_item.quantity_scanned == null ? 0 : orderResponseData.order_item.quantity_scanned,
-                    total_items_in : orderResponseData.order_item.quantity_in == null ? 0 : orderResponseData.order_item.quantity_in
+                    total_items_in : orderResponseData.order_item.quantity_in == null ? 0 : orderResponseData.order_item.quantity_in,
+                    text2 : orderResponseData.order_item.text2 == null ? 0 : orderResponseData.order_item.text2
                 };
             });
 
