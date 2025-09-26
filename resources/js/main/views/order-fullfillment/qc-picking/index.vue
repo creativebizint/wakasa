@@ -106,12 +106,9 @@
                             <template v-if="column.dataIndex === 'note' && record.notes">
                                 <a-popover placement="top" trigger="click">
                                   <template #content>
-                                    <a-button type="link" @click="showNoteModal(record)">
-                                      <MessageOutlined />
-                                      {{ $t('common.note') }}
-                                    </a-button>
+                                    {{record.notes}}
                                   </template>
-                                  <a-button type="default" size="small">
+                                  <a-button type="link">
                                     <MessageOutlined />
                                     {{ $t('common.note') }}
                                   </a-button>
@@ -184,7 +181,7 @@
 </template>
 <script>
 import { onMounted,ref } from "vue";
-import { PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined } from "@ant-design/icons-vue";
+import { PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined,MessageOutlined } from "@ant-design/icons-vue";
 import fields from "./fields";
 import crud from "../../../../common/composable/crud";
 import common from "../../../../common/composable/common";
@@ -201,6 +198,7 @@ export default {
         AddEdit,
         AdminPageHeader,
         QueueImport,
+        MessageOutlined
     },
     setup() {
         const { addEditUrl, initData, columns, filterableColumns } = fields();

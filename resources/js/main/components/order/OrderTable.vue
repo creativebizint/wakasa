@@ -41,9 +41,9 @@
                         <template v-if="column.dataIndex === 'note' && record.notes">
                             <a-popover placement="top" trigger="click">
                               <template #content>
-                                <a-button type="link" @click="showNoteModal(record)">
+                                <a-button type="link">
                                   <MessageOutlined />
-                                  {{ $t('common.note') }}
+                                  {{ record.notes }}
                                 </a-button>
                               </template>
                               <a-button type="default" size="small">
