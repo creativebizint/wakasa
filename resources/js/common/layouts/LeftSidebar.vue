@@ -540,6 +540,24 @@
                                     () => {
                                         menuSelected();
                                         $router.push({
+                                            name: 'admin.product_placement.placement_out_priority',
+                                        });
+                                    }
+                                "
+                                key="placement_out_priority"
+                                v-if="
+                                    permsArray.includes('delivery_order_view') ||
+                                    permsArray.includes('admin')
+                                "
+                            >
+                                {{ $t("menu.placement_out_priority") }}
+                            </a-menu-item>
+                            
+                            <a-menu-item
+                                @click="
+                                    () => {
+                                        menuSelected();
+                                        $router.push({
                                             name: 'admin.product_placement.placement_out',
                                         });
                                     }

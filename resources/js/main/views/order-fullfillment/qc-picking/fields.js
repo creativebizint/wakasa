@@ -32,6 +32,14 @@ const fields = () => {
 			dataIndex: "order_status",
 		},
 		{
+			title: t("common.note"),
+			dataIndex: "note",
+		},
+		{
+			title: t("common.priority"),
+			dataIndex: "priority",
+		},
+		{
 			title: t("picking_assignment.date"),
 			dataIndex: "created_at",
 		},

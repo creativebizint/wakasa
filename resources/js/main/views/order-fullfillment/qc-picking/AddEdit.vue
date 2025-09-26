@@ -88,7 +88,7 @@
                 type="primary"
                 class="mt-3"
             >
-                {{ $t('common.create_delivery_order') }}
+                {{ $t('common.complete_qc') }}
             </a-button> &nbsp;
             <a-typography-link @click="exportExcel" target="_blank">
                 <a-button type="primary">
@@ -266,7 +266,7 @@ export default defineComponent({
                     // Add API call to create delivery order
                     // Example:
                     addEditRequestAdmin({
-                        url: '/api/v1/delivery-order',
+                        url: '/delivery-order',
                         data: { invoice_number:  props.formData.invoice_number},
                         success: (res) => {
 //                            console.log('Delivery order created:', res);

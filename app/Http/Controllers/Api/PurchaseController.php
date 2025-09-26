@@ -91,13 +91,24 @@ class PurchaseController extends ApiBaseController
                 ->leftJoin('users','users.id','=','orders.user_id')
                 ->where('order_type', 'sales_order')
                 ->whereRaw("JSON_CONTAINS(CAST(picker_by AS JSON), ?, '$')", [json_encode((int) $user_id)])
-                ->select('orders.invoice_number','orders.order_date as date','products.item_id','order_items.quantity_scanned','order_items.quantity',
+                ->select('orders.invoice_number','orders.order_date as date','products.item_id','order_items.quantity_scanned','order_items.quantity','orders.priority',
                         'orders.warehouse_id','warehouses.code as warehouse_code','warehouses.name as warehouse_name','orders.user_id','users.name as user_name',
-                        'users.code as user_code','order_items.product_id','order_items.id','order_items.picker_by','order_items.picker_by_name','products.text2')
-                ->orderBy('orders.id','desc');
+                        'users.code as user_code','order_items.product_id','order_items.id','order_items.picker_by','order_items.picker_by_name','products.text2');
         
         if ($request->has('item_id')) {
             $query->where('products.item_id','like','%'.$request->item_id.'%');
+        }
+        if ($request->has('priority') && $request->priority == 0) {
+            $query->where(function ($query) {
+                 $query->where('orders.priority','normal')
+                       ->orWhereNull('orders.priority' );
+             });
+        }
+        elseif ($request->has('priority') && $request->priority == 1) {
+            $query->where(function ($query) {
+                 $query->whereIn('orders.priority',['segera','pesawat','ditunggu'])
+                       ->orWhereNotNull('orders.priority' );
+             });
         }
         
         if ($request->has('user_id')) {
@@ -106,6 +117,13 @@ class PurchaseController extends ApiBaseController
         if ($request->has('dates')) {
             $date_arr = explode(',',$request->dates);
             $query->whereBetween('orders.order_date',$date_arr);
+        }
+        
+        if($request->has('priority')){
+            $query->orderBy('priority','desc');
+        }
+        else{
+            $query->orderBy('orders.id','desc');
         }
         
         $total = $query->count();

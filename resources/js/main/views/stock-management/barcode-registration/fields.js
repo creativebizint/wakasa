@@ -329,6 +329,12 @@ const fields = () => {
         
         if(orderType.value == "placement_out"){
             allColumns.push({
+                title: t(`common.priority`),
+                dataIndex: "priority",
+                sorter:true,
+                sorter_field:"orders.priority"
+            });
+            allColumns.push({
                 title: t(`product.quantity`),
                 dataIndex: "quantity",
                 sorter:true,

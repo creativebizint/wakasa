@@ -235,6 +235,20 @@ export default [
             },
             
             {
+                path: "/admin/product-placement/place-out-priority",
+                component: () =>
+                    import("../views/stock-management/product-placement/PlacementOutPriority.vue"),
+                name: "admin.product_placement.placement_out_priority",
+                meta: {
+                    requireAuth: true,
+                    menuParent: "product_placement",
+                    menuKey: (route) => "placement_out_priority",
+                    permission: (route) => "product_placement_view",
+                    orderType: "placement_out",
+                },
+            },
+            
+            {
                 path: "/admin/product-placement/place-in-history",
                 component: () =>
                     import("../views/stock-management/product-placement/placement_in_history.vue"),

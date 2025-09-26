@@ -209,7 +209,7 @@ class pickingAssignmentController extends ApiBaseController
                 ->where('order_status', 'picking')
                 ->select('orders.invoice_number','orders.order_date as date','orders.id',
                         'orders.warehouse_id','warehouses.code as warehouse_code','warehouses.name as warehouse_name','orders.user_id','users.name as user_name',
-                        'users.code as user_code','orders.order_status')
+                        'users.code as user_code','orders.order_status','orders.notes')
                 ->orderBy('orders.id','desc');
         
         if ($request->has('invoice_number')) {
@@ -305,6 +305,9 @@ class pickingAssignmentController extends ApiBaseController
         $order_items = OrderItem::where('order_id', $order_id)->get();
         foreach($order_items as $order_item){
             $picker_by = json_decode($order_item->picker_by,1);
+            if(!is_array($picker_by)){
+                $picker_by = array($picker_by);
+            }
             if($picker_by != '' && !in_array($user['id'],$picker_by)){
                 $picker_by[] = $user['id'];
             }
@@ -357,4 +360,9 @@ class pickingAssignmentController extends ApiBaseController
         return $user;
     }
     
+    public function qcPickingComplete(Request $request){
+        $data  = $request->all();
+        $order = Order::where('invoice_number',$data['invoice_number'])->update(['order_status' => 'qc']);
+        return $order;
+    }
 }

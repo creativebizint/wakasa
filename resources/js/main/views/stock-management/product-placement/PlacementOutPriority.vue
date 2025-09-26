@@ -1,7 +1,7 @@
 <template>
     <AdminPageHeader>
         <template #header>
-            <a-page-header :title="$t(`menu.placement_out`)" class="p-0" />
+            <a-page-header :title="$t(`menu.placement_out_priority`)" class="p-0" />
         </template>
         <template #breadcrumb>
             <a-breadcrumb separator="-" style="font-size: 12px">
@@ -20,7 +20,7 @@
                     }}
                 </a-breadcrumb-item>
                 <a-breadcrumb-item>
-                    {{ $t(`menu.placement_out`) }}
+                    {{ $t(`menu.placement_out_priority`) }}
                 </a-breadcrumb-item>
             </a-breadcrumb>
         </template>
@@ -103,6 +103,7 @@
             tableSize="middle"
             :bordered="true"
             :selectable="true"
+            :priority="priority"
             @onRowSelection="(selectedIds) => (selectedRowIds = selectedIds)"
         />
     </admin-page-table-content>
@@ -140,8 +141,8 @@ export default {
             permsArray,
         } = common();
         const route = useRoute();
-        const priority = 0;
-
+        
+        const priority = 1;
         const warehouses = ref([]);
         const users = ref([]);
         const serachDateRangePicker = ref(null);
@@ -214,8 +215,8 @@ export default {
                     ].includes(newVal)
                 ) {
                     orderType.value = route.meta.orderType;
-                    priority.value = 0;
-
+                    priority.value = 1;
+alert('dddd');
                     filters.value = {
                         payment_status: "all",
                         user_id: undefined,

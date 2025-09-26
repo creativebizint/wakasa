@@ -289,7 +289,7 @@ const fields = () => {
         
         if (pageObject.value.type == "inventory_out") {
             allColumns.push({
-                title: t("priority"),
+                title: t("common.priority"),
                 dataIndex: "priority",
             });
             allColumns.push({

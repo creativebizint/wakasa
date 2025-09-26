@@ -98,6 +98,25 @@
                             <template v-if="column.dataIndex === 'created_at'">
                                 {{formatDate(record.created_at)}}
                             </template>
+                            <template v-if="column.dataIndex === 'priority'">
+                                <a-tag :color="priorityColors[record.priority]">
+                                        {{ record.priority }}
+                                </a-tag>
+                            </template>
+                            <template v-if="column.dataIndex === 'note' && record.notes">
+                                <a-popover placement="top" trigger="click">
+                                  <template #content>
+                                    <a-button type="link" @click="showNoteModal(record)">
+                                      <MessageOutlined />
+                                      {{ $t('common.note') }}
+                                    </a-button>
+                                  </template>
+                                  <a-button type="default" size="small">
+                                    <MessageOutlined />
+                                    {{ $t('common.note') }}
+                                  </a-button>
+                                </a-popover>
+                            </template>
                             <template v-if="column.dataIndex === 'status'">
                                 <div v-if="record.status == '1'">
                                     <a-tag color="yellow">
@@ -150,6 +169,18 @@
             </a-col>
         </a-row>
     </admin-page-table-content>
+    
+    
+    <!-- Note Modal -->
+    <a-modal
+        :visible="noteModalVisible"
+        :title="$t('common.note')"
+        @ok="noteModalVisible = false"
+        @cancel="noteModalVisible = false"
+        :footer="null"
+    >
+        <p>{{ selectedNote || $t('common.no_note') }}</p>
+    </a-modal>
 </template>
 <script>
 import { onMounted,ref } from "vue";
@@ -174,7 +205,7 @@ export default {
     setup() {
         const { addEditUrl, initData, columns, filterableColumns } = fields();
         const crudVariables = crud();
-        const { permsArray,formatDate } = common();
+        const { permsArray,formatDate,priorityColors } = common();
         const sampleFileUrl = window.config.part_sample_file;
         const exportUrl = window.config.part_export_url;
         const filters = ref({
@@ -188,7 +219,19 @@ export default {
         onMounted(() => {
             setUrlData();
         });
-
+        // Note Modal Variables
+        const noteModalVisible = ref(false);
+        const selectedNote = ref("");
+        
+        // Function to show note modal
+        const showNoteModal = (record) => {
+            console.log("Record passed to showNoteModal:", record);
+            selectedNote.value = record.notes || "";
+            noteModalVisible.value = true;
+          };
+        
+        // End For Online Orders
+        
         const setUrlData = () => {
             crudVariables.tableUrl.value = {
                 url: "qc-picking?",
@@ -219,6 +262,12 @@ export default {
             formatDate,
             filters, // Add filters to the return statement
             onItemIdSearch, // Ensure this is returned for the template to use
+            priorityColors,
+            
+            // Note Modal
+            noteModalVisible,
+            selectedNote,
+            showNoteModal,
         };
     },
 };

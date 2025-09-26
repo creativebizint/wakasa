@@ -172,6 +172,7 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         ApiRoute::get('/qc-picking', ['as' => 'api.qcpinking.index', 'uses' => 'PickingAssignmentController@qcPicking']);
         ApiRoute::get('/picking-assignment-item', [pickingAssignmentController::class, 'indexItem']);
         ApiRoute::post('/assign-picking', ['as' => 'api.pickingAssignment.save', 'uses' => 'PickingAssignmentController@assignPicking']);
+        ApiRoute::post('/delivery-order', ['as' => 'api.pickingAssignment.save', 'uses' => 'PickingAssignmentController@qcPickingComplete']);
         ApiRoute::post('/assign-all', ['as' => 'api.pickingAssignmentAll.save', 'uses' => 'PickingAssignmentController@assignPickingAll']);
         ApiRoute::post('/unassign-picking', ['as' => 'api.unpickingAssignment.save', 'uses' => 'PickingAssignmentController@unassignPicking']);
         ApiRoute::post('/approve-qc', ['as' => 'api.approveQc.save', 'uses' => 'PickingAssignmentController@approveQc']);
