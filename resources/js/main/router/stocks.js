@@ -413,6 +413,20 @@ export default [
                 },
             },
             
+            {
+                path: "delivery-order/create/:id",
+                component: () =>
+                    import("../views/stock-management/delivery-order/CreateSOPacking.vue"),
+                name: "admin.delivery_order_so.create",
+                meta: {
+                    requireAuth: true,
+                    menuParent: "stock_management",
+                    menuKey: (route) => "delivery_order",
+                    permission: (route) => "delivery_order_view",
+                    orderType: "delivery_order",
+                },
+            },
+            
             // Purchase Returns
             {
                 path: "purchase-returns/edit/:id",

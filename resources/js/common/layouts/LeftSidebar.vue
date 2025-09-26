@@ -594,6 +594,24 @@
                                     () => {
                                         menuSelected();
                                         $router.push({
+                                            name: 'admin.order_fullfillment.antrian_packing',
+                                        });
+                                    }   
+                                "
+                                key="antrian_packing"
+                                v-if="
+                                    permsArray.includes('delivery_order_view') ||
+                                    permsArray.includes('admin')
+                                "
+                            >
+                                {{ $t("menu.antrian_packing") }}
+                            </a-menu-item>
+                            
+                            <a-menu-item
+                                @click="
+                                    () => {
+                                        menuSelected();
+                                        $router.push({
                                             name: 'admin.delivery_order.index',
                                         });
                                     }

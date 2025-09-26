@@ -27,7 +27,7 @@
                             permsArray.includes('admin')
                         "
                     >
-                        <router-link
+<!--                        <router-link
                             :to="{
                                 name: `admin.delivery_order.create`,
                             }"
@@ -36,7 +36,7 @@
                                 <PlusOutlined />
                                 {{ $t(`${orderType}.add`) }}
                             </a-button>
-                        </router-link>
+                        </router-link>-->
                     </template>
 
                 </a-space>

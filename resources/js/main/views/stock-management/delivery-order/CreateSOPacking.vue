@@ -1,0 +1,1530 @@
+<template>
+    <AdminPageHeader>
+        <template #header>
+            <a-page-header
+                :title="$t(`menu.${orderPageObject.menuKey}`)"
+                @back="() => $router.go(-1)"
+                class="p-0"
+            >
+                <template #extra>
+                    <a-button type="primary" :loading="loading" @click="onSubmit" block>
+                        <template #icon> <SaveOutlined /> </template>
+                        {{ $t("common.save") }}
+                    </a-button>
+                </template>
+            </a-page-header>
+        </template>
+        <template #breadcrumb>
+            <a-breadcrumb separator="-" style="font-size: 12px">
+                <a-breadcrumb-item>
+                    <router-link :to="{ name: 'admin.dashboard.index' }">
+                        {{ $t(`menu.dashboard`) }}
+                    </router-link>
+                </a-breadcrumb-item>
+                <a-breadcrumb-item>
+                    {{
+                        $t(`menu.${orderPageObject.menuKey}`)
+                    }}
+                </a-breadcrumb-item>
+                <a-breadcrumb-item>
+                    {{ $t(`common.create`) }}
+                </a-breadcrumb-item>
+            </a-breadcrumb>
+        </template>
+    </AdminPageHeader>
+
+    <admin-page-table-content>
+        <a-card class="page-content-container mt-20 mb-20">
+            <a-form layout="vertical">
+                <a-row :gutter="16">
+                    <a-col :xs="24" :sm="24" :md="8" :lg="8" :style="{ display: 'none' }">
+                        <a-form-item
+                            :label="$t(`${orderPageObject.langKey}.invoice_number`)"
+                            name="invoice_number"
+                            :help="rules.invoice_number ? rules.invoice_number.message : null"
+                            :validateStatus="rules.invoice_number ? 'error' : null"
+                        >
+                            <a-input
+                                v-model:value="formData.invoice_number"
+                                :placeholder="
+                                    $t('common.placeholder_default_text', [
+                                        $t('stock.invoice_number'),
+                                    ])
+                                "
+                                @blur="checkInvoiceNumber"
+                            />
+                            <small class="small-text-message">
+                                {{ $t("stock.invoice_number_blank") }}
+                            </small>
+                        </a-form-item>
+                    </a-col>
+                    <a-col
+                        v-if="orderPageObject.type == 'stock-transfers'"
+                        :xs="24"
+                        :sm="24"
+                        :md="8"
+                        :lg="8"
+                    >
+                        <a-form-item
+                            :label="$t(`${orderPageObject.langKey}.warehouse`)"
+                            name="warehouse_id"
+                            :help="rules.warehouse_id ? rules.warehouse_id.message : null"
+                            :validateStatus="rules.warehouse_id ? 'error' : null"
+                            class="required"
+                        >
+                            <span style="display: flex">
+                                <a-select
+                                    v-model:value="formData.warehouse_id"
+                                    :placeholder="
+                                        $t('common.select_default_text', [
+                                            $t(`${orderPageObject.langKey}.warehouse`),
+                                        ])
+                                    "
+                                    :allowClear="true"
+                                    optionFilterProp="title"
+                                    show-search
+                                >
+                                    <a-select-option
+                                        v-for="warehouse in warehouses"
+                                        :key="warehouse.xid"
+                                        :value="warehouse.xid"
+                                        :title="warehouse.name"
+                                    >
+                                        {{ warehouse.name }}
+                                    </a-select-option>
+                                </a-select>
+                                <WarehouseAddButton @onAddSuccess="warehouseAdded" />
+                            </span>
+                        </a-form-item>
+                    </a-col>
+
+                    <a-col v-else :xs="24" :sm="24" :md="8" :lg="8">
+                        <SalesSearch
+                            :orderPageObject="orderPageObject"
+                            :rules="rules"
+                            :usersList="[]"
+                            :editOrderDisable="false"
+                            :resetTrigger="resetTrigger"
+                            :invoice_number="invoice_number"
+                            @onSuccess="handleSalesSearchSuccess"
+                        />
+                        <a-input
+                                v-model:value="formData.sales_id"
+                                :placeholder="
+                                    $t('common.placeholder_default_text', [
+                                        $t('user.id'),
+                                    ])
+                                " readonly=true type="hidden"
+                            />
+                    </a-col>
+                    <a-col :xs="24" :sm="24" :md="8" :lg="8">
+                        <a-form-item
+                            :label="$t(`${orderPageObject.langKey}.combine_shipment_number`)"
+                            name="invoice_number"
+                            :help="
+                                rules.invoice_number ? rules.invoice_number.message : null
+                            "
+                            :validateStatus="rules.invoice_number ? 'error' : null"
+                        >
+                            <a-input
+                                v-model:value="formData.combine_shipment_number"
+                                :placeholder="
+                                    $t('common.placeholder_default_text', [
+                                        $t(`${orderPageObject.langKey}.combine_shipment_number`),
+                                    ])
+                                "
+                            />
+                        </a-form-item>
+                    </a-col>
+                    <!--* ADDENDUM -->
+                    <a-col
+                        v-if="
+                            orderPageObject.type == 'stock-transfers' ||
+                            orderPageObject.type == 'stock-transfer-returns'
+                        "
+                        :xs="24"
+                        :sm="24"
+                        :md="6"
+                        :lg="6"
+                    >
+                        <a-form-item
+                            :label="
+                                $t('common.from') +
+                                ' ' +
+                                $t(`${orderPageObject.langKey}.warehouse`)
+                            "
+                            name="warehouse_id"
+                            :help="
+                                rules.warehouse_id
+                                    ? rules.warehouse_id.message
+                                    : null
+                            "
+                            :validateStatus="
+                                rules.warehouse_id ? 'error' : null
+                            "
+                            class="required"
+                        >
+                            <span style="display: flex">
+                                <a-select
+                                    v-model:value="formData.from_warehouse_id"
+                                    :placeholder="
+                                        $t('common.select_default_text', [
+                                            $t(
+                                                `${orderPageObject.langKey}.warehouse`
+                                            ),
+                                        ])
+                                    "
+                                    :allowClear="true"
+                                    optionFilterProp="title"
+                                    show-search
+                                    @select="fromWarehouseChanged"
+                                >
+                                    <a-select-option
+                                        v-for="warehouse in fromWarehouses"
+                                        :key="warehouse.xid"
+                                        :value="warehouse.xid"
+                                        :title="warehouse.name"
+                                    >
+                                        {{ warehouse.name }}
+                                    </a-select-option>
+                                </a-select>
+                            </span>
+                        </a-form-item>
+                    </a-col>
+
+                    <a-col v-else :xs="24" :sm="24" :md="6" :lg="6">
+                        <WarehouseSearch
+                            :labelPrefix="warehouseSearchLabelPrefix"
+                            :orderPageObject="allWarehouses"
+                            :rules="rules"
+                            :warehousesList="[]"
+                            :editOrderDisable="false"
+                            @onSuccess="
+                                (outputWarehouse) =>
+                                    orderPageObject.type == 'stock-transfers' ||
+                                    orderPageObject.type ==
+                                        'stock-transfer-returns'
+                                        ? (formData.from_warehouse_id =
+                                              outputWarehouse)
+                                        : (formData.warehouse_id =
+                                              outputWarehouse)
+                            "
+                        />
+                    </a-col>
+
+                    <a-col :xs="24" :sm="24" :md="8" :lg="8">
+                        <a-form-item
+                            :label="
+                                $t(`${orderPageObject.langKey}.date`)
+                            "
+                            name="order_date"
+                            :help="rules.order_date ? rules.order_date.message : null"
+                            :validateStatus="rules.order_date ? 'error' : null"
+                            class="required"
+                        >
+                            <DateTimePicker
+                                :dateTime="formData.order_date"
+                                @dateTimeChanged="
+                                    (changedDateTime) =>
+                                        (formData.order_date = changedDateTime)
+                                "
+                            />
+                        </a-form-item>
+                    </a-col>
+                </a-row>
+
+
+                <a-row :gutter="16">
+                    <a-col :xs="24" :sm="24" :md="8" :lg="8">
+                        <a-form-item
+                            :label="$t(`${orderPageObject.langKey}.user`)"
+                            name="customer_name"
+                            :help="
+                                rules.user_id ? rules.user_id.message : null
+                            "
+                            :validateStatus="rules.user_id ? 'error' : null"
+                        >
+                            <a-input
+                                v-model:value="formData.customer_name"
+                                :placeholder="
+                                    $t('common.placeholder_default_text', [
+                                        $t('user.name'),
+                                    ])
+                                "
+                                readonly=true
+                            />
+                            <a-input
+                                v-model:value="formData.user_id"
+                                :placeholder="
+                                    $t('common.placeholder_default_text', [
+                                        $t('user.id'),
+                                    ])
+                                " readonly=true type="hidden"
+                            />
+                        </a-form-item>
+                    </a-col>
+                    <a-col :xs="24" :sm="24" :md="8" :lg="8">
+                        <a-form-item
+                            :label="$t(`delivery_order.shipping_address`)"
+                            name="address">
+                            <a-input
+                                v-model:value="formData.shipping_address"
+                                :placeholder="
+                                    $t('common.placeholder_default_text', [
+                                        $t('delivery_.shipping_address'),
+                                    ])
+                                "
+                                readonly=true
+                            />
+                            
+                        </a-form-item>
+                    </a-col>
+
+                    
+                </a-row>
+
+
+                <a-row :gutter="16">
+                    <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                        <a-form-item
+                            :label="$t('product.product')"
+                            name="orderSearchTerm"
+                            :help="
+                                rules.product_items ? rules.product_items.message : null
+                            "
+                            :validateStatus="rules.product_items ? 'error' : null"
+                        >
+                            <span style="display: flex">
+                                <a-select
+                                    :value="null"
+                                    :searchValue="orderSearchTerm"
+                                    show-search
+                                    :filter-option="false"
+                                    :placeholder="$t('product.search_scan_product')"
+                                    style="width: 100%"
+                                    :not-found-content="
+                                        productFetching ? undefined : null
+                                    "
+                                    @search="
+                                        (searchedValue) => {
+                                            orderSearchTerm = searchedValue;
+                                            fetchProducts(searchedValue);
+                                        }
+                                    "
+                                    size="large"
+                                    option-label-prop="label"
+                                    @focus="products = []"
+                                    @select="searchValueSelected"
+                                    @inputKeyDown="inputValueChanged"
+                                >
+                                    <template #suffixIcon><SearchOutlined /></template>
+                                    <template v-if="productFetching" #notFoundContent>
+                                        <a-spin size="small" />
+                                    </template>
+                                    <a-select-option
+                                        v-for="product in products"
+                                        :key="product.xid"
+                                        :value="product.xid"
+                                        :label="product.name"
+                                        :product="product"
+                                    >
+                                        => {{ product.name }}
+                                    </a-select-option>
+                                </a-select>
+                                <ProductAddButton size="large" />
+                            </span>
+                        </a-form-item>
+                    </a-col>
+                </a-row>
+
+                <a-row :gutter="16">
+                    <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                        <a-table
+                            :row-key="(record) => record.xid"
+                            :dataSource="selectedProducts"
+                            :columns="orderItemColumns"
+                            :pagination="false"
+                        >
+                            <template #bodyCell="{ column, record }">
+                                <template v-if="column.dataIndex === 'name'">
+                                    {{ record.name }} <br />
+                                    {{ record.product_item_id }} <br />
+                                    <small>
+                                        <a-typography-text
+                                            code
+                                            v-if="record.product_type != 'service'"
+                                        >
+                                            {{ $t("product.avl_qty") }}
+                                            {{
+                                                `${record.stock_quantity}${record.unit_short_name}`
+                                            }}
+                                        </a-typography-text>
+                                    </small>
+                                </template>
+                                <template v-if="column.dataIndex === 'quantity_real'">
+                                    <a-input-number
+                                        id="inputNumber"
+                                        v-model:value="record.quantity"
+                                        @change="quantityChanged(record)"
+                                        :min="0"
+                                    />
+                                </template>
+                                <template v-if="column.dataIndex === 'shelf'">
+                                    <a-input
+                                        id="shelf"
+                                        v-model:value="record.shelf"
+                                    />
+                                </template>
+                                <template v-if="column.dataIndex === 'product_code'">
+                                    {{record.item_code}}
+                                </template>
+                                <template v-if="column.dataIndex === 'description'">
+                                    {{record.description}}
+                                </template>
+                                <template v-if="column.dataIndex === 'subgroup2'">
+                                    {{record.subgroup2}}
+                                </template>
+                                <template v-if="column.dataIndex === 'text1'">
+                                    {{record.text1}}
+                                </template>
+                                <template v-if="column.dataIndex === 'sat'">
+                                    {{record.unit_buy_in != null ? record.unit_buy_in.short_name : ''}}
+                                </template>
+                                <template v-if="column.dataIndex === 'single_unit_price'">
+                                    {{ formatAmountCurrency(record.single_unit_price) }}
+                                </template>
+                                <template v-if="column.dataIndex === 'total_discount'">
+                                    {{ formatAmountCurrency(record.total_discount) }}
+                                </template>
+                                <template v-if="column.dataIndex === 'total_tax'">
+                                    {{ formatAmountCurrency(record.total_tax) }}
+                                </template>
+                                <template v-if="column.dataIndex === 'subtotal'">
+                                    {{ formatAmountCurrency(record.subtotal) }}
+                                </template>
+                                <template v-if="column.dataIndex === 'action'">
+                                    <a-button
+                                        type="primary"
+                                        @click="showDeleteConfirm(record)"
+                                        style="margin-left: 4px"
+                                    >
+                                        <template #icon><DeleteOutlined /></template>
+                                    </a-button>
+                                </template>
+                            </template>
+                            <template #summary>
+                                <a-table-summary-row>
+                                    <a-table-summary-cell
+                                        :col-span="4"
+                                    ></a-table-summary-cell>
+                                    <a-table-summary-cell :style="{ display: 'none' }">
+                                        {{ $t("product.subtotal") }}
+                                    </a-table-summary-cell>
+                                    <a-table-summary-cell :style="{ display: 'none' }">
+                                        {{ formatAmountCurrency(productsAmount.tax) }}
+                                    </a-table-summary-cell>
+                                    <a-table-summary-cell :col-span="2" :style="{ display: 'none' }">
+                                        {{
+                                            formatAmountCurrency(productsAmount.subtotal)
+                                        }}
+                                    </a-table-summary-cell>
+                                </a-table-summary-row>
+                            </template>
+                        </a-table>
+                    </a-col>
+                </a-row>
+
+                <a-row :gutter="16" class="mt-30">
+                    <a-col :xs="24" :sm="24" :md="16" :lg="16">
+                        <a-row :gutter="16">
+                            <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                                <a-form-item
+                                    :label="$t('stock.notes')"
+                                    name="notes"
+                                    :help="rules.notes ? rules.notes.message : null"
+                                    :validateStatus="rules.notes ? 'error' : null"
+                                >
+                                    <a-textarea
+                                        v-model:value="formData.notes"
+                                        :placeholder="$t('stock.notes')"
+                                        :auto-size="{ minRows: 2, maxRows: 3 }"
+                                    />
+                                </a-form-item>
+                            </a-col>
+                        </a-row>
+                    </a-col>
+                    <a-col :xs="24" :sm="24" :md="8" :lg="8">
+                        <a-row :gutter="16" v-if="orderPageObject.type != 'quotations'">
+                            <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                                <a-form-item
+                                    :label="$t('stock.status')"
+                                    name="order_status"
+                                    :help="
+                                        rules.order_status
+                                            ? rules.order_status.message
+                                            : null
+                                    "
+                                    :validateStatus="rules.order_status ? 'error' : null">
+                                    <a-select
+                                        v-model:value="formData.order_status"
+                                        :placeholder="
+                                            $t('common.select_default_text', [
+                                                $t('stock.status'),
+                                            ])
+                                        "
+                                        :allowClear="true"
+                                    >
+                                        <a-select-option
+                                            v-for="status in allOrderStatus"
+                                            :key="status.key"
+                                            :value="status.key"
+                                        >
+                                            {{ status.value }}
+                                        </a-select-option>
+                                    </a-select>
+                                </a-form-item>
+                            </a-col>
+                        </a-row>
+
+                        <a-row :gutter="16" :style="{ display: 'none' }">
+                            <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                                <a-form-item
+                                    :label="$t('stock.order_tax')"
+                                    name="tax_id"
+                                    :help="rules.tax_id ? rules.tax_id.message : null"
+                                    :validateStatus="rules.tax_id ? 'error' : null"
+                                >
+                                    <span style="display: flex">
+                                        <a-select
+                                            v-model:value="formData.tax_id"
+                                            :placeholder="
+                                                $t('common.select_default_text', [
+                                                    $t('stock.order_tax'),
+                                                ])
+                                            "
+                                            :allowClear="true"
+                                            @change="taxChanged"
+                                            optionFilterProp="title"
+                                            show-search
+                                        >
+                                            <a-select-option
+                                                v-for="tax in taxes"
+                                                :key="tax.xid"
+                                                :value="tax.xid"
+                                                :title="tax.name"
+                                                :tax="tax"
+                                            >
+                                                {{ tax.name }} ({{ tax.rate }}%)
+                                            </a-select-option>
+                                        </a-select>
+                                        <TaxAddButton @onAddSuccess="taxAdded" />
+                                    </span>
+                                </a-form-item>
+                            </a-col>
+                        </a-row>
+                        <a-row :gutter="16">
+                            <a-col :xs="24" :sm="24" :md="24" :lg="24" :style="{ display: 'none' }">
+                                <a-form-item
+                                    :label="$t('stock.discount')"
+                                    name="discount"
+                                    :help="rules.discount ? rules.discount.message : null"
+                                    :validateStatus="rules.discount ? 'error' : null"
+                                >
+                                    <a-input-number
+                                        v-model:value="formData.discount"
+                                        :placeholder="
+                                            $t('common.placeholder_default_text', [
+                                                $t('stock.discount'),
+                                            ])
+                                        "
+                                        @change="recalculateFinalTotal"
+                                        min="0"
+                                        style="width: 100%"
+                                    >
+                                        <template #addonBefore>
+                                            {{ appSetting.currency.symbol }}
+                                        </template>
+                                    </a-input-number>
+                                </a-form-item>
+                            </a-col>
+                        </a-row>
+                        <a-row :gutter="16" :style="{ display: 'none' }">
+                            <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                                <a-form-item
+                                    :label="$t('stock.shipping')"
+                                    name="shipping"
+                                    :help="rules.shipping ? rules.shipping.message : null"
+                                    :validateStatus="rules.shipping ? 'error' : null"
+                                >
+                                    <a-input-number
+                                        v-model:value="formData.shipping"
+                                        :placeholder="
+                                            $t('common.placeholder_default_text', [
+                                                $t('stock.shipping'),
+                                            ])
+                                        "
+                                        @change="recalculateFinalTotal"
+                                        min="0"
+                                        style="width: 100%"
+                                    >
+                                        <template #addonBefore>
+                                            {{ appSetting.currency.symbol }}
+                                        </template>
+                                    </a-input-number>
+                                </a-form-item>
+                            </a-col>
+                        </a-row>
+                        <a-row
+                            :gutter="16"
+                            v-if="
+                                orderPageObject.type == 'sales' ||
+                                orderPageObject.type == 'sales-returns' ||
+                                orderPageObject.type == 'purchases' ||
+                                orderPageObject.type == 'purchase-returns'
+                            "
+                        >
+                            <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                                <a-form-item
+                                    :label="$t('stock.paid_payment')"
+                                    name="paid_payment"
+                                    :help="
+                                        rules.paid_payment
+                                            ? rules.paid_payment.message
+                                            : null
+                                    "
+                                    :validateStatus="rules.paid_payment ? 'error' : null"
+                                >
+                                    <a-input-number
+                                        v-model:value="payment.amount"
+                                        :placeholder="
+                                            $t('common.placeholder_default_text', [
+                                                $t('stock.paid_payment'),
+                                            ])
+                                        "
+                                        min="0"
+                                        style="width: 100%"
+                                    >
+                                        <template #addonBefore>
+                                            {{ appSetting.currency.symbol }}
+                                        </template>
+                                        <template #addonAfter>
+                                            <a-select
+                                                v-model:value="payment.payment_mode_id"
+                                                style="width: 120px"
+                                            >
+                                                <a-select-option
+                                                    v-for="paymentMode in paymentModes"
+                                                    :key="paymentMode.xid"
+                                                    :value="paymentMode.xid"
+                                                >
+                                                    {{ paymentMode.name }}
+                                                </a-select-option>
+                                            </a-select>
+                                        </template>
+                                    </a-input-number>
+                                </a-form-item>
+                            </a-col>
+                        </a-row>
+                        <!-- <div
+                            v-if="
+                                $t(`${orderPageObject.langKey}`) ==
+                                    'sales' ||
+                                $t(`${orderPageObject.langKey}`) ==
+                                    'sales_returns' ||
+                                $t(`${orderPageObject.langKey}`) ==
+                                    'purchase' ||
+                                $t(`${orderPageObject.langKey}`) ==
+                                    'purchase_returns'
+                            "
+                        >
+                            <form-item-heading>
+                                {{ $t(`${orderPageObject.langKey}.add_pay`) }}
+                            </form-item-heading>
+                            <a-row :gutter="16" v-if="formFields.length != 0">
+                                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                                    <span
+                                        style="
+                                            font-weight: bold;
+                                            font-size: 15px;
+                                        "
+                                        >Total Amount:&nbsp;
+                                        {{ formatAmountCurrency(payAmountTotal().payAmount) }}</span
+                                    ><br />
+                                </a-col>
+                            </a-row>
+                            <a-row
+                                :gutter="16"
+                                v-for="(formField, index) in formFields"
+                                :key="formField.id"
+                                style="display: flex; align-items: center"
+                            >
+                                <a-col :xs="24" :sm="24" :md="11" :lg="11">
+                                    <a-form-item
+                                        :label="
+                                            $t(
+                                                `${orderPageObject.langKey}.pay_amount`
+                                            )
+                                        "
+                                        name="pay_amount"
+                                        :help="
+                                            rules.payment_mode_id
+                                                ? rules.payment_mode_id.message
+                                                : null
+                                        "
+                                        :validateStatus="
+                                            rules.payment_mode_id
+                                                ? 'error'
+                                                : null
+                                        "
+                                        class="required"
+                                    >
+                                        <a-input
+                                            v-model:value="formField.pay_amount"
+                                            @change="payAmountTotal"
+                                            :placeholder="
+                                                $t(
+                                                    'common.placeholder_default_text',
+                                                    [
+                                                        $t(
+                                                            `${orderPageObject.langKey}.pay_amount`
+                                                        ),
+                                                    ]
+                                                )
+                                            "
+                                        />
+                                    </a-form-item>
+                                </a-col>
+                                <a-col :xs="24" :sm="24" :md="10" :lg="10">
+                                    <a-form-item
+                                        :label="
+                                            $t(
+                                                `${orderPageObject.langKey}.payment_mode`
+                                            )
+                                        "
+                                        name="payment_mode_id"
+                                        :help="
+                                            rules.payment_mode_id
+                                                ? rules.payment_mode_id.message
+                                                : null
+                                        "
+                                        :validateStatus="
+                                            rules.payment_mode_id
+                                                ? 'error'
+                                                : null
+                                        "
+                                        class="required"
+                                    >
+                                        <span style="display: flex">
+                                            <a-select
+                                                v-model:value="
+                                                    formField.payment_mode_id
+                                                "
+                                                :placeholder="
+                                                    $t(
+                                                        'common.select_default_text',
+                                                        [
+                                                            $t(
+                                                                `${orderPageObject.langKey}.payment_mode`
+                                                            ),
+                                                        ]
+                                                    )
+                                                "
+                                                :allowClear="true"
+                                                optionFilterProp="title"
+                                                show-search
+                                            >
+                                                <a-select-option
+                                                    v-for="paymentMode in paymentModes"
+                                                    :key="paymentMode.xid"
+                                                    :value="paymentMode.xid"
+                                                    :title="paymentMode.name"
+                                                >
+                                                    {{ paymentMode.name }}
+                                                </a-select-option>
+                                            </a-select>
+                                            <PaymentModeAddButton
+                                                @onAddSuccess="paymentModeAdded"
+                                            />
+                                        </span>
+                                    </a-form-item>
+                                </a-col>
+                                <a-col
+                                    :span="1"
+                                    style="margin-top: 7px; margin-left: 18px"
+                                >
+                                    <MinusSquareOutlined
+                                        @click="removeFormField(formField)"
+                                    />
+                                </a-col>
+                            </a-row>
+
+                            <a-col :xs="24" :sm="24" :md="8" :lg="8">
+                                <a-form-item>
+                                    <a-button
+                                        type="primary"
+                                        block
+                                        @click="addFormField"
+                                        :disabled="addFormButtonStatus"
+                                    >
+                                        <PlusOutlined />
+
+                                        {{
+                                            $t(
+                                                `${orderPageObject.langKey}.add_pay`
+                                            )
+                                        }}
+                                    </a-button>
+                                </a-form-item>
+                            </a-col>
+                        </div> 
+                        <a-row :gutter="16" class="mt-10">
+                            <a-col :xs="12" :sm="12" :md="12" :lg="12">
+                                {{ $t("stock.order_tax") }}
+                            </a-col>
+                            <a-col :xs="12" :sm="12" :md="12" :lg="12">
+                                {{ formatAmountCurrency(formData.tax_amount) }}
+                            </a-col>
+                        </a-row>
+                        <a-row :gutter="16" class="mt-10">
+                            <a-col :xs="12" :sm="12" :md="12" :lg="12">
+                                {{ $t("stock.discount") }}
+                            </a-col>
+                            <a-col :xs="12" :sm="12" :md="12" :lg="12">
+                                {{ formatAmountCurrency(formData.discount) }}
+                            </a-col>
+                        </a-row>
+                        <a-row :gutter="16" class="mt-10">
+                            <a-col :xs="12" :sm="12" :md="12" :lg="12">
+                                {{ $t("stock.shipping") }}
+                            </a-col>
+                            <a-col :xs="12" :sm="12" :md="12" :lg="12">
+                                {{ formatAmountCurrency(formData.shipping) }}
+                            </a-col>
+                        </a-row>
+                        <a-row :gutter="16" class="mt-10">
+                            <a-col :xs="12" :sm="12" :md="12" :lg="12">
+                                {{ $t("stock.grand_total") }}
+                            </a-col>
+                            <a-col :xs="12" :sm="12" :md="12" :lg="12">
+                                {{ formatAmountCurrency(formData.subtotal) }}
+                            </a-col>
+                        </a-row>-->
+                        <a-row :gutter="16" class="mt-20 mb-20">
+                            <a-button
+                                type="primary"
+                                :loading="loading"
+                                @click="onSubmitNew"
+                                block
+                            >
+                                <template #icon> <SaveOutlined /> </template>
+                                {{ $t("common.save_and_new") }}
+                            </a-button>
+                        </a-row>
+                        <a-row :gutter="16" class="mt-20 mb-20">
+                            <a-button
+                                type="primary"
+                                :loading="loading"
+                                @click="onSubmit"
+                                block
+                            >
+                                <template #icon> <SaveOutlined /> </template>
+                                {{ $t("common.save") }}
+                            </a-button>
+                        </a-row>
+                    </a-col>
+                </a-row>
+            </a-form>
+        </a-card>
+    </admin-page-table-content>
+
+    <a-modal
+        :open="addEditVisible"
+        :closable="false"
+        :centered="true"
+        :title="addEditPageTitle"
+        @ok="onAddEditSubmit"
+    >
+        <a-form layout="vertical">
+            <a-row :gutter="16">
+                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                    <a-form-item
+                        :label="$t('product.unit_price')"
+                        name="unit_price"
+                        :help="
+                            addEditRules.unit_price
+                                ? addEditRules.unit_price.message
+                                : null
+                        "
+                        :validateStatus="addEditRules.unit_price ? 'error' : null"
+                    >
+                        <a-input-number
+                            v-model:value="addEditFormData.unit_price"
+                            :placeholder="
+                                $t('common.placeholder_default_text', [
+                                    $t('product.unit_price'),
+                                ])
+                            "
+                            min="0"
+                            style="width: 100%"
+                        >
+                            <template #addonBefore>
+                                {{ appSetting.currency.symbol }}
+                            </template>
+                        </a-input-number>
+                    </a-form-item>
+                </a-col>
+            </a-row>
+            <a-row :gutter="16">
+                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                    <a-form-item
+                        :label="$t('product.discount')"
+                        name="discount_rate"
+                        :help="
+                            addEditRules.discount_rate
+                                ? addEditRules.discount_rate.message
+                                : null
+                        "
+                        :validateStatus="addEditRules.discount_rate ? 'error' : null"
+                    >
+                        <a-input-number
+                            v-model:value="addEditFormData.discount_rate"
+                            :placeholder="
+                                $t('common.placeholder_default_text', [
+                                    $t('product.discount'),
+                                ])
+                            "
+                            min="0"
+                            style="width: 100%"
+                        >
+                            <template #addonAfter>%</template>
+                        </a-input-number>
+                    </a-form-item>
+                </a-col>
+            </a-row>
+            <a-row :gutter="16">
+                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                    <a-form-item
+                        :label="$t('product.tax')"
+                        name="tax_id"
+                        :help="addEditRules.tax_id ? addEditRules.tax_id.message : null"
+                        :validateStatus="addEditRules.tax_id ? 'error' : null"
+                    >
+                        <span style="display: flex">
+                            <a-select
+                                v-model:value="addEditFormData.tax_id"
+                                :placeholder="
+                                    $t('common.select_default_text', [$t('product.tax')])
+                                "
+                                :allowClear="true"
+                                optionFilterProp="title"
+                                show-search
+                            >
+                                <a-select-option
+                                    v-for="tax in taxes"
+                                    :key="tax.xid"
+                                    :value="tax.xid"
+                                    :title="tax.name"
+                                >
+                                    {{ tax.name }} ({{ tax.rate }}%)
+                                </a-select-option>
+                            </a-select>
+                            <TaxAddButton @onAddSuccess="taxAdded" />
+                        </span>
+                    </a-form-item>
+                </a-col>
+            </a-row>
+            <a-row :gutter="16">
+                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                    <a-form-item
+                        :label="$t('product.tax_type')"
+                        name="tax_type"
+                        :help="
+                            addEditRules.tax_type ? addEditRules.tax_type.message : null
+                        "
+                        :validateStatus="addEditRules.tax_type ? 'error' : null"
+                    >
+                        <a-select
+                            v-model:value="addEditFormData.tax_type"
+                            :placeholder="
+                                $t('common.select_default_text', [$t('product.tax_type')])
+                            "
+                            :allowClear="true"
+                        >
+                            <a-select-option
+                                v-for="taxType in taxTypes"
+                                :key="taxType.key"
+                                :value="taxType.key"
+                            >
+                                {{ taxType.value }}
+                            </a-select-option>
+                        </a-select>
+                    </a-form-item>
+                </a-col>
+            </a-row>
+        </a-form>
+        <template #footer>
+            <a-button
+                key="submit"
+                type="primary"
+                :loading="addEditFormSubmitting"
+                @click="onAddEditSubmit"
+            >
+                <template #icon>
+                    <SaveOutlined />
+                </template>
+                {{ $t("common.update") }}
+            </a-button>
+            <a-button key="back" @click="onAddEditClose">
+                {{ $t("common.cancel") }}
+            </a-button>
+        </template>
+    </a-modal>
+</template>
+
+<script>
+import { onMounted, ref, toRefs, computed } from "vue";
+import {
+    EyeOutlined,
+    PlusOutlined,
+    EditOutlined,
+    DeleteOutlined,
+    ExclamationCircleOutlined,
+    SearchOutlined,
+    SaveOutlined,
+    LoadingOutlined,
+    MinusSquareOutlined,
+} from "@ant-design/icons-vue";
+import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
+import apiAdmin from "../../../../common/composable/apiAdmin";
+import stockManagement from "./stockManagement";
+import common from "../../../../common/composable/common";
+import fields from "./fields";
+import TaxAddButton from "../../settings/taxes/AddButton.vue";
+import WarehouseAddButton from "../../settings/warehouses/AddButton.vue";
+import ProductAddButton from "../../product-manager/products/AddButton.vue";
+import DateTimePicker from "../../../../common/components/common/calendar/DateTimePicker.vue";
+import AdminPageHeader from "../../../../common/layouts/AdminPageHeader.vue";
+import SalesSearch from "./SalesSearch.vue";
+import FormItemHeading from "../../../../common/components/common/typography/FormItemHeading.vue";
+import { some, forEach, find } from "lodash-es";
+import PaymentModeAddButton from "../payments/AddButton.vue";
+
+//* ADDENDUM
+import WarehouseSearch from "./WarehouseSearch.vue";
+import { debounce } from "lodash-es"; // Import lodash debounce if you want to debounce
+import { Modal } from "ant-design-vue"; // For confirmation dialog
+import { useRoute } from "vue-router";
+export default {
+    components: {
+        EyeOutlined,
+        PlusOutlined,
+        EditOutlined,
+        DeleteOutlined,
+        ExclamationCircleOutlined,
+        SearchOutlined,
+        SaveOutlined,
+        LoadingOutlined,
+
+        TaxAddButton,
+        WarehouseAddButton,
+        ProductAddButton,
+        DateTimePicker,
+        AdminPageHeader,
+        SalesSearch,
+        MinusSquareOutlined,
+        FormItemHeading,
+        PaymentModeAddButton,
+        
+        //* ADDENDUM
+        WarehouseSearch,
+    },
+    setup() {
+        const route = useRoute();
+        const resetTrigger = ref(0); // Reactive prop to trigger reset
+        const invoice_number = route.params.id;
+        
+        const handleSalesSearchSuccess = ({ sales_id, customerId, customerName, address, items }) => {
+            console.log("Received in handleSalesSearchSuccess:", { sales_id, customerId, customerName, address, items });
+            formData.value.sales_id = sales_id; // Set the sales_id
+            formData.value.customer_name = customerName; // Set the customer_name
+            formData.value.user_id = customerId; // Set the user_id
+            formData.value.shipping_address = address; // Set address
+
+            // Process items to autofill selectedProducts
+            if (items && items.length > 0) {
+                selectedProducts.value = items
+                    .map(item => {
+                        const quantity = (item.quantity_scanned || 0) - (item.quantity_done || 0);
+                        if (quantity <= 0) return null; // Exclude items with non-positive quantity
+
+                        return {
+                            xid: item.xid,
+                            product_id: item.product_id,
+                            product_item_id: item.product?.item_id || item.item_id,
+                            name: item.product?.name || "Unknown Product",
+                            item_code: item.product?.item_code || "",
+                            subgroup2: item.product?.subgroup2 || "",
+                            text1: item.product?.text1 || "",
+                            description: item.product?.description || "",
+                            unit_buy_in: item.product?.uomBuyIn || item.unit || null,
+                            unit_short_name: item.unit?.short_name || "",
+                            stock_quantity: item.product?.details?.current_stock || 0,
+                            quantity: quantity,
+                            unit_quantity: quantity,
+                            quantity_real: quantity,
+                            single_unit_price: item.single_unit_price || 0,
+                            unit_price: item.unit_price || 0,
+                            total_discount: item.total_discount || 0,
+                            total_tax: item.total_tax || 0,
+                            tax_rate: item.tax_rate || 0,
+                            tax_type: item.tax_type || "",
+                            subtotal: item.subtotal || 0,
+                            quantity_qr: item.quantity_scanned,
+                            mrp: item.mrp || 0,
+                            shelf: "", // Initialize as empty or set based on your logic
+                            // Add other fields as required by your table
+                        };
+                    })
+                    .filter(item => item !== null); // Remove null entries
+
+                // Recalculate totals after updating selectedProducts
+                recalculateFinalTotal();
+            } else {
+                selectedProducts.value = []; // Clear selectedProducts if no items
+            }
+            
+            console.log("Updated formData:", formData.value);
+            console.log("Updated selectedProducts:", selectedProducts.value);
+        };
+
+
+        const { addEditRequestAdmin, loading, rules } = apiAdmin();
+        const {
+            appSetting,
+            formatAmount,
+            formatAmountCurrency,
+            taxTypes,
+            orderStatus,
+            purchaseOrderStatus,
+            deliveryOrderStatus,
+            salesOrderStatus,
+            salesReturnStatus,
+            purchaseReturnStatus,
+            permsArray,
+            selectedWarehouse,
+        } = common();
+        const { orderItemColumns } = fields();
+        const {
+            state,
+            orderType,
+            orderPageObject,
+            selectedProducts,
+            formData,
+            productsAmount,
+            taxes,
+
+            recalculateValues,
+            fetchProducts,
+            searchValueSelected,
+            quantityChanged,
+            recalculateFinalTotal,
+            showDeleteConfirm,
+            taxChanged,
+            editItem,
+
+            // Add Edit
+            addEditVisible,
+            addEditFormData,
+            addEditFormSubmitting,
+            addEditRules,
+            addEditPageTitle,
+            onAddEditSubmit,
+            onAddEditClose,
+
+            inputValueChanged,
+        } = stockManagement();
+        const { t } = useI18n();
+        const warehouses = ref([]);
+        const allUnits = ref([]);
+        const router = useRouter();
+        const allOrderStatus = ref([]);
+        const paymentModes = ref([]);
+        const paymentModeUrl = "payment-modes?limit=10000";
+        const taxUrl = "taxes?limit=10000";
+        const unitUrl = "units?limit=10000";
+        const warehouseUrl = `warehouses?filters=id ne "${selectedWarehouse.value.xid}"&hashable=${selectedWarehouse.value.xid}&limit=10000`;
+        const payment = ref({
+            amount: 0,
+            payment_mode_id: undefined,
+        });
+        const allPayments = ref([]);
+
+        //* ADDENDUM
+        const warehouseSearchLabelPrefix = ref([]);
+
+        onMounted(() => {
+            const taxesPromise = axiosAdmin.get(taxUrl);
+            const unitsPromise = axiosAdmin.get(unitUrl);
+            const warehousesPromise = axiosAdmin.get(warehouseUrl);
+            const paymentModesPromise = axiosAdmin.get(paymentModeUrl);
+
+            Promise.all([
+                taxesPromise,
+                unitsPromise,
+                warehousesPromise,
+                paymentModesPromise,
+            ]).then(
+                ([
+                    taxResponse,
+                    unitResponse,
+                    warehousesResponse,
+                    paymentModesResponse,
+                ]) => {
+                    taxes.value = taxResponse.data;
+                    allUnits.value = unitResponse.data;
+                    warehouses.value = warehousesResponse.data;
+                    paymentModes.value = paymentModesResponse.data;
+                    let paymentType = find(paymentModes.value, {
+                        name: "Cash",
+                    });
+                    payment.value.payment_mode_id = paymentType.xid;
+                }
+            );
+
+            if (orderType.value == "purchases") {
+                allOrderStatus.value = purchaseOrderStatus;
+                formData.value.order_status = "received";
+                formData.value.label = "purchases";
+                warehouseSearchLabelPrefix.value = "to";
+            } else if (orderType.value == "inventory_in") {
+                allOrderStatus.value = purchaseOrderStatus;
+                formData.value.order_status = "received";
+                formData.value.label = "purchases";
+                warehouseSearchLabelPrefix.value = "to";
+            } else if (orderType.value == "sales") {
+                allOrderStatus.value = salesOrderStatus;
+                formData.value.order_status = "delivered";
+                warehouseSearchLabelPrefix.value = "from";
+            } else if (orderType.value == "inventory_out") {
+                allOrderStatus.value = salesOrderStatus;
+                formData.value.order_status = "qc";
+                formData.value.label = "sales";
+                warehouseSearchLabelPrefix.value = "from";
+            } 
+            else if (orderType.value == "delivery_order") {
+                allOrderStatus.value = deliveryOrderStatus;
+                formData.value.order_status = "open";
+                formData.value.label = "sales";
+                warehouseSearchLabelPrefix.value = "from";
+            }
+            else if (orderType.value == "sales-returns") {
+                allOrderStatus.value = salesReturnStatus;
+                formData.value.order_status = "received";
+                warehouseSearchLabelPrefix.value = "to";
+            } else if (orderType.value == "purchase-returns") {
+                allOrderStatus.value = purchaseReturnStatus;
+                formData.value.order_status = "completed";
+                formData.value.label = "purchases";
+                warehouseSearchLabelPrefix.value = "from";
+            } else if (orderType.value == "quotations") {
+                allOrderStatus.value = [];
+                 warehouseSearchLabelPrefix.value = "to";
+            } else if (orderType.value == "stock-transfers") {
+                allOrderStatus.value = salesOrderStatus;
+                formData.value.order_status = "delivered";
+                formData.value.label = "stock-transfers";
+            }
+            else if (orderType.value == "delivery_order") {
+                allOrderStatus.value = deliveryOrderStatus;
+console.log(deliveryOrderStatus);
+                formData.value.order_status = "open";
+                formData.value.label = "delivery-order";
+            }
+        });
+
+        const onSubmit = () => {
+            allPayments.value = [];
+            allPayments.value.push(payment.value);
+
+            const newFormDataObject = {
+                ...formData.value,
+                order_type: orderPageObject.value.type,
+                total: formData.value.subtotal,
+                total_items: selectedProducts.value.length,
+                product_items: selectedProducts.value,
+                pay_object: formFields.value,
+                all_payments: allPayments.value,
+            };
+
+            addEditRequestAdmin({
+                url: orderType.value,
+                data: newFormDataObject,
+                successMessage: t(`${orderPageObject.value.langKey}.created`),
+                success: (res) => {
+                    router.push({
+                        name: `admin.${orderPageObject.value.menuKey}.index`,
+                    });
+                },
+            });
+        };
+        
+        const onSubmitNew = () => {
+            allPayments.value = [];
+            allPayments.value.push(payment.value);
+
+            const newFormDataObject = {
+                ...formData.value,
+                order_type: orderPageObject.value.type,
+                total: formData.value.subtotal,
+                total_items: selectedProducts.value.length,
+                product_items: selectedProducts.value,
+                pay_object: formFields.value,
+                all_payments: allPayments.value,
+            };
+
+            addEditRequestAdmin({
+                url: orderType.value,
+                data: newFormDataObject,
+                successMessage: t(`${orderPageObject.value.langKey}.created`),
+                success: (res) => {
+                    // Preserve some fields
+                    const preservedData = {
+                        warehouse_id: formData.value.warehouse_id,
+                        from_warehouse_id: formData.value.from_warehouse_id,
+                        order_date: formData.value.order_date,
+                    };
+
+                    // Reset form data
+                    formData.value = {
+                        ...formData.value,
+                        ...preservedData,
+                        invoice_number: "",
+                        customer_name: "",
+                        user_id: null,
+                        sales_id: null,
+                        shipping_address: "",
+                        combine_shipment_number: "",
+                        notes: "",
+                        tax_id: null,
+                        discount: 0,
+                        shipping: 0,
+                        subtotal: 0,
+                        tax_amount: 0,
+                    };
+                    
+                    // Trigger reset in SalesSearch
+                    resetTrigger.value += 1;
+                    
+                    selectedProducts.value = [];
+                    formFields.value = [{ pay_amount: 0, payment_mode_id: undefined }];
+                    payment.value = { amount: 0, payment_mode_id: undefined };
+                    rules.value = {}; // Clear validation errors
+            
+                    router.push({
+                        name: `admin.delivery_order.create`,
+                    });
+                },
+            });
+        };
+
+        const invoiceNumberHelp = ref(null);
+        const invoiceNumberStatus = ref(null);
+
+        const checkInvoiceNumber = debounce(async () => {
+            const invoiceNumber = formData.value.invoice_number;
+
+            // Skip check if invoice number is empty
+            if (!invoiceNumber) {
+                invoiceNumberHelp.value = null;
+                invoiceNumberStatus.value = null;
+                rules.value.invoice_number = null;
+                return;
+            }
+
+            try {
+                // Make an API call to check if the invoice number exists
+                const response = await axiosAdmin.get(`/invoices/check?invoice_number=${invoiceNumber}`);
+
+                if (response.data === null || response.data === undefined) {
+                    // Do nothing if response.data is null or undefined
+                    invoiceNumberHelp.value = null;
+                    invoiceNumberStatus.value = null;
+                    rules.value.invoice_number = null;
+                    return;
+                }
+
+
+                // Show confirmation dialog
+                Modal.confirm({
+                    title: t("stock.invoice_number_already_exists"),
+                    content: t("stock.confirm_stock_transfer", { warehouse: "B15" }), // e.g., "This invoice is already used. Do you want to stock transfer from B15?"
+                    okText: t("common.yes"),
+                    cancelText: t("common.no"),
+                    onOk() {
+                        // Redirect to admin.stock.stock-transfers.edit with invoice ID
+                        router.push({
+                            name: "admin.stock.stock-transfers.edit",
+                            params: { id: response.data.xid },
+                        });
+                    },
+                    onCancel() {
+                        // Mark as error but allow user to stay on the form
+                        invoiceNumberHelp.value = t("stock.invoice_number_already_exists");
+                        invoiceNumberStatus.value = "error";
+                        rules.value.invoice_number = {
+                            message: t("stock.invoice_number_already_exists"),
+                        };
+                    },
+                });
+            } catch (error) {
+                console.error("Error checking invoice number:", error);
+                invoiceNumberHelp.value = t("common.error_occurred");
+                invoiceNumberStatus.value = "error";
+            }
+        }, 500); // Debounce for 500ms
+
+        const unitAdded = () => {
+            axiosAdmin.get(unitUrl).then((response) => {
+                allUnits.value = response.data;
+            });
+        };
+
+        const taxAdded = () => {
+            axiosAdmin.get(taxUrl).then((response) => {
+                taxes.value = response.data;
+            });
+        };
+
+        const warehouseAdded = () => {
+            axiosAdmin.get(warehouseUrl).then((response) => {
+                warehouses.value = response.data;
+            });
+        };
+
+        // const paymentModeAdded = () => {
+        //     axiosAdmin.get(paymentModeUrl).then((response) => {
+        //         paymentModes.value = response.data;
+        //     });
+        // };
+
+        const formFields = ref([
+            {
+                pay_amount: 0,
+                payment_mode_id: undefined,
+            },
+        ]);
+        const removedDescriptions = ref([]);
+
+        const formFieldFilter = () => {
+            var newFormField = [];
+
+            forEach(formFields.value, (formField) => {
+                if (formField.description != "") {
+                    newFormField.push(formField);
+                }
+            });
+
+            return newFormField;
+        };
+
+        const addFormButtonStatus = computed(() => {
+            if (formFields.value.length == 0) {
+                return false;
+            } else {
+                return (
+                    some(formFields.value, { description: "" }) ||
+                    some(formFields.value, { description: null })
+                );
+            }
+        });
+        const payAmountTotal = () => {
+            let payAmount = 0;
+            forEach(formFields.value, (formField) => {
+                payAmount += Number(formField.pay_amount);
+            });
+            return {
+                payAmount,
+            };
+        };
+
+        const addFormField = () => {
+            formFields.value.push({
+                pay_amount: 0,
+                payment_mode_id: undefined,
+            });
+        };
+        const removeFormField = (item) => {
+            let index = formFields.value.indexOf(item);
+            if (index !== -1) {
+                formFields.value.splice(index, 1);
+            }
+
+            if (item.id != "") {
+                removedDescriptions.value.push(item.id);
+            }
+            payAmountTotal();
+        };
+
+        return {
+            ...toRefs(state),
+            handleSalesSearchSuccess,
+            formData,
+            productsAmount,
+            rules,
+            loading,
+            warehouses,
+            taxes,
+            onSubmit,
+            fetchProducts,
+            searchValueSelected,
+            selectedProducts,
+            showDeleteConfirm,
+            quantityChanged,
+            formatAmountCurrency,
+            taxChanged,
+            recalculateFinalTotal,
+            appSetting,
+            editItem,
+            orderPageObject,
+
+            orderItemColumns,
+
+            // Add Edit
+            addEditVisible,
+            addEditFormData,
+            addEditFormSubmitting,
+            addEditRules,
+            addEditPageTitle,
+            onAddEditSubmit,
+            onAddEditClose,
+            allOrderStatus,
+            taxTypes,
+            permsArray,
+
+            unitAdded,
+            taxAdded,
+            warehouseAdded,
+
+            inputValueChanged,
+            addFormField,
+            removeFormField,
+            addFormButtonStatus,
+            formFields,
+            paymentModes,
+            payAmountTotal,
+            // paymentModeAdded,
+            payment,
+
+            warehouseSearchLabelPrefix,
+
+            //addition
+            checkInvoiceNumber,
+            deliveryOrderStatus,
+            resetTrigger,
+            onSubmitNew,
+            invoice_number,
+        };
+    },
+};
+</script>

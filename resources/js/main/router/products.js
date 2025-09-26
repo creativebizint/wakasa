@@ -282,6 +282,20 @@ export default [
             },
             
             {
+                path: '/admin/order-fullfillment/antrian-packing',
+                component:  () =>
+                    import('../views/order-fullfillment/antrian-packing/index.vue'),
+                name: 'admin.order_fullfillment.antrian_packing',
+                meta: {
+                    requireAuth: true,
+                    menuParent: "order_fullfillment",
+                    menuKey: (route) => "antrian_packing",
+                    permission: (route) => "order_fullfillment_view",
+                    orderType: "inventory_out",
+                }
+            },
+            
+            {
                 path: '/admin/order-fullfillment/picking-assignment/:id',
                 component:  () =>
                     import('../views/order-fullfillment/picking-assignment-per-so/index.vue'),

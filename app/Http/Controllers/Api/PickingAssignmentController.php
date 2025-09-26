@@ -258,6 +258,65 @@ class pickingAssignmentController extends ApiBaseController
         ];
     }
     
+    public function antrianPacking(QcPickingRequest $request)
+    {
+        $invoice_number = $request->invoice_number;
+        
+        $query = \App\Models\Order::join('warehouses','warehouses.id','=','orders.warehouse_id')
+                ->leftJoin('users','users.id','=','orders.user_id')
+                ->where('order_type', 'sales_order')
+                ->where('order_status', 'qc')
+                ->select('orders.invoice_number','orders.order_date as date','orders.id',
+                        'orders.warehouse_id','warehouses.code as warehouse_code','warehouses.name as warehouse_name','orders.user_id','users.name as user_name',
+                        'users.code as user_code','orders.order_status','orders.notes')
+                ->orderBy('orders.id','desc');
+        
+        if ($request->has('invoice_number')) {
+            $query->where('orders.invoice_number','like','%'.$invoice_number.'%');
+        }
+        
+        if ($request->has('item_id')) {
+            $query->where('products.item_id','like','%'.$request->item_id.'%');
+        }
+        
+        if ($request->has('user_id')) {
+            $query->where('orders.user_id','=',$this->getIdFromHash($request->user_id));
+        }
+        if ($request->has('dates')) {
+            $date_arr = explode(',',$request->dates);
+            $query->whereBetween('orders.order_date',$date_arr);
+        }
+        
+        $total = $query->count();
+        // Apply pagination
+        $offset = $request->input('offset', 0);
+        $limit = $request->input('limit', 10);
+
+        $result = $query->skip($offset)->take($limit)->get();
+        $next = (($offset+1)*$limit);
+        $next_url = url()->current().'?offset='.$next;
+        $previous = (($offset-1)*$limit);
+        $previous_url = url()->current().'?offset='.$previous;
+        if($previous <=0){
+            $link = ['next' => $next_url];
+        }
+        else{
+            $link = ['next' => $next_url,'previous' => $previous_url];
+        }
+        
+        foreach($result as $k=>$result_){
+            $result[$k]->items = OrderItem::where('order_id',$result_->id)
+                                ->join('products','products.id','order_items.product_id')
+                                ->select('products.item_id','order_items.quantity_scanned','order_items.quantity','order_items.picker_by_name','order_items.id')
+                                ->get();
+        }
+        
+        return [
+            'data' => $result,
+            'meta' => ['paging'=>['links'=>$link,'total' => $total]]
+        ];
+    }
+    
     public function assignPicking(Request $request){
         $data  = $request->all();
         
