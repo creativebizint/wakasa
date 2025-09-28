@@ -385,8 +385,8 @@ const common = () => {
     
     const priorityColors = {
         ditunggu: "red",
-        pesawat : "pink",
-        segera: "yellow",
+        pesawat : "yellow",
+        segera: "green",
         normal: "blue",
     };
 
