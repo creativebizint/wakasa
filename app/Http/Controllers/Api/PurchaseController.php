@@ -100,14 +100,12 @@ class PurchaseController extends ApiBaseController
         }
         if ($request->has('priority') && $request->priority == 0) {
             $query->where(function ($query) {
-                 $query->where('orders.priority','normal')
-                       ->orWhereNull('orders.priority' );
+                 $query->whereNotIn('orders.priority',['segera','pesawat','ditunggu']);
              });
         }
         elseif ($request->has('priority') && $request->priority == 1) {
             $query->where(function ($query) {
-                 $query->whereIn('orders.priority',['segera','pesawat','ditunggu'])
-                       ->orWhereNotNull('orders.priority' );
+                 $query->whereIn('orders.priority',['segera','pesawat','ditunggu']);
              });
         }
         

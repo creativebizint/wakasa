@@ -308,7 +308,7 @@
                                             {{ $t("payments.add") }}
                                         </a-menu-item>
 
-                                        <a-menu-item key="download_invoice">
+<!--                                        <a-menu-item key="download_invoice">
                                             <a-typography-link
                                                 :href="`${invoiceBaseUrl}/${record.unique_id}/${selectedLang}`"
                                                 target="_blank"
@@ -320,7 +320,7 @@
                                                     )
                                                 }}
                                             </a-typography-link>
-                                        </a-menu-item>
+                                        </a-menu-item>-->
 
                                         <a-menu-divider />
 

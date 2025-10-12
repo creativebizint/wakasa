@@ -11,15 +11,6 @@
                     </router-link>
                 </a-breadcrumb-item>
                 <a-breadcrumb-item>
-                    {{
-                        orderPageObject.type == "inventory_out" ||
-                        orderPageObject.type == "sales-returns" ||
-                        orderPageObject.type == "quotations"
-                            ? $t(`menu.inventory_out`)
-                            : $t(`menu.inventory_in`)
-                    }}
-                </a-breadcrumb-item>
-                <a-breadcrumb-item>
                     {{ $t(`menu.placement_out`) }}
                 </a-breadcrumb-item>
             </a-breadcrumb>

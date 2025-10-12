@@ -2,7 +2,7 @@
     <AdminPageHeader>
         <template #header>
             <a-page-header
-                :title="$t(`menu.inventory_out`)"
+                :title="$t(`menu.placement_out`)"
                 @back="() => $router.go(-1)"
                 class="p-0"
             >
@@ -24,7 +24,7 @@
                 <a-breadcrumb-item>
                     <router-link :to="{ name: 'admin.inventory_out.index' }">
                     {{
-                       $t(`menu.inventory_out`)
+                       $t(`menu.placement_out`)
                     }}
                     </router-link>
                 </a-breadcrumb-item>

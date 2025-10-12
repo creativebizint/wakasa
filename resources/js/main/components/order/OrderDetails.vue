@@ -49,7 +49,7 @@
                     <PlusOutlined />
                     {{ $t("payments.add") }}
                 </a-button>
-                <a-typography-link
+<!--                <a-typography-link
                     :href="`${invoiceBaseUrl}/${order.unique_id}`"
                     target="_blank"
                 >
@@ -57,7 +57,7 @@
                         <DownloadOutlined />
                         {{ $t("sales.invoice") }}
                     </a-button>
-                </a-typography-link>
+                </a-typography-link>-->
             </a-space>
         </template>
         <div v-if="order && order.xid">
