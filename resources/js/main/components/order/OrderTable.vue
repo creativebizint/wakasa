@@ -447,7 +447,7 @@
                                             {{ $t("common.pos_invoice") }}
                                         </a-menu-item>
 
-                                        <a-menu-item key="picking_request" v-if="record.order_type === 'sales_order'">
+                                        <a-menu-item key="picking_request" v-if="record.order_type === 'sales_order' && (record.order_status == 'ordered' || record.order_status == 'picking') ">
                                             <a-typography-link
                                                 @click="
                                                 () =>
@@ -468,7 +468,7 @@
                                             </a-typography-link>
                                         </a-menu-item>
                                         
-                                        <a-menu-item key="picking_request_all" v-if="record.order_type === 'sales_order'">
+                                        <a-menu-item key="picking_request_all" v-if="record.order_type === 'sales_order' && (record.order_status == 'ordered' || record.order_status == 'picking') ">
                                             <a-typography-link @click="assignAll(record.xid)">
                                                 {{
                                                     $t(
