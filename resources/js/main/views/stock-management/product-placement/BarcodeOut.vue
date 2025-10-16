@@ -168,7 +168,7 @@
                         name="row"
                     >
                         <a-input
-                            v-model:value="formData.row"
+                            v-model:value="formData.text2"
                             min="0"
                             style="width: 50%"
                         >
@@ -552,7 +552,8 @@ export default {
                     total_items_scanned : orderResponseData.order_item.quantity_scanned == null ? 0 : orderResponseData.order_item.quantity_scanned,
                     invoice_number : orderResponseData.order.invoice_number,
                     order_id : orderResponseData.order.xid,
-                    total_items_in : orderResponseData.order_item.quantity_in == null ? 0 : orderResponseData.order_item.quantity_in
+                    total_items_in : orderResponseData.order_item.quantity_in == null ? 0 : orderResponseData.order_item.quantity_in,
+                    text2 : orderResponseData.order_item.text2 == null ? 0 : orderResponseData.order_item.text2
                 };
             });
 

@@ -165,6 +165,7 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         ApiRoute::get('product-placement/{id}/shelf-group', ['as' => 'api.productplacement.index', 'uses' => 'ProductPlacementController@shelfGroup']);
         ApiRoute::get('product-placement/{id}/shelf-number', ['as' => 'api.productplacement.index', 'uses' => 'ProductPlacementController@shelfNumber']);
         ApiRoute::get('product-placement/{id}/row', ['as' => 'api.productplacement.index', 'uses' => 'ProductPlacementController@row']);
+        ApiRoute::get('product-row/{item_id}', ['as' => 'api.product.row', 'uses' => 'ProductPlacementController@productRow']);
         ApiRoute::post('stock-adjustment-order-items-data', ['as' => 'api.extra.stock-adjustment-order-items-data', 'uses' => 'StockAdjustmentController@getStockAdjustmentOrderItemData']);
         ApiRoute::get('picking-request', ['as' => 'api.pickingRequest.index', 'uses' => 'PickingRequestController@index']);
         ApiRoute::post('picking-request', ['as' => 'api.pickingRequest.save', 'uses' => 'PickingRequestController@save']);

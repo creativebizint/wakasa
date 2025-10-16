@@ -648,4 +648,12 @@ class ProductPlacementController extends ApiBaseController
 
     return Excel::download(new ExcelExport($data_excel, $setHeadingsExportExcel, $sheetNameExportExcel), $filename);
   }
+  
+  public function productRow($item_id){
+      
+  }
+  
+  
 }
+
+
