@@ -16,6 +16,9 @@
                                 getOrderTypeFromstring(record.order.order_type)
                             }}
                         </template>
+                        <template v-if="column.dataIndex === 'invoice_number'">
+                            {{ record.order.invoice_number }}
+                        </template>
                         <template v-if="column.dataIndex === 'order_date'">
                             {{ formatDateTime(record.order.order_date) }}
                         </template>
@@ -73,27 +76,6 @@
                             </a-table-summary-cell>
                             <a-table-summary-cell :col-span="1">
                             </a-table-summary-cell>
-                            <a-table-summary-cell :col-span="1">
-                                <a-typography-text strong>
-                                    {{
-                                        formatAmountCurrency(totals.totalDiscount)
-                                    }}
-                                </a-typography-text>
-                            </a-table-summary-cell>
-                            <a-table-summary-cell :col-span="1">
-                                <a-typography-text strong>
-                                    {{
-                                        formatAmountCurrency(totals.totalTax)
-                                    }}
-                                </a-typography-text>
-                            </a-table-summary-cell>
-                              <a-table-summary-cell :col-span="1">
-                                <a-typography-text strong>
-                                    {{
-                                        formatAmountCurrency(totals.totalAmount)
-                                    }}
-                                </a-typography-text>
-                            </a-table-summary-cell>
                         </a-table-summary-row>
                     </template>
                 </a-table>
@@ -122,15 +104,16 @@ export default defineComponent({
 
         onMounted(() => {
             datatableVariables.tableUrl.value = {
-                url: "order-items?fields=id,xid,quantity,single_unit_price,unit_price,total_discount,discount_rate,total_tax,tax_rate,subtotal,order_id,x_order_id,order{id,xid,order_type,order_date},unit_id,x_unit_id,unit{id,xid,short_name},product_id,x_product_id,product{id,xid,unit_id,x_unit_id},product:unit{id,xid,short_name}",
+                url: "order-items?fields=id,xid,quantity,single_unit_price,unit_price,total_discount,discount_rate,total_tax,tax_rate,subtotal,order_id,x_order_id,order{id,xid,order_type,order_date,invoice_number},unit_id,x_unit_id,unit{id,xid,short_name},product_id,x_product_id,product{id,xid,unit_id,x_unit_id},product:unit{id,xid,short_name}",
                 filters: {
                     product_id: props.product.xid,
+                    'orders.order_type' : 'purchases'
                 },
             };
             datatableVariables.hashable.value = [...orderItemsHashableColumns];
             datatableVariables.table.sorter = {
                 field: "orders.order_date",
-                order: "asc",
+                order: "desc",
             };
 
             datatableVariables.fetch({

@@ -45,6 +45,7 @@ class OrderItemController extends ApiBaseController
                 ->whereRaw('orders.order_date <= ?', [$endDate]);
         }
 
+        
         if ($request->has('product_sales_summary') && $request->product_sales_summary) {
             $this->modifySelect = true;
 
