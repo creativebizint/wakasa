@@ -176,6 +176,25 @@
                                 -->
                             </template>
                         </template>
+                        
+                        <template #expandedRowRender="orderItemData">
+                        <a-table
+                            v-if="
+                                orderItemData &&
+                                orderItemData.record &&
+                                orderItemData.record.items
+                            "
+                            :row-key="(record) => record.xid"
+                            :columns="orderItemDetailsColumns"
+                            :data-source="orderItemData.record.items"
+                            :pagination="false"
+                        >
+                            <template #bodyCell="{ column, record }">
+                                
+                            </template>
+                        </a-table>
+                    </template>
+                        
                     </a-table>
                 </div>
             </a-col>
@@ -216,7 +235,7 @@ export default {
         MessageOutlined
     },
     setup() {
-        const { addEditUrl, initData, columns, filterableColumns } = fields();
+        const { addEditUrl, initData, columns, filterableColumns, orderItemDetailsColumns } = fields();
         const crudVariables = crud();
         const { permsArray,formatDate,priorityColors } = common();
         const sampleFileUrl = window.config.part_sample_file;
@@ -267,6 +286,7 @@ export default {
         return {
             columns,
             filterableColumns,
+            orderItemDetailsColumns,
             permsArray,
             ...crudVariables,
             sampleFileUrl,
