@@ -72,7 +72,7 @@ const stockManagement = () => {
         }
         if (value != "") {
             state.productFetching = true;
-            let url = `search-product`;
+            let url = `search-product-qc`;
 
             axiosAdmin
                 .post(url, {

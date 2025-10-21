@@ -578,6 +578,197 @@ class ProductController extends ApiBaseController
         return ApiResponse::make('Fetched Successfully', $allProducs);
     }
     
+    
+    public function searchProductQc(Request $request)
+    {
+        $warehouse = warehouse();
+        $searchTerm = trim(strtolower($request->search_term));
+        $orderType = $request->order_type;
+        $warehouseId = $warehouse->id;
+        $salesId = isset($request->sales_id) ? $this->getIdFromHash($request->sales_id) : '';
+
+        $products = Product::select('orders.invoice_number','products.id', 'products.name', 'products.image', 'products.unit_id', 'products.product_type','products.product_type','products.description','products.item_code','products.item_id','products.subgroup2','products.text1','products.uom_sale_in','products.uom_buy_in','products.kemasan_jual_qty','products.text1')
+            ->where(function ($query) use ($searchTerm) {
+                $query->where(DB::raw('LOWER(products.name)'), 'LIKE', "%$searchTerm%")
+                    ->orWhere(DB::raw('LOWER(products.item_code)'), 'LIKE', "%$searchTerm%")
+                    ->orWhere(DB::raw('LOWER(products.item_id)'), 'LIKE', "%$searchTerm%")
+                    ->orWhere(DB::raw('LOWER(products.parent_item_code)'), 'LIKE', "%$searchTerm%");
+            });
+            
+//        if($salesId != ''){
+            $products->join('order_items','order_items.product_id', '=', 'products.id')
+                    ->join('orders','orders.id','=','order_items.order_id')
+                     ->where('orders.order_status','=', 'qc');
+//        }
+        
+        if ($warehouse->products_visibility == 'warehouse') {
+            $products->where('products.warehouse_id', '=', $warehouse->id);
+        }
+
+        if ($request->has('products')) {
+            $selectedProducts = $request->products;
+            $convertedSelectedProducts = [];
+            if (count($selectedProducts) > 0) {
+                foreach ($selectedProducts as $selectedProduct) {
+                    $convertedSelectedProducts[] = $this->getIdFromHash($selectedProduct);
+                }
+            }
+            $products = $products->whereNotIn('products.id', $convertedSelectedProducts);
+        }
+
+        $products = $products->where('products.product_type', 'single')->get();
+
+        $allProducs = [];
+
+        if ($warehouseId == '') {
+            return $allProducs;
+        } else {
+            $warehouseId = Common::getHashFromId($warehouseId);
+        }
+
+        foreach ($products as $product) {
+            $productDetails = $product->details;
+            if($productDetails == null){
+                //insert product detail is null
+                $productDetails = new ProductDetails();
+                $productDetails->product_id = $product->id;
+                $productDetails->warehouse_id = $warehouseId;
+                $productDetails->current_stock = 0;
+                $productDetails->purchase_price = 0;
+                $productDetails->sales_price = 0;
+                $productDetails->tax_id = 1;
+                $productDetails->purchase_tax_type = 'exclusive';
+                $productDetails->sales_tax_type = 'exclusive';
+                $productDetails->stock_quantitiy_alert = 5;
+                $productDetails->opening_stock = 0;
+                $productDetails->opening_stock_date = date('Y-m-d');
+                $productDetails->status = 'in_stock';
+                $productDetails->save();
+            }
+            $tax = Tax::find($productDetails->tax_id);
+
+            if ($orderType == 'product-placement' || $orderType == 'purchases' || $orderType == 'quotations' || $orderType == 'sales' || $orderType == 'sales-returns' || $orderType == 'repeat-order'
+                || $orderType == 'purchase-returns' || $orderType == 'stock-transfers' || $orderType == 'stock-transfer-returns'
+                || $orderType == 'stock-adjustment-orders'
+            ) {
+                $stockQuantity = $productDetails->current_stock;
+                $unit = $product->unit_id != null ? Unit::find($product->unit_id) : null;
+
+                //* ADDENDUM
+                $brand = $product->brand_id != null ? Brand::where('id', '=', $product->brand_id)->first() : null;
+                $category = $product->category_id != null ? Category::where('id', '=', $product->category_id)->first() : null;
+                $group = $product->group_id != null ? Group::where('id', '=', $product->group_id)->first() : null;
+                $color = $product->color_id != null ? Color::where('id', '=', $product->color_id)->first() : null;
+                $discountRate = $productDetails->discount_counter_price != 'SP' ? $productDetails->discount_counter_price : 0;
+                $unit_buy_in = $product->uom_buy_in != null ? Unit::find($product->uom_buy_in) : null;
+                $unit_sale_in = $product->uom_sale_in != null ? Unit::find($product->uom_sale_in) : null;
+                
+                if ($orderType == 'product-placement' || $orderType == 'purchases' || $orderType == 'purchase-returns' || $orderType == 'stock-adjustment-orders') {
+                    $taxType = $productDetails->purchase_tax_type;
+                } else if ($orderType == 'sales' || $orderType == 'sales-returns'
+                    || $orderType == 'stock-transfers' || $orderType == 'stock-transfer-returns'
+                    || $orderType == 'quotations'|| $orderType == 'repeat-order'
+                ) {
+                    $taxType = $productDetails->sales_tax_type;
+                    
+                }
+                $unitPrice = $productDetails->retail_counter_price != null ? $productDetails->retail_counter_price : 0;
+                $productType = 'retail_counter_price';
+                $singleUnitPrice = $unitPrice;
+
+                if ($tax && $tax->rate != '') {
+                    $taxRate = $tax->rate;
+
+                    if ($taxType == 'inclusive') {
+                        $subTotal = $singleUnitPrice;
+                        $singleUnitPrice =  ($singleUnitPrice * 100) / (100 + $taxRate);
+                        $taxAmount = ($singleUnitPrice) * ($taxRate / 100);
+                    } else {
+                        $taxAmount =  ($singleUnitPrice * ($taxRate / 100));
+                        $subTotal = $singleUnitPrice + $taxAmount;
+                    }
+                } else {
+                    $taxAmount = 0;
+                    $taxRate = 0;
+                    $subTotal = $singleUnitPrice;
+                }
+
+                if ($discountRate > 0) {
+                    $subTotal = (float)$subTotal - ((float)$subTotal * (float) $discountRate / 100);
+                }
+
+                $allProducs[] = [
+                    'item_id'    =>  '',
+                    'xid'    =>  $product->xid,
+                    'product_item_id'    =>  $product->item_id,
+                    'kem'    =>  $product->text1,
+                    'name'    =>  $product->name,
+                    'image'    =>  $product->image,
+                    'image_url'    =>  $product->image_url,
+                    'discount_rate'    =>  0,
+                    'total_discount'    =>  0,
+                    'x_tax_id'    =>  $tax ? $tax->xid : null,
+                    'tax_type'    =>  $taxType,
+                    'tax_rate'    =>  $taxRate,
+                    'total_tax'    =>  $taxAmount,
+                    'x_unit_id'    =>  Hashids::encode($product->unit_id),
+                    'unit'    =>  $unit,
+                    'unit_price'    =>  $unitPrice,
+                    'single_unit_price'    =>  $singleUnitPrice,
+                    'subtotal'    =>  $subTotal,
+                    'quantity'    =>  1,
+                    'stock_quantity'    =>  $stockQuantity,
+                    'unit_short_name'    =>  $unit ? $unit->short_name : '',
+
+                    //* ADDENDUM
+                    'invoice_number'  =>  $product->invoice_number,
+                    'item_code'  =>  $product->item_code,
+                    'qty_bungkus'  =>  $product->kemasan_jual_qty,
+                    'description'  =>  $product->description,
+                    'subgroup2'  =>  $product->subgroup2,
+                    'text1'  =>  $product->text1,
+                    'unit_buy_in'    =>  $unit_buy_in,
+                    'unit_sale_in'    =>  $unit_sale_in,
+                    'brand' => $brand,
+                    'category' => $category,
+                    'group' => $group,
+                    'color' => $color,
+                    'product_stock_quantity' => $stockQuantity,
+                    //'placement_qty' => ProductPlacement::where('product_id', $this->getIdFromHash($product->xid))->count(),
+                    'purchase_price' => $productDetails->purchase_price,
+                    'retail_counter_price' => $productDetails->retail_counter_price,
+                    'special_counter_price' => $productDetails->special_counter_price,
+                    'discount_counter_price' => $productDetails->discount_counter_price,
+                    'retail_online_price' => $productDetails->retail_online_price,
+                    'special_online_price' => $productDetails->special_online_price,
+                    'discount_online_price' => $productDetails->discount_online_price,
+                    'discount_rate' => $discountRate,
+                    'price_type' => $productType,
+                    'notes' => null,
+                    'order_type' => $orderType,
+                    'adjustment_type' => $orderType == 'stock-adjustment-orders' ? 'add' : ''
+                ];
+            }
+
+            // All Type products
+            if (!$request->has('order_type')) {
+                $allProducs[] = [
+                    'xid'    =>  $product->xid,
+                    'name'    =>  $product->name,
+                    'image'    =>  $product->image,
+                    'image_url'    =>  $product->image_url,
+                    'stock_quantity'    =>  $productDetails->current_stock,
+
+                    //* ADDENDUM
+                    'item_code'  =>  $product->item_code,
+                ];
+            }
+        }
+
+        return ApiResponse::make('Fetched Successfully', $allProducs);
+    }
+    
+    
     public function searchBarcode(Request $request)
     {
         $searchTerm = trim(strtolower($request->search_term));

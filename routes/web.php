@@ -58,6 +58,7 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         ApiRoute::get('timezones', ['as' => 'api.extra.user', 'uses' => 'AuthController@getAllTimezones']);
         ApiRoute::post('change-warehouse', ['as' => 'api.extra.change-warehouse', 'uses' => 'AuthController@changeAdminWarehouse']);
         ApiRoute::post('search-product', ['as' => 'api.extra.search-product', 'uses' => 'ProductController@searchProduct']);
+        ApiRoute::post('search-product-qc', ['as' => 'api.extra.search-product-qc', 'uses' => 'ProductController@searchProductQc']);
         ApiRoute::post('search-barcode', ['as' => 'api.extra.search-barcode', 'uses' => 'ProductController@searchBarcode']);
 
         // Reports

@@ -851,11 +851,11 @@ class Common
                 $orderItem->order_id = $order->xid;
                 $orderItem->product_id = $productItem->xid;
                 $orderItem->unit_price = $productItem->unit_price;
-                $orderItem->unit_id = $productItem->x_unit_id != '' ? $productItem->x_unit_id : null;
+                $orderItem->unit_id = isset($productItem->x_unit_id) && $productItem->x_unit_id != '' ? $productItem->x_unit_id : null;
                 $orderItem->quantity = $productItem->quantity;
                 $orderItem->tax_id = isset($productItem->x_tax_id) && $productItem->x_tax_id != '' ? $productItem->x_tax_id : null;
                 $orderItem->tax_rate = $productItem->tax_rate;
-                $orderItem->discount_rate = $productItem->discount_rate;
+                $orderItem->discount_rate = isset($productItem->discount_rate) ? $productItem->discount_rate : null;
                 $orderItem->total_discount = $productItem->total_discount;
                 $orderItem->total_tax = $productItem->total_tax;
                 $orderItem->tax_type = $productItem->tax_type;

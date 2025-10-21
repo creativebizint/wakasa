@@ -274,7 +274,7 @@
                                         $t('delivery_.shipping_address'),
                                     ])
                                 "
-                                readonly=true
+                                
                             />
                             
                         </a-form-item>
@@ -328,7 +328,7 @@
                                         :label="product.name"
                                         :product="product"
                                     >
-                                        => {{ product.name }}
+                                      {{ product.product_item_id }}  => {{ product.name }} | {{ product.description }} | {{ product.subgroup2 }} ({{product.invoice_number}})
                                     </a-select-option>
                                 </a-select>
                                 <ProductAddButton size="large" />
@@ -345,7 +345,7 @@
                             :columns="orderItemColumns"
                             :pagination="false"
                         >
-                            <template #bodyCell="{ column, record }">
+                            <template #bodyCell="{ column, record, index }">
                                 <template v-if="column.dataIndex === 'name'">
                                     {{ record.name }} <br />
                                     {{ record.product_item_id }} <br />
@@ -360,6 +360,9 @@
                                             }}
                                         </a-typography-text>
                                     </small>
+                                </template>
+                                <template v-if="column.dataIndex === 'sn'">
+                                    {{ index + 1 }}
                                 </template>
                                 <template v-if="column.dataIndex === 'quantity_real'">
                                     <a-input-number
@@ -809,7 +812,7 @@
                                 {{ formatAmountCurrency(formData.subtotal) }}
                             </a-col>
                         </a-row>-->
-                        <a-row :gutter="16" class="mt-20 mb-20">
+<!--                        <a-row :gutter="16" class="mt-20 mb-20">
                             <a-button
                                 type="primary"
                                 :loading="loading"
@@ -819,7 +822,7 @@
                                 <template #icon> <SaveOutlined /> </template>
                                 {{ $t("common.save_and_new") }}
                             </a-button>
-                        </a-row>
+                        </a-row>-->
                         <a-row :gutter="16" class="mt-20 mb-20">
                             <a-button
                                 type="primary"
@@ -1059,7 +1062,8 @@ export default {
                         if (quantity <= 0) return null; // Exclude items with non-positive quantity
 
                         return {
-                            xid: item.xid,
+                            xid: item.product.xid,
+                            item_id: item.xid,
                             product_id: item.product_id,
                             product_item_id: item.product?.item_id || item.item_id,
                             name: item.product?.name || "Unknown Product",
