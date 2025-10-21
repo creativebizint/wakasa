@@ -197,18 +197,9 @@
                             :labelPrefix="warehouseSearchLabelPrefix"
                             :orderPageObject="allWarehouses"
                             :rules="rules"
-                            :warehousesList="[]"
+                            :warehousesList="warehouses"
                             :editOrderDisable="false"
-                            @onSuccess="
-                                (outputWarehouse) =>
-                                    orderPageObject.type == 'stock-transfers' ||
-                                    orderPageObject.type ==
-                                        'stock-transfer-returns'
-                                        ? (formData.from_warehouse_id =
-                                              outputWarehouse)
-                                        : (formData.warehouse_id =
-                                              outputWarehouse)
-                            "
+                            @onSuccess="(outputWarehouse) => formData.warehouse_id = outputWarehouse"
                         />
                     </a-col>
 
@@ -331,7 +322,7 @@
                                       {{ product.product_item_id }}  => {{ product.name }} | {{ product.description }} | {{ product.subgroup2 }} ({{product.invoice_number}})
                                     </a-select-option>
                                 </a-select>
-                                <ProductAddButton size="large" />
+
                             </span>
                         </a-form-item>
                     </a-col>
@@ -1047,19 +1038,21 @@ export default {
         const resetTrigger = ref(0); // Reactive prop to trigger reset
         const invoice_number = route.params.id;
         
-        const handleSalesSearchSuccess = ({ sales_id, customerId, customerName, address, items }) => {
-            console.log("Received in handleSalesSearchSuccess:", { sales_id, customerId, customerName, address, items });
+        const handleSalesSearchSuccess = ({ sales_id, customerId, customerName, address, items,warehouse_id }) => {
+            console.log("Received in handleSalesSearchSuccess:", { sales_id, customerId, customerName, address, items, warehouse_id });
             formData.value.sales_id = sales_id; // Set the sales_id
             formData.value.customer_name = customerName; // Set the customer_name
             formData.value.user_id = customerId; // Set the user_id
             formData.value.shipping_address = address; // Set address
-
+            formData.value.from_warehouse_id = warehouse_id;
+            formData.value.from_warehouse_id = warehouse_id;
+            
             // Process items to autofill selectedProducts
             if (items && items.length > 0) {
                 selectedProducts.value = items
                     .map(item => {
                         const quantity = (item.quantity_scanned || 0) - (item.quantity_done || 0);
-                        if (quantity <= 0) return null; // Exclude items with non-positive quantity
+//                        if (quantity <= 0) return null; // Exclude items with non-positive quantity
 
                         return {
                             xid: item.product.xid,
@@ -1075,8 +1068,10 @@ export default {
                             unit_short_name: item.unit?.short_name || "",
                             stock_quantity: item.product?.details?.current_stock || 0,
                             quantity: quantity,
-                            unit_quantity: quantity,
-                            quantity_real: quantity,
+                            unit_quantity: item.quantity,
+                            quantity_real: item.quantity_qrcode || 0 ,
+                            qty_scanned: item.quantity_scanned || 0 ,
+                            qty_done: item.quantity_done || 0 ,
                             single_unit_price: item.single_unit_price || 0,
                             unit_price: item.unit_price || 0,
                             total_discount: item.total_discount || 0,
@@ -1157,7 +1152,7 @@ export default {
         const paymentModeUrl = "payment-modes?limit=10000";
         const taxUrl = "taxes?limit=10000";
         const unitUrl = "units?limit=10000";
-        const warehouseUrl = `warehouses?filters=id ne "${selectedWarehouse.value.xid}"&hashable=${selectedWarehouse.value.xid}&limit=10000`;
+        const warehouseUrl = `warehouses?limit=10000`;
         const payment = ref({
             amount: 0,
             payment_mode_id: undefined,

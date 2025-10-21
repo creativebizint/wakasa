@@ -102,9 +102,10 @@ export default defineComponent({
             const customer_address = option.product?.user?.address || "";
             const address = shipping_address !== "" ? shipping_address : customer_address;
             const sales_id = option.product.xid;
+            const warehouse_id = option.product?.warehouse.xid || "";
             const items = option.product.items || [];
-            console.log("Emitting onSuccess with:", { sales_id, customerId, customerName, address, items }); // Debug
-            emit("onSuccess", { sales_id, customerId, customerName, address, items });
+            console.log("Emitting onSuccess with:", { sales_id, customerId, customerName, address, items, warehouse_id }); // Debug
+            emit("onSuccess", { sales_id, customerId, customerName, address, items, warehouse_id });
         };
 
         // Watch resetTrigger

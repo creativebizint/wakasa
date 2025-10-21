@@ -55,6 +55,18 @@
                             "
                         />
                     </a-col>
+                    <a-col :xs="24" :sm="24" :md="12" :lg="8" :xl="6">
+                        <a-input-search
+                            style="width: 100%"
+                            v-model:value="filters.invoice_number"
+                            show-search
+                            :placeholder="
+                                $t('common.placeholder_search_text', [
+                                    $t(`common.invoice_number`),
+                                ])
+                            "
+                        />
+                    </a-col>
                     <a-col :xs="24" :sm="24" :md="8" :lg="8" :xl="6">
                         <a-select
                             v-model:value="filters.user_id"

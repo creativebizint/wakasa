@@ -39,7 +39,6 @@
                                     rules.warehouse_id ? rules.warehouse_id.message : null
                                 "
                                 :validateStatus="rules.warehouse_id ? 'error' : null"
-                                class="required"
                             >
                                 <template #label>
                                     {{ $t("warehouse.warehouse") }}
@@ -585,8 +584,8 @@ export default defineComponent({
                         var addEditUserWarehouseId =
                             props.data.warehouse && props.data.warehouse.xid
                                 ? props.data.warehouse.xid
-                                : undefined;
-
+                                : 'AdWNDqgV';
+                                
                         var addEditUserWarehouses = [];
                         if (props.addEditData.user_type == "staff_members") {
                             var userWarehouses = props.data.user_warehouses;
@@ -603,7 +602,7 @@ export default defineComponent({
                                 props.data.role && props.data.role.xid
                                     ? props.data.role.xid
                                     : undefined,
-                            warehouse_id: addEditUserWarehouseId,
+                            warehouse_id: addEditUserWarehouseId != '' ? addEditUserWarehouseId : 1 ,
                             warehouses: addEditUserWarehouses,
                             opening_balance:
                                 props.data.details && props.data.details.opening_balance
@@ -625,6 +624,15 @@ export default defineComponent({
                             _method: "PUT",
                         };
                     }
+                }
+            }
+        );
+
+        watch(
+            () => formData.value.warehouse_id,
+            (newValue) => {
+                if (newValue === null || newValue === undefined) {
+                    formData.value.warehouse_id = "1";
                 }
             }
         );

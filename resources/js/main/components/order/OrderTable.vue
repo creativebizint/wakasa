@@ -979,6 +979,9 @@ export default {
             if (tableFilter.transfer_type) {
                 extraFilterObject.transfer_type = tableFilter.transfer_type;
             }
+            if (tableFilter.invoice_number) {
+                extraFilterObject.refference = tableFilter.invoice_number;
+            }
             if (tableFilter.status) {
                 extraFilterObject.status = tableFilter.status;
             }

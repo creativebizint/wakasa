@@ -58,16 +58,16 @@ const fields = () => {
             dataIndex: "quantity_qr",
         },
         {
+            title: t("product.qty_scanned"),
+            dataIndex: "qty_scanned",
+        },
+        {
+            title: t("product.qty_done"),
+            dataIndex: "qty_done",
+        },
+        {
             title: t("product.quantity_real"),
             dataIndex: "quantity_real",
-        },
-        {
-            title: t("product.shelf"),
-            dataIndex: "shelf",
-        },
-        {
-            title: t("product.product_code"),
-            dataIndex: "product_code",
         },
         {
             title: t("product.product_description"),

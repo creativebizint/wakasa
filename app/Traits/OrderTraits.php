@@ -59,6 +59,10 @@ trait OrderTraits
             $query = $query->where('orders.order_status', $request->status);
         }
         
+        if ($request->has('refference') && $request->refference != "") {
+            $query = $query->where('orders.refference','like', '%'.$request->refference.'%');
+        }
+        
         if ($request->has('type') && $request->type == "inventory_out") {
             $query = $query->where('orders.order_status', '!=' , 'Delivered');
         }
