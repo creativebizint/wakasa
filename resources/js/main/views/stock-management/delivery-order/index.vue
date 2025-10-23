@@ -65,6 +65,7 @@
                                     $t(`common.invoice_number`),
                                 ])
                             "
+                            @search="onInvoiceSearch"
                         />
                     </a-col>
                     <a-col :xs="24" :sm="24" :md="8" :lg="8" :xl="6">
@@ -158,6 +159,7 @@ export default {
             dates: [],
             searchColumn: "invoice_number",
             searchString: "",
+            invoice_number: "",
 
             //* ADDENDUM
             warehouse_id: undefined,
@@ -168,8 +170,18 @@ export default {
         onMounted(() => {
             fetchUsers();
             fetchWarehouses();
-            sampleFileUrl.value =
-                window.config[orderType.value+`_sample_file`];
+            sampleFileUrl.value = window.config[orderType.value+`_sample_file`];
+        
+            // Set invoice_number from query parameter 'reference'
+            const refference = route.query.refference;
+            if (refference) {
+                filters.value.invoice_number = refference;
+                console.log('Set filters.invoice_number from query:', refference);
+                // Trigger table filter
+                if (orderTableRef.value && orderTableRef.value.fetchOrders) {
+                    orderTableRef.value.fetchOrders();
+                }
+            }    
         });
 
         const fetchUsers = () => {
@@ -195,6 +207,32 @@ export default {
                 warehouses.value = warehouses__;
             });
         };
+
+        watch(
+            () => route.query.refference,
+            (newReference) => {
+                console.log('Route query changed to:', newReference, 'at', new Date().toISOString());
+                filters.value.invoice_number = newReference || undefined;
+                console.log('filters.invoice_number updated to:', filters.value.invoice_number, 'at', new Date().toISOString());
+                nextTick(() => {
+                    if (orderTableRef.value?.fetchOrders) {
+                        console.log('Triggering fetchOrders at:', new Date().toISOString());
+                        orderTableRef.value.fetchOrders();
+                    }
+                });
+            }
+        );
+
+        watch(
+            () => filters.value,
+            () => {
+                if (orderTableRef.value?.fetchOrders) {
+                    console.log('Filters changed, triggering fetchOrders at:', new Date().toISOString());
+                    orderTableRef.value.fetchOrders();
+                }
+            },
+            { deep: true }
+        );
 
         watch(
             () => route.meta.orderType,

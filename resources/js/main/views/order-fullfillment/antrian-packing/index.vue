@@ -149,7 +149,11 @@
                                 >
                                     <template #icon><EyeOutlined /></template>
                                 </a-button>
-
+                                <router-link :to="{ path: '/admin/stock/delivery-order', query: { refference: record.invoice_number } }">
+                                    <a-button type="primary" style="margin-left: 4px">
+                                        <template #icon><EyeOutlined /></template>
+                                    </a-button>
+                                </router-link>
                                 <!--
                                 <a-button
                                     v-if="
