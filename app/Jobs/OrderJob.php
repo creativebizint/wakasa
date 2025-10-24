@@ -83,6 +83,7 @@ class OrderJob implements ShouldQueue, ShouldBeUnique
 //            $packingListNumber = isset($this->request['packing_list_number']) ? $this->request['packing_list_number'] : null;
 
             $orderType = $this->request["order_type"];
+            $do_process = 0;
             
             if($orderType == 'inventory_in'){
                 $orderType = 'purchases';
@@ -91,6 +92,7 @@ class OrderJob implements ShouldQueue, ShouldBeUnique
                 $orderType = 'sales_order';
             }
             elseif($orderType == 'delivery_order'){
+                $do_process = 1;
                 $orderType = 'sales';
             }
             
@@ -148,9 +150,38 @@ class OrderJob implements ShouldQueue, ShouldBeUnique
             
                 file_put_contents(storage_path('logs') . '/order.log', "[" . date('Y-m-d H:i:s') . "]order 1 : \n" . print_r($newOrder,1) . "\n\n", FILE_APPEND);
                 // Update Stock
-                $newOrder = Common::storeAndUpdateOrder($newOrder, "", $productItems);
+                if($do_process == 0){
+                    $newOrder = Common::storeAndUpdateOrder($newOrder, "", $productItems);
+                }
+                else{
+                    //DO process copy the item from SO to DO
+                    foreach ($productItems as $item) {
+                        $so_order_items = OrderItem::where('id',Common::getIdFromHash($item['item_id']))->first();
+                        
+                        file_put_contents(storage_path('logs') . '/order.log', "[" . date('Y-m-d H:i:s') . "]so id : \n" . Common::getIdFromHash($item['xid']).':' .print_r($so_order_items,1) . "\n\n", FILE_APPEND);
+                        
+                        $new_order_item = new OrderItem();
+                        $new_order_item->user_id = $so_order_items->user_id;
+                        $new_order_item->order_id = $newOrder->id;
+                        $new_order_item->product_id = $so_order_items->product_id;
+                        $new_order_item->quantity_done = 0;
+                        $new_order_item->quantity = $item['quantity'];
+                        $new_order_item->quantity_scanned = $so_order_items->quantity_scanned;
+                        $new_order_item->picker_by = $so_order_items->picker_by;
+                        $new_order_item->picker_by_name = $so_order_items->picker_by_name;
+                        $new_order_item->save();
+                        
+                        $so_order_items->update(['quantity_done'=> $item['quantity']]);
+                        
+                        
+                    }
+                    
+                    $order_item = new OrderItem;
+                    $order_item->user_id = '';
+                }
+                
            
-            if(!in_array(strtolower($newOrder->order_status),['ordered','confirmed','processing','shipping','open'])){    
+            if(!in_array(strtolower($newOrder->order_status),['ordered','confirmed','processing','shipping','open','qc'])){    
                 // Updating Warehouse History
                 Common::updateWarehouseHistory('order', $newOrder, "add_edit");
 

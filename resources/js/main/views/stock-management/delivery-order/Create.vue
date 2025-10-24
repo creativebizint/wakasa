@@ -1259,9 +1259,9 @@ console.log(deliveryOrderStatus);
                 data: newFormDataObject,
                 successMessage: t(`${orderPageObject.value.langKey}.created`),
                 success: (res) => {
-                    router.push({
-                        name: `admin.${orderPageObject.value.menuKey}.index`,
-                    });
+//                    router.push({
+//                        name: `admin.${orderPageObject.value.menuKey}.index`,
+//                    });
                 },
             });
         };

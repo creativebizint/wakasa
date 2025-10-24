@@ -732,6 +732,8 @@ class Common
         $loggedUser = user();
         $productItems = $request->has('product_items') ? $request->product_items : [];
 
+        file_put_contents(storage_path('logs') . '/order.log', "[" . date('Y-m-d H:i:s') . "]product items : \n" . print_r($productItems,1) . "\n\n", FILE_APPEND);
+        
         $productItems = [];
         if ($request->has('product_items')) {
             $productItems = $request->product_items;
@@ -739,6 +741,9 @@ class Common
             $productItems = $productDetails;
         }
 
+        file_put_contents(storage_path('logs') . '/order.log', "[" . date('Y-m-d H:i:s') . "]product items 2 : \n" . print_r($productDetails,1) . "\n\n", FILE_APPEND);
+        file_put_contents(storage_path('logs') . '/order.log', "[" . date('Y-m-d H:i:s') . "]old order id : \n" . print_r($oldOrderId,1) . "\n\n", FILE_APPEND);
+        
         // If Order item removed when editing an order
         if ($oldOrderId != "") {
             if ($request->has('removed_items')) {
@@ -778,14 +783,14 @@ class Common
                         $oldStock = $productDetails->current_stock;
                     }
 
-                    //file_put_contents(storage_path('logs') . '/order.log', "[" . date('Y-m-d H:i:s') . "]order status : \n" . print_r($order->order_status,1) . "\n\n", FILE_APPEND);
-                    if(!in_array(strtolower($order->order_status),['ordered','confirmed','processing','shipping'])){
+                    file_put_contents(storage_path('logs') . '/order.log', "[" . date('Y-m-d H:i:s') . "]order status : \n" . print_r($order->order_status,1) . "\n\n", FILE_APPEND);
+                    if(!in_array(strtolower($order->order_status),['ordered','confirmed','processing','shipping','qc'])){
                         //update stock product detail
                         $newStock = $orderType == 'sales' || $orderType == 'sales_order'  || $orderType == 'purchase-returns' ? $oldStock + $removedItem->quantity :  $oldStock - $removedItem->quantity;
                         $productDetails->current_stock = $newStock;
                         $productDetails->save();
                         
-                        //file_put_contents(storage_path('logs') . '/order.log', "[" . date('Y-m-d H:i:s') . "]masuk1 \n"  . "\n\n", FILE_APPEND);
+                        file_put_contents(storage_path('logs') . '/order.log', "[" . date('Y-m-d H:i:s') . "]masuk1 \n"  . "\n\n", FILE_APPEND);
                         $stockHistory = new StockHistory();
                         $stockHistory->warehouse_id = $warehouseId;
                         $stockHistory->from_warehouse_id = $fromWarehouseId;
@@ -818,6 +823,7 @@ class Common
 
         $orderSubTotal = 0;
         $totalQuantities = 0;
+        file_put_contents(storage_path('logs') . '/order.log', "[" . date('Y-m-d H:i:s') . "] product items : \n" . print_r($productItems,1) . "\n\n", FILE_APPEND);
         if (count($productItems) > 0) {
 
             foreach ($productItems as $productItem) {
