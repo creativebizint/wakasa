@@ -20,19 +20,16 @@
             <a-space>
                 <a-button
                     v-if="
-                        (permsArray.includes('order_payments_create') ||
-                            permsArray.includes('admin')) &&
-                        order.payment_status != 'paid' &&
-                        order.order_type != 'stock-transfers' &&
-                        detailsRef
+                        (order.order_type == 'sales' &&
+                        detailsRef)
                     "
                     type="primary"
                     @click="detailsRef.addItem"
                 >
                     <PlusOutlined />
-                    {{ $t("payments.add") }}
+                    {{ $t("common.update_weight") }}
                 </a-button>
-                <a-button
+<!--                <a-button
                     v-else-if="
                         (permsArray.includes('order_payments_create') ||
                             permsArray.includes('admin')) &&
@@ -48,7 +45,7 @@
                 >
                     <PlusOutlined />
                     {{ $t("payments.add") }}
-                </a-button>
+                </a-button>-->
 <!--                <a-typography-link
                     :href="`${invoiceBaseUrl}/${order.unique_id}`"
                     target="_blank"

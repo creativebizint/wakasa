@@ -154,5 +154,15 @@ class PurchaseController extends ApiBaseController
             'meta' => ['paging'=>['links'=>$link,'total' => $total]]
         ];
     }
+    
+    function updateWeight(IndexPlacementOutItemRequest $request){
+        $order_id = $this->getIdFromHash($request->order_id);
+        Order::where('id',$order_id)->update(['weight' => $request->weight]);
+        $order = Order::where('id',$order_id)->first();
+        return [
+            'data' => $order,
+            'order_id'=> $order_id,
+        ];
+    }
         
 }

@@ -86,6 +86,12 @@
                                 :paymentStatus="selectedItem.payment_status"
                             />
                         </a-descriptions-item>
+                        
+                        <a-descriptions-item 
+                            :label="$t('common.weight') + ' (Kg)'"
+                        >
+                            {{selectedItem.weight}}
+                        </a-descriptions-item>
 
                         <a-descriptions-item :label="$t('stock.order_sales_by')" v-if="selectedItem.sales_by && selectedItem.sales_by">
                             {{selectedItem.sales_by}}
@@ -130,116 +136,6 @@
             <a-row>
                 <a-col :span="24">
                     <a-tabs v-model:activeKey="activeKey">
-                        <!-- <a-tab-pane 
-                            v-if="
-                                permsArray.includes('order_payments_view') ||
-                                permsArray.includes('admin')
-                            "
-                            key="payments"
-                            :tab="$t('payments.payments')"
-                        >
-                            <a-row>
-                                <a-col :span="24">
-                                    <div class="table-responsive">
-                                        <a-table
-                                            :row-key="(record) => record.xid"
-                                            :columns="orderPaymentsColumns"
-                                            :data-source="
-                                                selectedItem.order_payments
-                                            "
-                                            :pagination="false"
-                                        >
-                                            <template
-                                                #bodyCell="{ column, record }"
-                                            >
-                                                <template
-                                                    v-if="
-                                                        column.dataIndex ===
-                                                        'date'
-                                                    "
-                                                >
-                                                    {{
-                                                        formatDate(
-                                                            record.payment.date
-                                                        )
-                                                    }}
-                                                </template>
-                                                <template
-                                                    v-if="
-                                                        column.dataIndex ===
-                                                        'amount'
-                                                    "
-                                                >
-                                                    {{
-                                                        formatAmountCurrency(
-                                                            record.amount
-                                                        )
-                                                    }}
-                                                </template>
-                                                <template
-                                                    v-if="
-                                                        column.dataIndex ===
-                                                        'payment_mode_id'
-                                                    "
-                                                >
-                                                    {{
-                                                        record.payment
-                                                            .payment_mode.name
-                                                    }}
-                                                </template>
-                                                <template
-                                                    v-if="
-                                                        column.dataIndex ===
-                                                        'action'
-                                                    "
-                                                >
-                                                    <a-button
-                                                        type="primary"
-                                                        @click="
-                                                            editItem(record)
-                                                        "
-                                                        style="margin-left: 4px"
-                                                        v-if="
-                                                            permsArray.includes(
-                                                                'order_payments_edit'
-                                                            ) ||
-                                                            permsArray.includes(
-                                                                'admin'
-                                                            )
-                                                        "
-                                                    >
-                                                        <template #icon
-                                                            ><EditOutlined
-                                                        /></template>
-                                                    </a-button>
-                                                    <a-button
-                                                        type="primary"
-                                                        @click="
-                                                            showDeleteConfirm(
-                                                                record.xid
-                                                            )
-                                                        "
-                                                        style="margin-left: 4px"
-                                                        v-if="
-                                                            permsArray.includes(
-                                                                'order_payments_delete'
-                                                            ) ||
-                                                            permsArray.includes(
-                                                                'admin'
-                                                            )
-                                                        "
-                                                    >
-                                                        <template #icon
-                                                            ><DeleteOutlined
-                                                        /></template>
-                                                    </a-button>
-                                                </template>
-                                            </template>
-                                        </a-table>
-                                    </div>
-                                </a-col>
-                            </a-row>
-                        </a-tab-pane> -->
                         <a-tab-pane
                             key="order_items"
                             :tab="$t('product.order_items')"
@@ -404,7 +300,7 @@ import { useI18n } from "vue-i18n";
 import common from "../../../../common/composable/common";
 import fields from "./fields";
 import UserInfo from "../../../../common/components/user/UserInfo.vue";
-import AddEdit from "../order-payments/AddEdit.vue";
+import AddEdit from "./AddEdit.vue";
 import PaymentStatus from "../../../../common/components/order/PaymentStatus.vue";
 import OrderStatus from "../../../../common/components/order/OrderStatus.vue";
 import datatable from "../../../../common/composable/datatable";
@@ -424,7 +320,7 @@ export default {
     setup(props, { emit }) {
         const {
             initPaymentData,
-            orderPaymentsColumns,
+            orderWeightColumns,
             orderItemDetailsColumns,
         } = fields();
         const { formatAmountCurrency, permsArray, formatDate, formatDateTime } =
@@ -434,7 +330,7 @@ export default {
 
         const addEditVisible = ref(false);
         const addEditType = ref("add");
-        const addEditUrl = ref("order-payments");
+        const addEditUrl = ref("order-weight");
         const formData = ref({});
         const viewData = ref({});
         const editItemAmount = ref(0);
@@ -448,14 +344,12 @@ export default {
 
         const pageTitle = computed(() => {
             return addEditType.value == "add"
-                ? t(`payments.add`)
-                : t(`payments.edit`);
+                ? t(`common.update_weight`)
+                : t(`common.update_weight`);
         });
 
         const successMessage = computed(() => {
-            return addEditType.value == "add"
-                ? t(`payments.created`)
-                : t(`payments.updated`);
+            return t(`weight.updated`);
         });
 
         const onClose = () => {
@@ -463,7 +357,7 @@ export default {
         };
 
         const addItem = () => {
-            addEditUrl.value = `order-payments`;
+            addEditUrl.value = `order-weight`;
             addEditType.value = "add";
             formData.value = {
                 ...initPaymentData,
@@ -480,10 +374,7 @@ export default {
             if (addEditType.value == "add") {
                 formData.value = {
                     order_id: props.selectedItem.xid,
-                    date: undefined,
-                    payment_mode_id: undefined,
-                    amount: "",
-                    notes: "",
+                    weigth: "",
                 };
             }
             addEditVisible.value = false;
@@ -523,7 +414,7 @@ export default {
             formatDate,
             formatDateTime,
             formatAmountCurrency,
-            orderPaymentsColumns,
+            orderWeightColumns,
             orderItemDetailsColumns,
             activeKey,
             addEditSuccess,

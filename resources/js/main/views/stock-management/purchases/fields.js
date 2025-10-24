@@ -38,6 +38,7 @@ const fields = () => {
         discount: 0,
         shipping: 0,
         subtotal: 0,
+        weight:'',
     };
 
     const initPaymentData = {
@@ -45,6 +46,9 @@ const fields = () => {
         payment_mode_id: undefined,
         amount: "",
         notes: "",
+    };
+    const initWeightData = {
+        weight: "",
     };
 
     const orderItemColumns = [
@@ -87,6 +91,10 @@ const fields = () => {
         {
             title: t("product.product_id"),
             dataIndex: "product_id",
+        },
+        {
+            title: t("common.weight"),
+            dataIndex: "weight",
         },
         {
             title: t("product.product_code"),
@@ -313,6 +321,14 @@ const fields = () => {
             });
         }
 
+        if (pageObject.value.type == "sales") {
+            allColumns.push({
+                title: t("common.weight"),
+                dataIndex: "weight",
+                sorter:true,
+            });
+        }
+        
         columns.value = [
             ...allColumns,
             {
@@ -360,10 +376,19 @@ const fields = () => {
         },
       
     ];
+    
+    const orderWeightColumns = [
+        {
+            title: t("common.weight"),
+            dataIndex: "weight",
+        },
+      
+    ];
 
     return {
         initData,
         initPaymentData,
+        initWeightData,
         columns,
         hashableColumns,
         setupTableColumns,
@@ -372,6 +397,7 @@ const fields = () => {
         orderType,
         orderItemColumns,
         orderPaymentsColumns,
+        orderWeightColumns,
         orderItemDetailsColumns
     }
 }
