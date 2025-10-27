@@ -206,31 +206,7 @@
                                             <EyeOutlined />
                                             {{ $t("common.view") }}
                                         </a-menu-item>
-                                        <a-menu-item
-                                            key="edit"
-                                            v-if="
-                                                filters.transfer_type ==
-                                                    'transfered' &&
-                                                (permsArray.includes(
-                                                    `${pageObject.permission}_edit`
-                                                ) ||
-                                                    permsArray.includes(
-                                                        'admin'
-                                                    ))
-                                            "
-                                            @click="
-                                                () =>
-                                                    $router.push({
-                                                        name: `admin.stock.${pageObject.type}.edit`,
-                                                        params: {
-                                                            id: record.xid,
-                                                        },
-                                                    })
-                                            "
-                                        >
-                                            <EditOutlined />
-                                            {{ $t("common.edit") }}
-                                        </a-menu-item>
+                                        
                                         <a-menu-item
                                             key="delete"
                                             v-if="
@@ -354,37 +330,7 @@
                                             <EyeOutlined />
                                             {{ $t("common.view") }}
                                         </a-menu-item>
-                                        <a-menu-item
-                                            key="edit"
-                                            v-if="
-                                                record.order_type !=
-                                                    'online-orders' &&
-                                                (permsArray.includes(
-                                                    `${pageObject.permission}_edit`
-                                                ) ||
-                                                    permsArray.includes(
-                                                        'admin'
-                                                    ))
-                                            "
-                                            @click="
-                                                () =>
-                                                    $router.push({
-                                                        name: pageObject.type === 'purchases'
-                ? 'admin.inventory_in.edit'
-                : pageObject.type === 'inventory_out'
-                ? 'admin.inventory_out.edit'
-                : pageObject.type === 'sales'
-                ? 'admin.delivery_order.edit'
-                : null,
-                                                        params: {
-                                                            id: record.xid,
-                                                        },
-                                                    })
-                                            "
-                                        >
-                                            <EditOutlined />
-                                            {{ $t("common.edit") }}
-                                        </a-menu-item>
+                                        
                                         <a-menu-item
                                             key="delete"
                                             v-if="
@@ -427,7 +373,7 @@
                                             {{ $t("common.pos_invoice") }}
                                         </a-menu-item>
 
-                                        <a-menu-item key="download_invoice">
+<!--                                        <a-menu-item key="download_invoice">
                                             <a-typography-link
                                                 :href="`${invoiceBaseUrl}/${record.unique_id}/${selectedLang}`"
                                                 target="_blank"
@@ -439,9 +385,35 @@
                                                     )
                                                 }}
                                             </a-typography-link>
+                                        </a-menu-item>-->
+                                        <a-menu-item key="download_invoice">
+                                            <a-typography-link
+                                                :href="`#`"
+                                                target="_blank"
+                                            >
+                                                <SendOutlined />
+                                                {{
+                                                    $t(
+                                                        "common.unggah_erp"
+                                                    )
+                                                }}
+                                            </a-typography-link>
                                         </a-menu-item>
-
-                                        <a-menu-divider />
+                                        <a-menu-item key="download_invoice">
+                                            <a-typography-link
+                                                :href="`#`"
+                                                target="_blank"
+                                            >
+                                                <SendOutlined />
+                                                {{
+                                                    $t(
+                                                        "common.reset_status"
+                                                    )
+                                                }}
+                                            </a-typography-link>
+                                        </a-menu-item>
+                                        
+                                        
                                         
                                     </a-menu>
                                 </template>

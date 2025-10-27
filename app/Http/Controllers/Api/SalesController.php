@@ -7,6 +7,7 @@ use App\Http\Requests\Api\Sales\IndexRequest;
 use App\Http\Requests\Api\Sales\StoreRequest;
 use App\Http\Requests\Api\Sales\UpdateRequest;
 use App\Http\Requests\Api\Sales\DeleteRequest;
+use App\Http\Requests\Api\Sales\DORequest;
 use App\Models\Order;
 use App\Traits\OrderTraits;
 
@@ -27,4 +28,16 @@ class SalesController extends ApiBaseController
 
 		$this->orderType = "sales_order";
 	}
+        
+        public function lockDaftarPacking(){
+            $request = request();
+            $selected_ids = explode(',',$request->item_ids);
+            foreach($selected_ids as $selected_id){
+                $item_id = $this->getIdFromHash($selected_id);
+                Order::where('id',$item_id)->update(['order_status'=>'Ready to ship']);
+            }        
+            return [
+                'data' => $item_id,
+            ];
+        }
 }

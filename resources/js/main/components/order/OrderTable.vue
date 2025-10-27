@@ -30,6 +30,11 @@
                                 {{ record.invoice_number }}
                             </a-typography-link>
                         </template>
+                        <template v-if="column.dataIndex === 'refference'">
+                            <a-typography-link @click="viewItem(record)">
+                                {{ record.refference }}
+                            </a-typography-link>
+                        </template>
                         <template v-if="column.dataIndex === 'order_date'">
                             {{ formatDate(record.order_date) }}
                         </template>
@@ -509,7 +514,7 @@
                                         
 
                                         
-                                        <a-menu-item 
+<!--                                        <a-menu-item 
                                             key="no_invoice" 
                                             v-else
                                         >
@@ -525,7 +530,7 @@
                                                 }}
                                                 
                                             </a-typography-link>
-                                        </a-menu-item>
+                                        </a-menu-item>-->
                                         
                                         <a-menu-divider />
                                         

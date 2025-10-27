@@ -278,6 +278,15 @@ const fields = () => {
             },
         ];
 
+        if (pageObject.value.type == "sales") {
+            allColumns.push({
+                title: t(`sales_order.invoice_number`),
+                dataIndex: "refference",
+                sorter:true,
+                sorter_field:"orders.refference"
+            });
+        }
+        
         if (pageObject.value.type == 'stock-transfers') {
             allColumns.push({
                 title: t("stock_transfer.warehouse"),
@@ -318,7 +327,7 @@ const fields = () => {
                 dataIndex: "user_id",
                 sorter:true,
                 sorter_field:"orders.user_id"
-            });
+            });            
         }
 
         if (pageObject.value.type == "sales") {

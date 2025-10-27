@@ -20,14 +20,14 @@
     <admin-page-filters>
         <a-row :gutter="[16, 16]">
             <a-col :xs="24" :sm="24" :md="12" :lg="10" :xl="10">
-                <a-space>
+<!--                <a-space>
                     <template
                         v-if="
                             permsArray.includes(`${orderPageObject.permission}_create`) ||
                             permsArray.includes('admin')
                         "
                     >
-<!--                        <router-link
+                        <router-link
                             :to="{
                                 name: `admin.delivery_order.create`,
                             }"
@@ -36,10 +36,22 @@
                                 <PlusOutlined />
                                 {{ $t(`${orderType}.add`) }}
                             </a-button>
-                        </router-link>-->
+                        </router-link>
                     </template>
 
+                </a-space>-->
+                
+                    <a-space>
+                    <a-button
+                        type="primary"
+                        @click="lockConfirm"
+                        danger
+                    >
+                        <template #icon></template>
+                        {{ $t("common.lock") }}
+                    </a-button>
                 </a-space>
+
             </a-col>
             <a-col :xs="24" :sm="24" :md="12" :lg="14" :xl="14">
                 <a-row :gutter="[16, 16]" justify="end">
@@ -125,6 +137,8 @@ import OrderTable from "../../../components/order/OrderTable.vue";
 import DateRangePicker from "../../../../common/components/common/calendar/DateRangePicker.vue";
 import AdminPageHeader from "../../../../common/layouts/AdminPageHeader.vue";
 import QueueImport from "../../../../common/core/ui/QueueImport.vue";
+import { Modal } from 'ant-design-vue'; // Import Modal for confirmationimport { Modal } from 'ant-design-vue'; // Import Modal for confirmation
+import apiAdmin from "../../../../common/composable/apiAdmin";
 
 export default {
     components: {
@@ -137,6 +151,7 @@ export default {
         QueueImport,
     },
     setup() {
+        const { addEditRequestAdmin, loading, rules } = apiAdmin();
         const {
             formatAmountCurrency,
             orderType,
@@ -268,6 +283,45 @@ export default {
             }
         );
 
+        const lockConfirm = () => {
+            Modal.confirm({
+                title: 'Do you want to lock delivery order?',
+                okText: 'Yes',
+                okType: 'primary',
+                cancelText: 'No',
+                onOk() {
+                    // Prepare data to send
+                    const selectedIds = orderTableRef.value?.table?.selectedRowKeys || [];
+                if (selectedIds.length === 0) {
+                    Modal.error({
+                        title: 'Error',
+                        content: 'Please select at least one item to assign.',
+                    });
+                    return;
+                }
+
+                var data = {
+                    item_ids: selectedIds.join(",")
+                }
+
+                addEditRequestAdmin({
+                    url: `lock-daftar-packing`,
+                    data: data,
+                    successMessage: 'ok',
+                    success: (res) => {
+                        console.log(res);
+                        orderTableRef.value.setUrlData();                        
+                    },
+                });
+            
+            
+                },
+                onCancel() {
+                    // Do nothing or add custom cancel logic
+                },
+            });
+        };
+        
         return {
             orderPageObject,
 
@@ -287,6 +341,7 @@ export default {
             //* ADDENDUM
             warehouses,
             sampleFileUrl,
+            lockConfirm
         };
     },
 };

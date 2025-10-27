@@ -192,6 +192,7 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         ApiRoute::resource('shelf-groups', 'ShelfGroupController', $options, ['as' => 'api', 'except' => ['index']]);
         ApiRoute::resource('shelf-numbers', 'ShelfNumberController', $options, ['as' => 'api', 'except' => ['index']]);
         ApiRoute::get('default-warehouse', ['as' => 'api.warehouses.default-warehouse', 'uses' => 'WarehouseController@getDefaultWarehouse']);
+        ApiRoute::post('lock-daftar-packing', ['as' => 'api.lock.do', 'uses' => 'SalesController@lockDaftarPacking']);
         ApiRoute::resource('inventory_in', 'PurchaseController', $options);        
         ApiRoute::resource('inventory_out', 'SalesController', $options);
         ApiRoute::resource('delivery_order', 'DeliveryOrderController', $options);
