@@ -113,6 +113,7 @@ class OrderJob implements ShouldQueue, ShouldBeUnique
             $newOrder->notes = $this->request["notes"];
             $newOrder->payment_status = 'unpaid';
             $newOrder->total_items = count($productItems);
+            $newOrder->priority = isset($this->request["priority"])?$this->request["priority"]:'';
 //            $newOrder->label = $label;
 //            $newOrder->box_number = $boxNumber;
 //            $newOrder->packing_list_number = $packingListNumber;

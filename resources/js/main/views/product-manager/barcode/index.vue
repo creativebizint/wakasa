@@ -72,10 +72,9 @@
             </a-col>
             <a-col :xs="24" :sm="24" :md="12" :lg="14" :xl="14">
                 <a-row :gutter="[16, 16]" justify="end">
-                    <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="8">
                         <a-input-group compact>
                             <a-select
-                                style="width: 25%"
+                                style="width: 50%"
                                 v-model:value="table.searchColumn"
                                 :placeholder="$t('common.select_default_text', [''])"
                             >
@@ -87,7 +86,7 @@
                                 </a-select-option>
                             </a-select>
                             <a-input-search
-                                style="width: 75%"
+                                style="width: 50%"
                                 v-model:value="table.searchString"
                                 show-search
                                 @change="onTableSearch"
@@ -95,7 +94,6 @@
                                 :loading="table.filterLoading"
                             />
                         </a-input-group>
-                    </a-col>
                 </a-row>
             </a-col>
         </a-row>

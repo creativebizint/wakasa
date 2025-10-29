@@ -93,6 +93,10 @@ const fields = () => {
 			key: "string",
 			value: t("barcode.string")
 		},
+		{
+			key: "item_id",
+			value: t("product.item_id")
+		},
 	];
 
 	return {

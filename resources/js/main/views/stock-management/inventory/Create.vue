@@ -309,6 +309,52 @@
                             </span>
                         </a-form-item>
                     </a-col>
+                    
+                    <a-col v-if="orderPageObject.type == 'inventory_out'"
+                        :xs="24"
+                        :sm="24"
+                        :md="6"
+                        :lg="6"
+                    >
+                        <a-form-item
+                            :label="
+                                $t(`${orderPageObject.langKey}.priority`)
+                            "
+                            name="priority"
+                            :help="
+                                rules.priority
+                                    ? rules.priority.message
+                                    : null
+                            "
+                            :validateStatus="
+                                rules.priority ? 'error' : null
+                            "
+                            class="required"
+                        >
+                            <span style="display: flex">
+                                <a-select
+                                    v-model:value="formData.priority"
+                                    :placeholder="
+                                        $t('common.select_default_text', [
+                                            $t(
+                                                `${orderPageObject.langKey}.priority`
+                                            ),
+                                        ])
+                                    "
+                                    :allowClear="true"
+                                    optionFilterProp="title"
+                                >
+                                    <a-select-option value="Ditunggu" title="Ditunggu">Ditunggu</a-select-option>
+                                    <a-select-option value="Pesawat" title="Pesawat">Pesawat</a-select-option>
+                                    <a-select-option value="Segera" title="Segera">Segera</a-select-option>                                    
+                                    <a-select-option value="Normal" title="Normal">Normal</a-select-option>
+        
+        
+                                </a-select>
+                            </span>
+                        </a-form-item>
+                    </a-col>
+                    
                 </a-row>
 
                 <a-row :gutter="16">
