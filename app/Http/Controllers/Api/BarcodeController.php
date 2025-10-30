@@ -60,7 +60,12 @@ class BarcodeController extends ApiBaseController
           $order = OrderItem::join('orders','orders.id','=','order_items.order_id')
               ->where('orders.invoice_number',$request->invoice_number)
               ->where('order_items.product_id','=',$product->id)
-              ->select('order_items.id')->first();
+              ->select('order_items.id','order_items.quantity')->first();
+          
+          if($request->qty_bungkus > $order->quantity){
+            throw new ApiException('Act Qty Bungkus('.$request->qty_bungkus.') tidak bisa lebih besar dari Qty Faktur ('.$order->quantity.')');
+          }
+          
           if($order == null){
             throw new ApiException('No BB tidak ditemukan');
           }
@@ -68,6 +73,18 @@ class BarcodeController extends ApiBaseController
             $barcode->order_item_id = $order->id;  
           }
           
+          $barcodes = Barcode::where('order_item_id',$order->id)->where('string','!=',$request->string)
+                      ->get();
+          $qty_scanned = $request->qty_bungkus;
+          foreach($barcodes as $barcode){
+              $qty_scanned += $barcode->qty_bungkus;
+          }
+          if($qty_scanned > $order->quantity){
+            throw new ApiException('Qty Scanned ('.$qty_scanned.') tidak bisa lebih besar dari Qty Faktur ('.$order->quantity.')');
+          }
+          else{
+              OrderItem::where('id',$order->id)->update(['quantity_scanned'=>$qty_scanned]);
+          }
           
           if(isset($request->delivery_invoice_number) && $request->delivery_invoice_number != ''){
               $delivery_order = OrderItem::join('orders','orders.id','=','order_items.order_id')
