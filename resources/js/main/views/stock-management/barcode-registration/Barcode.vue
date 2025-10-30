@@ -220,7 +220,7 @@
                     >
                         <template #bodyCell="{ column, record }">                            
                             <template v-if="column.dataIndex === 'action'">
-                                <div v-if="editOrderDisable">-</div>
+                                <div v-if="record.order_item_id">-</div>
                                 <div v-else>
                                     <a-button
                                         type="primary"
@@ -474,12 +474,15 @@ export default {
 
         const onSubmit = () => {
             
-
+            if(formData.value.total_items <  formData.value.total_items_scanned){
+                alert('Qty Scanned is over than qty faktur');
+                return false;
+            }
             
             const newFormDataObject = {
                 ...formData.value,
                 order_item_id: orderId,
-                total_items: selectedProducts.value.length,
+                total_items: formData.value.total_items,
                 product_items: selectedProducts.value,
                 removed_items: removedOrderItemsIds.value,
                 _method: "POST",
