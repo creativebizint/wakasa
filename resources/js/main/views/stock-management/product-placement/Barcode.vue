@@ -2,7 +2,7 @@
     <AdminPageHeader>
         <template #header>
             <a-page-header
-                :title="$t(`menu.inventory_in`)"
+                :title="$t(`menu.placement_in_item`)"
                 @back="() => $router.go(-1)"
                 class="p-0"
             >
@@ -22,15 +22,15 @@
                     </router-link>
                 </a-breadcrumb-item>
                 <a-breadcrumb-item>
-                    <router-link :to="{ name: 'admin.inventory_in.index' }">
+                    <router-link :to="{ name: 'admin.product_placement.placement_in' }">
                     {{
-                       $t(`menu.inventory_in`)
+                       $t(`menu.placement_in`)
                     }}
                     </router-link>
                 </a-breadcrumb-item>
                 
                 <a-breadcrumb-item>
-                    {{ $t("menu.barcode") }}
+                    {{ $t("menu.placement_in_item") }}
                 </a-breadcrumb-item>
             </a-breadcrumb>
         </template>

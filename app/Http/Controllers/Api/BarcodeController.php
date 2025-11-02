@@ -76,8 +76,8 @@ class BarcodeController extends ApiBaseController
           $barcodes = Barcode::where('order_item_id',$order->id)->where('string','!=',$request->string)
                       ->get();
           $qty_scanned = $request->qty_bungkus;
-          foreach($barcodes as $barcode){
-              $qty_scanned += $barcode->qty_bungkus;
+          foreach($barcodes as $barcode_detail){
+              $qty_scanned += $barcode_detail->qty_bungkus;
           }
           if($qty_scanned > $order->quantity){
             throw new ApiException('Qty Scanned ('.$qty_scanned.') tidak bisa lebih besar dari Qty Faktur ('.$order->quantity.')');
@@ -103,6 +103,7 @@ class BarcodeController extends ApiBaseController
           
         }
         $barcode->box_id = Common::generateOrderUniqueId();
+        $barcode->comment = $request->comment;
         $barcode->reg_bungkus_id = Common::generateOrderUniqueId();
         //file_put_contents(storage_path('logs') . '/barcode.log', "[" . date('Y-m-d H:i:s') . "]test 1 : \n" . print_r($barcode,1) . "\n\n", FILE_APPEND);
         return $barcode;

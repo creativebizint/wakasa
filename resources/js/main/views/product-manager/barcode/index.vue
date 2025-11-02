@@ -161,6 +161,8 @@
                             <template v-if="column.dataIndex === 'sales_order_number'">
                                 <template v-if="record.order_item_out">
                                     {{ record.order_item_out.order.invoice_number }}
+                                    {{ record.order_item_out.order.invoice_number }}
+                                    {{ record.order_item_out.order.invoice_number }}
                                 </template>
                             </template>
                             <template v-if="column.dataIndex === 'kemasan_jual_qty'">
