@@ -43,13 +43,11 @@
             </a-col>
             <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="8">
                 <DateRangePicker
-                    @dateTimeChanged="
-                        (changedDateTime) => {
-                            filters.dates = changedDateTime;
-                        }
-                    "
-                    @change="setUrlData"
-                />
+  :dateRange="selectedDateRange"
+  @dateTimeChanged="onDateTimeChanged"
+  formatType="YYYY-MM-DD"
+  :placeholder="['Start Date', 'End Date']"
+/>
             </a-col>
             <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="6">
                 <a-row :gutter="[16, 16]" justify="end">
@@ -134,7 +132,7 @@
     </admin-page-table-content>
 </template>
 <script>
-import { onMounted, ref, reactive } from "vue";
+import { onMounted, ref, reactive, nextTick } from "vue";
 import {
     PlusOutlined,
     EditOutlined,
@@ -149,6 +147,7 @@ import AddEdit from "./AddEdit.vue";
 import AdminPageHeader from "../../../../common/layouts/AdminPageHeader.vue";
 import DateRangePicker from "../../../../common/components/common/calendar/DateRangePicker.vue";
 import QueueImport from "../../../../common/core/ui/QueueImport.vue";
+import dayjs from 'dayjs';
 
 export default {
     components: {
@@ -175,16 +174,32 @@ export default {
         const sampleFileUrl = window.config.stock_in_sample_file;
         const exportUrl = window.config.stock_in_export_url;
 
+        const selectedDateRange = ref([
+      dayjs().subtract(1, 'month').startOf('month'),   // dayjs object
+      dayjs()                                          // dayjs object
+    ])
+    
+    const onDateTimeChanged = (dates) => {
+      // `dates` are strings in YYYY-MM-DD (already formatted by the picker)
+      filters.dates = dates || []
+      // keep the picker in sync (dayjs objects)
+      selectedDateRange.value = dates && dates.length === 2
+        ? [dayjs(dates[0]), dayjs(dates[1])]
+        : []
+      setUrlData()
+    }
+    
         const filters = reactive({
             invoice_number: undefined,
-            dates: [],
+            dates: [dayjs().startOf('month').format('YYYY-MM-DD'),
+                   dayjs().format('YYYY-MM-DD')],
         });
         const brands = ref([]);
 
         onMounted(() => {
-            getInitialData();
-            // setUrlData();
-        });
+            getInitialData()
+            nextTick(() => setUrlData())   // now filters.dates already contain the default
+          })
 
         const setUrlData = () => {
             crudVariables.tableUrl.value = {
@@ -241,6 +256,8 @@ export default {
             filters,
             brands,
             exportExcel,
+            selectedDateRange,
+        onDateTimeChanged,
         };
     },
 };

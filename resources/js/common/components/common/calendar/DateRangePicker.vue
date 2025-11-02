@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import { defineComponent, onMounted, ref } from "vue";
+import { defineComponent, onMounted, ref, watch } from "vue";
 import common from "../../../composable/common";
 import { useI18n } from "vue-i18n";
 
@@ -45,6 +45,18 @@ export default defineComponent({
             }
         });
 
+        watch(
+            () => props.dateRange,
+            (newVal) => {
+              if (Array.isArray(newVal) && newVal.length === 2 && newVal[0] && newVal[1]) {
+                dateRangeValue.value = [dayjs(newVal[0]), dayjs(newVal[1])]
+              } else {
+                dateRangeValue.value = []
+              }
+            },
+            { immediate: true }   // run once on component creation
+        )
+  
         const dateTimeChanged = (newValue) => {
             if (newValue) {
                 emit("dateTimeChanged", [

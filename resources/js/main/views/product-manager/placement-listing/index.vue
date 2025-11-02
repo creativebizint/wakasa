@@ -555,6 +555,7 @@ export default {
             formatAmountCurrency,
             getRecursiveCategories,
             filterTreeNode,
+            allWarehouses,
         } = common();
         const filters = ref({
             warehouse_id: undefined,
@@ -574,7 +575,7 @@ export default {
 
         onMounted(() => {
             getInitialData();
-
+            
             crudVariables.crudUrl.value = addEditUrl;
             crudVariables.langKey.value = "product";
             crudVariables.initData.value = { ...initData };
@@ -617,16 +618,29 @@ export default {
                     categoriesResponse,
                     brandsResponse,
                 ]) => {
-                    var warehouses_all = [
+                    // "All" option
+                    const warehouses_all = [
                         { name: "All", profile_image: "", xid: "" },
                     ];
-                    var warehouses__ = warehouses_all.concat(
-                        warehousesResponse.data
-                    );
-                    warehouses.value = warehouses__;
+
+                    // Real warehouses
+                    const realWarehouses = warehousesResponse.data || [];
+
+                    // Combine: All + real warehouses
+                    warehouses.value = warehouses_all.concat(realWarehouses);
+
+                    // Set default to FIRST REAL warehouse
+                    if (realWarehouses.length > 0) {
+                        filters.value.warehouse_id = realWarehouses[0].xid;
+                    } else {
+                        filters.value.warehouse_id = ""; // fallback to "All"
+                    }
 
                     categories.value = categoriesResponse.data;
                     brands.value = brandsResponse.data;
+
+                    // Load table with default
+                    setUrlData();
                 }
             );
         };
