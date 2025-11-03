@@ -312,6 +312,7 @@ const stockManagement = () => {
     };
 
     const showDeleteConfirm = (product) => {
+        formData.value.total_items_scanned = formData.value.total_items_scanned - product.qty_bungkus;
         // Delete selected product and rearrange SN
         const newResults = [];
         let counter = 1;
