@@ -48,7 +48,7 @@ const fields = () => {
             sorter: true,
         },
         {
-            title: t("stock_in.total_items"),
+            title: t("stock_in.total_qr"),
             dataIndex: "total_items",
             sorter: true,
         },
