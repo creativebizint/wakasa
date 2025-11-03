@@ -118,7 +118,10 @@ const stockManagement = () => {
             state.products = [];
             //recalculateFinalTotal();
             var total_scanned = formData.value.total_items_scanned == '' ? 0 : formData.value.total_items_scanned;
-            formData.value.total_items_scanned =  total_scanned + newProduct.qty_bungkus;
+//            formData.value.total_items_scanned =  total_scanned + newProduct.qty_bungkus;
+            
+            var total_items_in = formData.value.total_items_in == '' ? 0 : formData.value.total_items_in;
+            formData.value.total_items_in =  total_items_in + newProduct.qty_bungkus;
             
             var audioObj = new Audio(appSetting.value.beep_audio_url);
             audioObj.play();
@@ -312,7 +315,7 @@ const stockManagement = () => {
     };
 
     const showDeleteConfirm = (product) => {
-        formData.value.total_items_scanned = formData.value.total_items_scanned - product.qty_bungkus;
+        formData.value.total_items_in = formData.value.total_items_in - product.qty_bungkus;
         // Delete selected product and rearrange SN
         const newResults = [];
         let counter = 1;
