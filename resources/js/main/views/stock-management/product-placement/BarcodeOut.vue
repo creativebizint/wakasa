@@ -580,9 +580,9 @@ export default {
                 data: newFormDataObject,
                 successMessage: t(`messages.success`),
                 success: (res) => {
-//                    router.push({
-//                        name: `admin.product_placement.placement_out`,
-//                    });
+                    router.push({
+                        name: `admin.product_placement.placement_out`,
+                    });
                 },
             });
         };

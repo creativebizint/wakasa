@@ -676,7 +676,7 @@ trait OrderTraits
             $xorder_item_id = $request['order_item_id'];
             $item_id = $request['item_id'];
             $nik = isset($request['nik'])?$request['nik']:'';
-            $row = isset($request['row']) ? $request['row'] : '';
+            $row = isset($request['text2']) ? $request['text2'] : '';
             $order_item_id = Common::getIdFromHash($xorder_item_id);
             $loggedUser = user();
             $user_id = Common::getIdFromHash($loggedUser->xid);
