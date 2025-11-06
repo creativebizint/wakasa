@@ -52,6 +52,7 @@
                                     ])
                                 "
                                 @blur="checkInvoiceNumber"
+                                :readonly="true"
                             />
                             <small class="small-text-message">
                                 {{ $t("stock.invoice_number_blank") }}
@@ -198,7 +199,7 @@
                             :orderPageObject="allWarehouses"
                             :rules="rules"
                             :warehousesList="warehouses"
-                            :editOrderDisable="false"
+                            :editOrderDisable="true"
                             @onSuccess="(outputWarehouse) => formData.warehouse_id = outputWarehouse"
                         />
                     </a-col>
@@ -276,7 +277,7 @@
 
 
                 <a-row :gutter="16">
-                    <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                    <a-col :xs="24" :sm="24" :md="24" :lg="24" style="display:none">
                         <a-form-item
                             :label="$t('product.product')"
                             name="orderSearchTerm"
@@ -332,7 +333,7 @@
                     <a-col :xs="24" :sm="24" :md="24" :lg="24">
                         <a-table
                             :row-key="(record) => record.xid"
-                            :dataSource="selectedProducts"
+                            :dataSource="filteredProducts"
                             :columns="orderItemColumns"
                             :pagination="false"
                         >
@@ -1038,6 +1039,14 @@ export default {
         const resetTrigger = ref(0); // Reactive prop to trigger reset
         const invoice_number = route.params.id;
         
+        const filteredProducts = computed(() => {
+            return selectedProducts.value.filter(record => {
+//                console.log(record.unit_quantity,'----',record.qty_done);
+              // Skip row if quantity equals qty_done
+              return record.unit_quantity != record.qty_done;
+            });
+          });
+
         const handleSalesSearchSuccess = ({ sales_id, customerId, customerName, address, items,warehouse_id }) => {
             console.log("Received in handleSalesSearchSuccess:", { sales_id, customerId, customerName, address, items, warehouse_id });
             formData.value.sales_id = sales_id; // Set the sales_id
@@ -1523,6 +1532,7 @@ console.log(deliveryOrderStatus);
             resetTrigger,
             onSubmitNew,
             invoice_number,
+            filteredProducts,
         };
     },
 };
