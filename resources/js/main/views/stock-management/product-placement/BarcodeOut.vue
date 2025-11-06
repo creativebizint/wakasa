@@ -534,7 +534,7 @@ export default {
         const userSearchLabelPrefix = ref([]);
         const warehouseSearchLabelPrefix = ref([]);
         const userWarehouses = ref([]);
-
+        const priority = ref('');
 
         onMounted(() => {
             const orderPromise = axiosAdmin.get(`scanned/barcode/${orderId}`);
@@ -546,6 +546,7 @@ export default {
                 selectedProducts.value = [];
                 const total_item = orderResponseData.total;
                 maximumBarcode.value = orderResponseData.order_item.quantity;
+                priority.value = orderResponseData.order.priority;
                 formData.value = {
                     item_id: orderResponseData.order_item.item_id,
                     total_items : orderResponseData.order_item.quantity,
@@ -560,8 +561,8 @@ export default {
         });
 
         const onSubmit = () => {
-            if(maximumBarcode.value < selectedProducts.value.length){
-                alert('total scan barcode('+selectedProducts.value.length+') > total Item('+ maximumBarcode.value +')');
+            if(maximumBarcode.value < (formData.value.total_items_in + formData.value.total_items_scanned)){
+                alert('total scan barcode('+(formData.value.total_items_in + formData.value.total_items_scanned)+') > total Item('+ maximumBarcode.value +')');
                 return false;
             }
 
@@ -580,9 +581,13 @@ export default {
                 data: newFormDataObject,
                 successMessage: t(`messages.success`),
                 success: (res) => {
-                    router.push({
-                        name: `admin.product_placement.placement_out`,
-                    });
+                    const priorityLower = priority.value?.toLowerCase()?.trim();
+
+                    if (priorityLower === 'ditunggu' || priorityLower === 'segera') {
+                        router.push({ name: 'admin.product_placement.placement_out_priority' });
+                    } else {
+                        router.push({ name: 'admin.product_placement.placement_out' });
+                    }
                 },
             });
         };
