@@ -2,7 +2,7 @@
     <AdminPageHeader>
         <template #header>
             <a-page-header
-                :title="$t(`menu.${orderPageObject.menuKey}`)"
+                :title="$t(`menu.create_do`)"
                 @back="() => $router.go(-1)"
                 class="p-0"
             >
@@ -23,7 +23,7 @@
                 </a-breadcrumb-item>
                 <a-breadcrumb-item>
                     {{
-                        $t(`menu.${orderPageObject.menuKey}`)
+                        $t(`menu.create_do`)
                     }}
                 </a-breadcrumb-item>
                 <a-breadcrumb-item>
@@ -362,6 +362,7 @@
                                         v-model:value="record.quantity"
                                         @change="quantityChanged(record)"
                                         :min="0"
+                                        :readonly="true"
                                     />
                                 </template>
                                 <template v-if="column.dataIndex === 'shelf'">
@@ -448,9 +449,9 @@
                             </a-col>
                         </a-row>
                     </a-col>
-                    <a-col :xs="24" :sm="24" :md="8" :lg="8">
+                    <a-col :xs="24" :sm="24" :md="8" :lg="8" >
                         <a-row :gutter="16" v-if="orderPageObject.type != 'quotations'">
-                            <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                            <a-col :xs="24" :sm="24" :md="24" :lg="24" :style="{ display: 'none' }">
                                 <a-form-item
                                     :label="$t('stock.status')"
                                     name="order_status"
@@ -1259,8 +1260,8 @@ console.log(deliveryOrderStatus);
                 ...formData.value,
                 order_type: orderPageObject.value.type,
                 total: formData.value.subtotal,
-                total_items: selectedProducts.value.length,
-                product_items: selectedProducts.value,
+                total_items: filteredProducts.value.length,
+                product_items: filteredProducts.value,
                 pay_object: formFields.value,
                 all_payments: allPayments.value,
             };
