@@ -78,6 +78,10 @@ const fields = () => {
                 title: t("product.qty_scanned"),
                 dataIndex: "quantity_scanned",
             },
+            {
+                title: t("picking_assignment.status"),
+                dataIndex: "status",
+            },
     //        {
     //            title: t("product.unit_price"),
     //            dataIndex: "single_unit_price",

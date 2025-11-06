@@ -307,7 +307,7 @@ class pickingAssignmentController extends ApiBaseController
         foreach($result as $k=>$result_){
             $result[$k]->items = OrderItem::where('order_id',$result_->id)
                                 ->join('products','products.id','order_items.product_id')
-                                ->select('products.item_id','order_items.quantity_scanned','order_items.quantity','order_items.picker_by_name','order_items.id','products.name','products.description','subgroup2','text1')
+                                ->select('products.item_id','order_items.quantity_scanned','order_items.quantity','order_items.quantity_done','order_items.picker_by_name','order_items.id','products.name','products.description','subgroup2','text1')
                                 ->get();
         }
         

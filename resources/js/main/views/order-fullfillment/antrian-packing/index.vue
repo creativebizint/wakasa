@@ -149,9 +149,10 @@
                                 >
                                     <template #icon><EyeOutlined /></template>
                                 </a-button>
+                                
                                 <router-link :to="{ path: '/admin/stock/delivery-order', query: { refference: record.invoice_number } }">
                                     <a-button type="primary" style="margin-left: 4px">
-                                        <template #icon><EyeOutlined /></template>
+                                        <template #icon><FileSearchOutlined /></template>
                                     </a-button>
                                 </router-link>
                                 <!--
@@ -194,7 +195,9 @@
                             :pagination="false"
                         >
                             <template #bodyCell="{ column, record }">
-                                
+                                <template v-if="column.dataIndex === 'status'">
+                                    {{record.quantity_done > 0 ? 'DO Created' : '-'}}
+                                </template>
                             </template>
                         </a-table>
                     </template>
@@ -219,7 +222,7 @@
 </template>
 <script>
 import { onMounted,ref } from "vue";
-import { PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined,MessageOutlined } from "@ant-design/icons-vue";
+import { PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined,MessageOutlined,FileSearchOutlined } from "@ant-design/icons-vue";
 import fields from "./fields";
 import crud from "../../../../common/composable/crud";
 import common from "../../../../common/composable/common";
@@ -236,7 +239,8 @@ export default {
         AddEdit,
         AdminPageHeader,
         QueueImport,
-        MessageOutlined
+        MessageOutlined,
+        FileSearchOutlined
     },
     setup() {
         const { addEditUrl, initData, columns, filterableColumns, orderItemDetailsColumns } = fields();
