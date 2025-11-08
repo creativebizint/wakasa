@@ -93,10 +93,6 @@ const fields = () => {
             dataIndex: "product_id",
         },
         {
-            title: t("common.weight"),
-            dataIndex: "weight",
-        },
-        {
             title: t("product.product_code"),
             dataIndex: "product_code",
         },

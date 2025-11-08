@@ -323,22 +323,6 @@
                                                                 )
                                                             }}
                                                         </a-typography-text>
-                                                    </a-table-summary-cell>
-                                                    <a-table-summary-cell
-                                                        :col-span="1"
-                                                    >
-                                                        <a-typography-text
-                                                            strong
-                                                        >
-                                                            {{
-                                                                totals.totalQuantity
-                                                            }}
-                                                        </a-typography-text>
-                                                    </a-table-summary-cell>
-                                                    <a-table-summary-cell
-                                                        :col-span="1"
-                                                    >
-                                                    </a-table-summary-cell>
                                                     <a-table-summary-cell
                                                         :col-span="1"
                                                     >

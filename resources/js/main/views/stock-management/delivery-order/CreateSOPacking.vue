@@ -362,7 +362,9 @@
                                         v-model:value="record.quantity"
                                         @change="quantityChanged(record)"
                                         :min="0"
-                                        :readonly="true"
+                                        inputmode="numeric"
+                                        pattern="[0-9]*"
+                                        maxlength="12"
                                     />
                                 </template>
                                 <template v-if="column.dataIndex === 'shelf'">
