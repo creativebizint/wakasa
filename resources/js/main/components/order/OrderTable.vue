@@ -996,6 +996,9 @@ export default {
             if (tableFilter.priority) {
                 extraFilterObject.priority = tableFilter.priority;
             }
+            if (tableFilter.item_id) {
+                extraFilterObject.item_id = tableFilter.item_id;
+            }
 
             console.log("API URL:", `${props.orderType}?${filterString}`);
             

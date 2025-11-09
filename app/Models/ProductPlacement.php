@@ -55,5 +55,10 @@ class ProductPlacement extends BaseModel
         return $this->belongsTo(Product::class, 'product_id', 'id');
     }
     
+    public function rows()
+    {
+        return $this->belongsTo(ProductPlacementRow::class,'row','id');
+        // or however it's linked
+    }
     
 }

@@ -775,6 +775,9 @@ export default {
             if (tableFilter.transfer_type) {
                 extraFilterObject.transfer_type = tableFilter.transfer_type;
             }
+            if (tableFilter.transfer_type) {
+                extraFilterObject.transfer_type = tableFilter.transfer_type;
+            }
 
             if(props.orderType == 'placement_out' && props.priority == 0){
                 var url = `placement_out_item?priority=0`;

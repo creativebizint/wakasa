@@ -7,6 +7,7 @@ const fields = () => {
 	const initData = {
 		string: "",
 		comment: "",
+		rows: "",
 		reason: "",
 		item_id: "",
 		isactive: "",
@@ -30,6 +31,11 @@ const fields = () => {
             {
                     title: t("product.item_id"),
                     dataIndex: "item_id",
+                    sorter:true
+            },
+            {
+                    title: t("product.rows"),
+                    dataIndex: "rows",
                     sorter:true
             },
             {

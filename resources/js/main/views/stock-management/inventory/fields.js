@@ -159,6 +159,10 @@ const fields = () => {
             key: "invoice_number",
             value: t("stock.invoice_number")
         },
+        {
+            key: "item_id",
+            value: t("stock.item_id")
+        },
     ];
 
     const pageObject = computed(() => {

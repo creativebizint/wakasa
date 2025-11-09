@@ -43,6 +43,12 @@ class Barcode extends BaseModel
         return $this->belongsTo(Product::class, 'item_id', 'item_id');
     }
     
+    
+    public function product_placements()
+    {
+        return $this->belongsTo(ProductPlacement::class, 'id', 'barcode_id');
+    }
+    
     const STATUS_OPEN = 1;
     const STATUS_SCANNED = 2;
     const STATUS_IN = 3;
