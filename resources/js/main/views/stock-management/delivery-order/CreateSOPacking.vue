@@ -1046,7 +1046,10 @@ export default {
             return selectedProducts.value.filter(record => {
 //                console.log(record.unit_quantity,'----',record.qty_done);
               // Skip row if quantity equals qty_done
-              return record.unit_quantity != record.qty_done;
+              return (
+                record.unit_quantity != record.qty_done &&   // ≠  (use !== if you want strict)
+                record.qty_scanned > 0                  // covers null & undefined
+              );
             });
           });
 
