@@ -80,6 +80,64 @@ class PurchaseController extends ApiBaseController
         ];
     }
     
+    public function indexPlacementInItemHistory(IndexPlacementInItemRequest $request)
+    {
+
+        $query = \App\Models\OrderItem::join('orders','orders.id','=','order_items.order_id')
+                ->join('barcode','barcode.order_item_id','=','order_items.id')
+                ->join('product_placements','barcode.id','=','product_placements.barcode_id')
+                ->join('product_placement_row','product_placement_row.id','=','product_placements.row')
+                ->join('products','products.id','=','order_items.product_id')
+                ->leftJoin('warehouses','warehouses.id','=','orders.warehouse_id')
+                ->leftJoin('users','users.id','=','orders.user_id')
+                ->where('order_type', 'purchases')
+                ->whereNotNull('quantity_scanned')
+                ->select('barcode.string','orders.invoice_number','orders.order_date as date','product_placement_row.value as location','products.item_id','order_items.quantity_scanned','order_items.quantity',
+                        'orders.warehouse_id','warehouses.code as warehouse_code','warehouses.name as warehouse_name','orders.user_id','users.name as user_name',
+                        'users.code as user_code','order_items.product_id','order_items.id','barcode.qty_bungkus')
+                ->orderBy('orders.id','desc');
+        
+        if ($request->has('item_id')) {
+            $query->where('products.item_id','like','%'.$request->item_id.'%');
+        }
+        if ($request->has('string')) {
+            $query->where('barcode.string','like','%'.$request->string.'%');
+        }
+        if ($request->has('row')) {
+            $query->where('product_placement_row.value','like','%'.$request->row.'%');
+        }
+        
+        if ($request->has('user_id')) {
+            $query->where('orders.user_id','=',$this->getIdFromHash($request->user_id));
+        }
+        if ($request->has('dates')) {
+            $date_arr = explode(',',$request->dates);
+            $query->whereBetween('orders.order_date',$date_arr);
+        }
+        
+        $total = $query->count();
+        // Apply pagination
+        $offset = $request->input('offset', 0);
+        $limit = $request->input('limit', 10);
+
+        $result = $query->skip($offset)->take($limit)->get();
+        $next = (($offset+1)*$limit);
+        $next_url = url()->current().'?offset='.$next;
+        $previous = (($offset-1)*$limit);
+        $previous_url = url()->current().'?offset='.$previous;
+        if($previous <=0){
+            $link = ['next' => $next_url];
+        }
+        else{
+            $link = ['next' => $next_url,'previous' => $previous_url];
+        }
+        
+        return [
+            'data' => $result,
+            'meta' => ['paging'=>['links'=>$link,'total' => $total]]
+        ];
+    }
+    
     public function indexPlacementOutItem(IndexPlacementOutItemRequest $request)
     {
         $user = Session::get('user');

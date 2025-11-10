@@ -258,7 +258,7 @@ export default [
                     menuParent: "product_placement",
                     menuKey: (route) => "placement_in_history",
                     permission: (route) => "product_placement_view",
-                    orderType: "placement_in",
+                    orderType: "placement_in_history",
                 },
             },
             

@@ -145,7 +145,7 @@
             <a-row :gutter="8">
                 <a-col :xs="24" :sm="24" :md="24" :lg="24">
                     <a-form-item
-                        :label="$t('barcode.quantity_in')"
+                        :label="$t('barcode.quantity_out')"
                         name="total_items_in"
                         :help="rules.total_items ? rules.total_items.message : null"
                         :validateStatus="rules.total_items ? 'error' : null"
@@ -168,7 +168,6 @@
                         name="row"
                     >
                         <a-input
-                            v-model:value="formData.text2"
                             min="0"
                             style="width: 50%"
                         >

@@ -21,243 +21,218 @@
         <a-row :gutter="[16, 16]">
             <a-col :xs="24" :sm="24" :md="12" :lg="10" :xl="10">
                 <a-space>
-                    <template
-                        v-if="
-                            permsArray.includes('stock_managements_create') ||
-                            permsArray.includes('admin')
-                        "
-                    >
-                        <a-space>
-                            <a-typography-link
-                                @click="exportExcel"
-                                target="_blank"
-                            >
-                                <a-button type="primary">
-                                    <FileExcelOutlined />
-                                    {{ $t("stock_in.export") }}
-                                </a-button>
-                            </a-typography-link>
-                        </a-space>
-                    </template>
+
                 </a-space>
-            </a-col>
-            <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="8">
-                <DateRangePicker
-  :dateRange="selectedDateRange"
-  @dateTimeChanged="onDateTimeChanged"
-  formatType="YYYY-MM-DD"
-  :placeholder="['Start Date', 'End Date']"
-/>
-            </a-col>
-            <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="6">
+            </a-col>    
+            <a-col :xs="24" :sm="24" :md="12" :lg="14" :xl="14">
                 <a-row :gutter="[16, 16]" justify="end">
-                    <a-input-color compact>
+                    
+                    <a-col :xs="24" :sm="24" :md="12" :lg="8" :xl="6">
                         <a-input-search
                             style="width: 100%"
-                            v-model:value="table.searchString"
+                            v-model:value="filters.item_id"
                             show-search
-                            @change="onTableSearch"
-                            @search="onTableSearch"
-                            :loading="table.filterLoading"
+                            :placeholder="
+                                $t('common.placeholder_search_text', [
+                                    $t('product.item_id'),
+                                ])
+                            "
                         />
-                    </a-input-color>
+                    </a-col>
+                    
+                    <a-col :xs="24" :sm="24" :md="12" :lg="8" :xl="6">
+                        <a-input-search
+                            style="width: 100%"
+                            v-model:value="filters.string"
+                            show-search
+                            :placeholder="
+                                $t('common.placeholder_search_text', [
+                                    $t('warehouse.qrcode'),
+                                ])
+                            "
+                        />
+                    </a-col>
+                    
+                    <a-col :xs="24" :sm="24" :md="12" :lg="8" :xl="6">
+                        <a-input-search
+                            style="width: 100%"
+                            v-model:value="filters.row"
+                            show-search
+                            :placeholder="
+                                $t('common.placeholder_search_text', [
+                                    $t('product.rows'),
+                                ])
+                            "
+                        />
+                    </a-col>
+                    
+
+                    <a-col :xs="24" :sm="24" :md="8" :lg="8" :xl="6">
+                        <DateRangePicker
+                            ref="serachDateRangePicker"
+                            @dateTimeChanged="
+                                (changedDateTime) => (filters.dates = changedDateTime)
+                            "
+                        />
+                    </a-col>
                 </a-row>
             </a-col>
         </a-row>
     </admin-page-filters>
 
     <admin-page-table-content>
-        <AddEdit
-            :addEditType="addEditType"
-            :visible="addEditVisible"
-            :url="addEditUrl"
-            @addEditSuccess="addEditSuccess"
-            @closed="onCloseAddEdit"
-            :formData="formData"
-            :data="viewData"
-            :pageTitle="pageTitle"
-            :successMessage="successMessage"
+        <OrderTable
+            ref="orderTableRef"
+            :orderType="orderType"
+            :filters="filters"
+            tableSize="middle"
+            :bordered="true"
+            :selectable="true"
+            @onRowSelection="(selectedIds) => (selectedRowIds = selectedIds)"
         />
-
-        <a-row>
-            <a-col :span="24">
-                <div class="table-responsive">
-                    <a-table
-                        :row-selection="{
-                            selectedRowKeys: table.selectedRowKeys,
-                            onChange: onRowSelectChange,
-                            getCheckboxProps: (record) => ({
-                                disabled: false,
-                                name: record.xid,
-                            }),
-                        }"
-                        :columns="columns"
-                        :row-key="(record) => record.xid"
-                        :data-source="table.data"
-                        :pagination="table.pagination"
-                        :loading="table.loading"
-                        @change="handleTableChange"
-                        bordered
-                        size="middle"
-                    >
-                        <template #bodyCell="{ column, text, record }">
-                            <template
-                                v-if="column.dataIndex === 'placement_date'"
-                            >
-                                {{ formatDate(record.placement_date) }}
-                            </template>
-                            <template v-if="column.dataIndex === 'created_by'">
-                                {{ record.createdby_name }}
-                            </template>
-
-                            <template v-if="column.dataIndex === 'action'">
-                                <a-button
-                                    v-if="
-                                        permsArray.includes(
-                                            'stock_managements_edit'
-                                        ) || permsArray.includes('admin')
-                                    "
-                                    type="primary"
-                                    @click="editItem(record)"
-                                    style="margin-left: 4px"
-                                >
-                                    <template #icon><EyeOutlined /></template>
-                                </a-button>
-                            </template>
-                        </template>
-                    </a-table>
-                </div>
-            </a-col>
-        </a-row>
     </admin-page-table-content>
 </template>
 <script>
-import { onMounted, ref, reactive, nextTick } from "vue";
-import {
-    PlusOutlined,
-    EditOutlined,
-    DeleteOutlined,
-    FileExcelOutlined,
-    EyeOutlined,
-} from "@ant-design/icons-vue";
-import fields from "./fields_in_history";
-import crud from "../../../../common/composable/crud";
+import { onMounted, watch, ref } from "vue";
+import { PlusOutlined, DeleteOutlined } from "@ant-design/icons-vue";
+import { useRoute } from "vue-router";
 import common from "../../../../common/composable/common";
-import AddEdit from "./AddEdit.vue";
-import AdminPageHeader from "../../../../common/layouts/AdminPageHeader.vue";
+import OrderTable from "../../../components/order/RegistrationCodeTable2History.vue";
 import DateRangePicker from "../../../../common/components/common/calendar/DateRangePicker.vue";
+import AdminPageHeader from "../../../../common/layouts/AdminPageHeader.vue";
 import QueueImport from "../../../../common/core/ui/QueueImport.vue";
-import dayjs from 'dayjs';
 
 export default {
     components: {
         PlusOutlined,
-        EditOutlined,
         DeleteOutlined,
-        EyeOutlined,
-        FileExcelOutlined,
-        AddEdit,
-        AdminPageHeader,
+
+        OrderTable,
         DateRangePicker,
+        AdminPageHeader,
         QueueImport,
     },
     setup() {
         const {
-            addEditUrl,
-            initData,
-            columns,
-            filterableColumns,
-            hashableColumns,
-        } = fields();
-        const crudVariables = crud();
-        const { formatDate, permsArray } = common();
-        const sampleFileUrl = window.config.stock_in_sample_file;
-        const exportUrl = window.config.stock_in_export_url;
+            formatAmountCurrency,
+            orderType,
+            orderPageObject,
+            orderStatus,
+            permsArray,
+        } = common();
+        const route = useRoute();
 
-        const selectedDateRange = ref([
-      dayjs().subtract(1, 'month').startOf('month'),   // dayjs object
-      dayjs()                                          // dayjs object
-    ])
-    
-    const onDateTimeChanged = (dates) => {
-      // `dates` are strings in YYYY-MM-DD (already formatted by the picker)
-      filters.dates = dates || []
-      // keep the picker in sync (dayjs objects)
-      selectedDateRange.value = dates && dates.length === 2
-        ? [dayjs(dates[0]), dayjs(dates[1])]
-        : []
-      setUrlData()
-    }
-    
-        const filters = reactive({
-            invoice_number: undefined,
-            dates: [dayjs().startOf('month').format('YYYY-MM-DD'),
-                   dayjs().format('YYYY-MM-DD')],
+        const warehouses = ref([]);
+        const users = ref([]);
+        const serachDateRangePicker = ref(null);
+
+        const selectedRowIds = ref([]);
+        const orderTableRef = ref(null);
+
+        const filters = ref({
+            payment_status: "all",
+            user_id: undefined,
+            dates: [],
+            searchColumn: "invoice_number",
+            searchString: "",
+            item_id: "",
+            string: "",
+            row: "",
+
+            //* ADDENDUM
+            warehouse_id: undefined,
         });
-        const brands = ref([]);
+
+        const sampleFileUrl = ref([]);
 
         onMounted(() => {
-            getInitialData()
-            nextTick(() => setUrlData())   // now filters.dates already contain the default
-          })
+            fetchUsers();
+            fetchWarehouses();
+            sampleFileUrl.value =
+                window.config[orderType.value+`_sample_file`];
+        });
 
-        const setUrlData = () => {
-            crudVariables.tableUrl.value = {
-                url: "product-placement-in-history?",
-                filters,
-            };
-            crudVariables.table.filterableColumns = filterableColumns;
-
-            crudVariables.fetch({
-                page: 1,
-            });
-
-            crudVariables.crudUrl.value = addEditUrl;
-            crudVariables.initData.value = { ...initData };
-            crudVariables.formData.value = { ...initData };
-            crudVariables.hashableColumns.value = [...hashableColumns];
-        };
-
-        const getInitialData = () => {
-            const brandsPromise = axiosAdmin.get("brands?limit=10000");
-
-            Promise.all([brandsPromise]).then(
-                ([brandsResponse]) => (brands.value = brandsResponse.data)
+        const fetchUsers = () => {
+            const usersPromise = axiosAdmin.get(
+                `suppliers?limit=10000`
             );
+
+            Promise.all([usersPromise]).then(([usersResponse]) => {
+                users.value = usersResponse.data;
+            });
         };
 
-        const exportExcel = () => {
-            var dates =
-                typeof filters.dates != "undefined"
-                    ? JSON.parse(JSON.stringify(filters.dates))
-                    : "";
-            var start_date = typeof dates[0] !== "undefined" ? dates[0] : "";
-            var end_date = typeof dates[1] !== "undefined" ? dates[1] : "";
-            var url =
-                exportUrl +
-                "?start_date=" +
-                start_date +
-                "&end_date=" +
-                end_date;
-            console.log(url);
-            window.location = url;
+        const fetchWarehouses = () => {
+            const warehousesPromise = axiosAdmin.get("warehouses?limit=10000");
+
+            Promise.all([warehousesPromise]).then(([warehousesResponse]) => {
+                var warehouses_all = [
+                    { name: "All", profile_image: "", xid: "" },
+                ];
+                var warehouses__ = warehouses_all.concat(
+                    warehousesResponse.data
+                );
+                warehouses.value = warehouses__;
+            });
         };
+
+        watch(
+            () => route.meta.orderType,
+            (newVal, oldVal) => {
+                if (
+                    newVal == "purchases" ||
+                    newVal == "place_in" ||
+                    newVal == "inventory_in" ||
+                    newVal == "inventory_out" ||
+                    newVal == "purchase-returns" ||
+                    newVal == "sales" ||
+                    newVal == "sales-returns" ||
+                    newVal == "quotations"
+                ) {
+                    orderType.value = route.meta.orderType;
+
+                    filters.value = {
+                        payment_status: "all",
+                        user_id: undefined,
+                        dates: [],
+                        searchColumn: "invoice_number",
+                        searchString: "",
+                        item_id: "",
+                        string: "",
+                        row: "",
+                    };
+
+                    fetchUsers();
+                    fetchWarehouses();
+
+                    serachDateRangePicker.value.resetPicker();
+                }
+
+                sampleFileUrl.value =
+                window.config[orderType.value+`_sample_file`];
+
+            }
+        );
 
         return {
-            columns,
-            filterableColumns,
+            orderPageObject,
+
             permsArray,
-            ...crudVariables,
-            sampleFileUrl,
-            setUrlData,
-            getInitialData,
-            formatDate,
+            orderStatus,
+            formatAmountCurrency,
+
+            users,
 
             filters,
-            brands,
-            exportExcel,
-            selectedDateRange,
-        onDateTimeChanged,
+            orderType,
+            serachDateRangePicker,
+
+            selectedRowIds,
+            orderTableRef,
+
+            //* ADDENDUM
+            warehouses,
+            sampleFileUrl,
         };
     },
 };

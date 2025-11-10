@@ -217,8 +217,46 @@ const fields = () => {
     });
 
     const setupTableColumns = () => {
-        
-        if(orderType.value == "placement_in"){
+        if(orderType.value == "placement_in_history"){
+            var allColumns = [
+                {
+                    title: t(`product.item_id`),
+                    dataIndex: "item_id",
+                    sorter:false
+                },
+                {
+                    title: t(`inventory_in.invoice_number`),
+                    dataIndex: "invoice_number",
+                    sorter:false
+                },
+                {
+                    title: t(`warehouse.qrcode`),
+                    dataIndex: "string",
+                    sorter:false
+                },
+                {
+                    title: t(`product.rows`),
+                    dataIndex: "location",
+                    sorter:false
+                },
+                {
+                    title: t(`barcode.qty_bungkus`),
+                    dataIndex: "qty_bungkus",
+                    sorter:false
+                },
+                {
+                    title: t(`stock.warehouse`),
+                    dataIndex: "warehouse",
+                    sorter:false
+                },
+                {
+                    title: t(`inventory_in.inventory_in_date`),
+                    dataIndex: "order_date",
+                    sorter:true
+                }
+            ];
+        }
+        else if(orderType.value == "placement_in"){
             var allColumns = [
                 {
                     title: t(`product.item_id`),
@@ -302,7 +340,7 @@ const fields = () => {
         }
 
 
-        if (pageObject.value.type != 'stock-transfers') {
+        if (pageObject.value.type != 'stock-transfers' && orderType.value != 'placement_in_history') {
             allColumns.push({
                 title: t(`${pageObject.value.langKey}.user`),
                 dataIndex: "user_id",

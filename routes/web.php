@@ -199,6 +199,7 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         ApiRoute::resource('placement_in', 'PurchaseController', $options);
         ApiRoute::resource('placement_out', 'SalesController', $options);
         ApiRoute::get('/placement_in_item', [PurchaseController::class, 'indexPlacementInItem']);
+        ApiRoute::get('/placement_in_item_history', [PurchaseController::class, 'indexPlacementInItemHistory']);
         ApiRoute::get('/placement_out_item', [PurchaseController::class, 'indexPlacementOutItem']);
     });
 });
