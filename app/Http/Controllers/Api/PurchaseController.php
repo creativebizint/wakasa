@@ -152,7 +152,7 @@ class PurchaseController extends ApiBaseController
                 ->whereRaw("JSON_CONTAINS(CAST(picker_by AS JSON), ?, '$')", [json_encode((int) $user_id)])
                 ->select('orders.invoice_number','orders.order_date as date','products.item_id','order_items.quantity_scanned','order_items.quantity','orders.priority',
                         'orders.warehouse_id','warehouses.code as warehouse_code','warehouses.name as warehouse_name','orders.user_id','users.name as user_name',
-                        'users.code as user_code','order_items.product_id','order_items.id','order_items.picker_by','order_items.picker_by_name','products.text2');
+                        'users.code as user_code','order_items.product_id','order_items.id','order_items.picker_by','order_items.picker_by_name','products.text2','order_items.shelf as location');
         
         if ($request->has('item_id')) {
             $query->where('products.item_id','like','%'.$request->item_id.'%');

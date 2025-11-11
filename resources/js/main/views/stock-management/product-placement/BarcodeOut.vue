@@ -168,6 +168,7 @@
                         name="row"
                     >
                         <a-input
+                            v-model:value="formData.shelf"
                             min="0"
                             style="width: 50%"
                         >
@@ -553,8 +554,11 @@ export default {
                     invoice_number : orderResponseData.order.invoice_number,
                     order_id : orderResponseData.order.xid,
                     total_items_in : orderResponseData.order_item.quantity_in == null ? 0 : orderResponseData.order_item.quantity_in,
-                    text2 : orderResponseData.order_item.text2 == null ? 0 : orderResponseData.order_item.text2
+                    text2 : orderResponseData.order_item.text2 == null ? 0 : orderResponseData.order_item.text2,
+                    shelf : orderResponseData.order_item.shelf,
                 };
+                
+                console.log(formData);
             });
 
         });

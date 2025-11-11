@@ -107,6 +107,15 @@ const stockManagement = () => {
     const searchValueSelected = (value, option) => {
         const newProduct = option.product;
         if (!includes(selectedProductIds.value, newProduct.xid)) {
+            var total_scanned = formData.value.total_items_scanned == '' ? 0 : formData.value.total_items_scanned;
+//            formData.value.total_items_scanned =  total_scanned + newProduct.qty_bungkus;
+            
+            var total_items_in = formData.value.total_items_in == '' ? 0 : formData.value.total_items_in;
+            if(total_items_in + newProduct.qty_bungkus > formData.value.total_items){
+                alert("Kuantity > Kuantiti Faktur");
+                return false;
+            }
+            
             selectedProductIds.value.push(newProduct.xid);
 
             selectedProducts.value.push({
@@ -117,10 +126,7 @@ const stockManagement = () => {
             state.orderSearchTerm = undefined;
             state.products = [];
             //recalculateFinalTotal();
-            var total_scanned = formData.value.total_items_scanned == '' ? 0 : formData.value.total_items_scanned;
-//            formData.value.total_items_scanned =  total_scanned + newProduct.qty_bungkus;
             
-            var total_items_in = formData.value.total_items_in == '' ? 0 : formData.value.total_items_in;
             formData.value.total_items_in =  total_items_in + newProduct.qty_bungkus;
             
             var audioObj = new Audio(appSetting.value.beep_audio_url);

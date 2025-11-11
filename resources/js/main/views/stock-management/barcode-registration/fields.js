@@ -298,8 +298,8 @@ const fields = () => {
                     sorter:false
                 },
                 {
-                    title: t(`product.text2`),
-                    dataIndex: "text2",
+                    title: t(`product.rows`),
+                    dataIndex: "location",
                     sorter:false
                 },
                 {
