@@ -111,8 +111,9 @@ const stockManagement = () => {
 //            formData.value.total_items_scanned =  total_scanned + newProduct.qty_bungkus;
             
             var total_items_in = formData.value.total_items_in == '' ? 0 : formData.value.total_items_in;
-            if(total_items_in + newProduct.qty_bungkus > formData.value.total_items){
-                alert("Kuantity > Kuantiti Faktur");
+            
+            if((parseFloat(total_items_in) + parseFloat(newProduct.qty_bungkus)) > parseFloat(formData.value.total_items)){
+                alert("Kuantiti ("+(total_items_in + newProduct.qty_bungkus)+") > Kuantiti Faktur ("+formData.value.total_items+")");
                 return false;
             }
             
@@ -127,7 +128,7 @@ const stockManagement = () => {
             state.products = [];
             //recalculateFinalTotal();
             
-            formData.value.total_items_in =  total_items_in + newProduct.qty_bungkus;
+            formData.value.total_items_in =  parseFloat(total_items_in) + parseFloat(newProduct.qty_bungkus);
             
             var audioObj = new Audio(appSetting.value.beep_audio_url);
             audioObj.play();
