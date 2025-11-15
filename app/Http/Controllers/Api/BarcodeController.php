@@ -108,4 +108,15 @@ class BarcodeController extends ApiBaseController
         //file_put_contents(storage_path('logs') . '/barcode.log', "[" . date('Y-m-d H:i:s') . "]test 1 : \n" . print_r($barcode,1) . "\n\n", FILE_APPEND);
         return $barcode;
     }
+    
+    
+    public function destroying(Barcode $barcode)
+    {
+        if($barcode->status != 1){
+            throw new ApiException($barcode->string." can't be deleted");
+        }
+
+        return $barcode;
+    }
+    
 }

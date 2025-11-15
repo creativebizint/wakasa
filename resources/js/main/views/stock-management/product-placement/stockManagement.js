@@ -113,7 +113,7 @@ const stockManagement = () => {
             var total_items_in = formData.value.total_items_in == '' ? 0 : formData.value.total_items_in;
             
             if((parseFloat(total_items_in) + parseFloat(newProduct.qty_bungkus)) > parseFloat(formData.value.total_items)){
-                alert("Kuantiti ("+(total_items_in + newProduct.qty_bungkus)+") > Kuantiti Faktur ("+formData.value.total_items+")");
+                alert("Kuantiti ("+(parseFloat(total_items_in) + parseFloat(newProduct.qty_bungkus))+") > Kuantiti Faktur ("+formData.value.total_items+")");
                 return false;
             }
             

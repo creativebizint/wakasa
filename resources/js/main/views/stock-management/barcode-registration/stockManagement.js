@@ -106,6 +106,17 @@ const stockManagement = () => {
     const searchValueSelected = (value, option) => {
         const newProduct = option.product;
         if (!includes(selectedProductIds.value, newProduct.xid)) {
+            var total_scanned = formData.value.total_items_scanned == '' ? 0 : parseFloat(formData.value.total_items_scanned);
+            
+            if((parseFloat(total_scanned) + parseFloat(newProduct.qty_bungkus)) > parseFloat(formData.value.total_items)){
+                alert("Kuantiti ("+(parseFloat(total_scanned) + parseFloat(newProduct.qty_bungkus))+") > Kuantiti Faktur ("+formData.value.total_items+")");
+                return false;
+            }
+            
+            formData.value.total_items_scanned =  parseFloat(total_scanned) + parseFloat(newProduct.qty_bungkus);
+            
+            
+            
             selectedProductIds.value.push(newProduct.xid);
 
             selectedProducts.value.push({
@@ -116,8 +127,7 @@ const stockManagement = () => {
             state.orderSearchTerm = undefined;
             state.products = [];
             //recalculateFinalTotal();
-            var total_scanned = formData.value.total_items_scanned == '' ? 0 : formData.value.total_items_scanned;
-            formData.value.total_items_scanned =  parseFloat(total_scanned) + parseFloat(newProduct.qty_bungkus);
+            
             
             var audioObj = new Audio(appSetting.value.beep_audio_url);
             audioObj.play();
