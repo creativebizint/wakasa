@@ -46,7 +46,7 @@
         />
 
         <a-row :gutter="8">
-                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                <a-col :xs="6" :sm="6" :md="6" :lg="6">
                     <a-form-item
                         :label="$t('product.item_id')"
                         name="item_id"
@@ -543,6 +543,10 @@ export default {
                 return false;
             }
 
+            if(formData.value.row == null){
+                alert('lokasi tidak boleh kosong');
+                return false;
+            }
             
             const newFormDataObject = {
                 ...formData.value,

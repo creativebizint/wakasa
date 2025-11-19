@@ -75,7 +75,7 @@
         </a-row>
         
         <a-row :gutter="8">
-                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                <a-col :xs="6" :sm="6" :md="6" :lg="6">
                     <a-form-item
                         :label="$t('product.item_id')"
                         name="item_id"
@@ -100,7 +100,7 @@
             </a-row>
 
         <a-row :gutter="8">
-                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                <a-col :xs="6" :sm="6" :md="6" :lg="6">
                     <a-form-item
                         :label="$t('product.quantity_faktur')"
                         name="total_items"
@@ -122,9 +122,8 @@
                         </a-input-number>
                     </a-form-item>
                 </a-col>
-            </a-row>
-            <a-row :gutter="8">
-                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+            
+                <a-col :xs="6" :sm="6" :md="6" :lg="6">
                     <a-form-item
                         :label="$t('barcode.quantity_scanned')"
                         name="total_items_scanned"
@@ -141,9 +140,8 @@
                         </a-input-number>
                     </a-form-item>
                 </a-col>
-            </a-row>
-            <a-row :gutter="8">
-                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+            
+                <a-col :xs="6" :sm="6" :md="6" :lg="6">
                     <a-form-item
                         :label="$t('barcode.quantity_out')"
                         name="total_items_in"
@@ -162,7 +160,7 @@
                 </a-col>
             </a-row>
             <a-row :gutter="8">
-                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                <a-col :xs="6" :sm="6" :md="6" :lg="6">
                     <a-form-item
                         :label="$t('stock_in.row')"
                         name="row"
@@ -569,6 +567,10 @@ export default {
                 return false;
             }
 
+            if(formData.value.shelf == null){
+                alert('lokasi tidak boleh kosong');
+                return false;
+            }
             
             const newFormDataObject = {
                 ...formData.value,

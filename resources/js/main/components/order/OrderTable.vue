@@ -925,7 +925,10 @@ export default {
         };
 
         onMounted(() => {
-            initialSetup();
+            const hasReference = !!route.query.refference && route.query.refference !== '';
+            if (!hasReference) {
+              initialSetup()
+            }  
         });
 
         const getCheckboxProps = (record) => {
