@@ -487,7 +487,9 @@
                                             </a-typography-link>
                                         </a-menu-item>
                                         
-                                        <a-menu-item key="download_invoice"  v-if="record.order_type === 'purchases'">
+                                        
+                                        
+                                        <a-menu-item key="download_invoice"  v-if="record.order_type === 'purchases' && record.order_status != 'registered'">
                                             <a-typography-link 
                                                 @click="
                                                     () => {

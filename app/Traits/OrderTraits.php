@@ -660,11 +660,27 @@ trait OrderTraits
 
                 $message = 'Barcode telah berhasil di scan';
             }
+            
+            $all_order_items = OrderItem::where('order_id',$order->order_id)->get();
+            $full_scanned = 1;
+            foreach($all_order_items as $all_order_item){
+                if($all_order_item->quantity_scanned < $all_order_item->quantity){
+                    $full_scanned = 0;
+                }
+            }
+            if($full_scanned == 1){
+                Order::where('id',$order->order_id)->update(['order_status'=>'registered']);
+            }
+            
         } catch (\Exception $ex) {
             DB::rollback();
             throw new ApiException($ex->getMessage());
         }
         DB::commit();
+        
+        
+        
+        
         return ['total' =>count($product_items), 'message' => $message];
     }
     

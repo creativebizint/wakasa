@@ -494,7 +494,7 @@ export default {
                 successMessage: t(`barcode.updated`),
                 success: (res) => {
                     router.push({
-                        name: `admin.barcode_registration.index`,
+                        name: `admin.inventory_in.index`,
                     });
                 },
             });
