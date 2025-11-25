@@ -107,6 +107,39 @@
                                     : "-"
                             }}
                         </a-descriptions-item>
+                        
+                        <a-descriptions-item
+                            :label="$t('delivery_order.shipping_address')"
+                        >
+                            {{
+                                selectedItem.shipping_address &&
+                                selectedItem.shipping_address != ''
+                                    ? selectedItem.shipping_address
+                                    : "-"
+                            }}
+                        </a-descriptions-item>
+                        
+                        <a-descriptions-item
+                            :label="$t('delivery_order.shipping_alias')"
+                        >
+                            {{
+                                selectedItem.shipping_alias &&
+                                selectedItem.shipping_alias != ''
+                                    ? selectedItem.shipping_alias
+                                    : "-"
+                            }}
+                        </a-descriptions-item>
+                        
+                        <a-descriptions-item
+                            :label="$t('delivery_order.city')"
+                        >
+                            {{
+                                selectedItem.city &&
+                                selectedItem.city != ''
+                                    ? selectedItem.city
+                                    : "-"
+                            }}
+                        </a-descriptions-item>
                         <a-descriptions-item :label="$t('payments.total_amount')" :style="{ display: 'none' }">
                             {{ formatAmountCurrency(selectedItem.total) }}
                         </a-descriptions-item>

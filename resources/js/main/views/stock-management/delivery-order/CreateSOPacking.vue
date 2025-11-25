@@ -263,7 +263,41 @@
                                 v-model:value="formData.shipping_address"
                                 :placeholder="
                                     $t('common.placeholder_default_text', [
-                                        $t('delivery_.shipping_address'),
+                                        $t('delivery_order.shipping_address'),
+                                    ])
+                                "
+                                
+                            />
+                            
+                        </a-form-item>
+                    </a-col>
+                    
+                    <a-col :xs="24" :sm="24" :md="8" :lg="8">
+                        <a-form-item
+                            :label="$t(`delivery_order.shipping_alias`)"
+                            name="address">
+                            <a-input
+                                v-model:value="formData.shipping_alias"
+                                :placeholder="
+                                    $t('common.placeholder_default_text', [
+                                        $t('delivery_order.shipping_alias'),
+                                    ])
+                                "
+                                
+                            />
+                            
+                        </a-form-item>
+                    </a-col>
+                    
+                    <a-col :xs="24" :sm="24" :md="8" :lg="8">
+                        <a-form-item
+                            :label="$t(`delivery_order.city`)"
+                            name="address">
+                            <a-input
+                                v-model:value="formData.city"
+                                :placeholder="
+                                    $t('common.placeholder_default_text', [
+                                        $t('delivery_order.city'),
                                     ])
                                 "
                                 
@@ -1251,7 +1285,6 @@ export default {
             }
             else if (orderType.value == "delivery_order") {
                 allOrderStatus.value = deliveryOrderStatus;
-console.log(deliveryOrderStatus);
                 formData.value.order_status = "open";
                 formData.value.label = "delivery-order";
             }
@@ -1276,9 +1309,11 @@ console.log(deliveryOrderStatus);
                 data: newFormDataObject,
                 successMessage: t(`${orderPageObject.value.langKey}.created`),
                 success: (res) => {
-                    router.push({
-                        name: `admin.${orderPageObject.value.menuKey}.index`,
-                    });
+//                    router.push({
+//                        name: `admin.${orderPageObject.value.menuKey}.index`,
+//                    });
+
+alert(`admin.${orderPageObject.value.menuKey}.index`);
                 },
             });
         };

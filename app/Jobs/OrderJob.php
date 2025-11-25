@@ -18,6 +18,7 @@ use App\Classes\Notify;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderPayment;
+use App\Models\Placement;
 
 class OrderJob implements ShouldQueue, ShouldBeUnique
 {
@@ -128,6 +129,9 @@ class OrderJob implements ShouldQueue, ShouldBeUnique
             $newOrder->staff_user_id = $this->userId;
             $newOrder->invoice_number = $this->request["invoice_number"];
             $newOrder->refference = $refference;
+            $newOrder->delivery_address  = isset($this->request["shipping_address"])?$this->request["shipping_address"]:'';
+            $newOrder->city  = isset($this->request["city"])?$this->request["city"]:'';
+            $newOrder->shipping_alias  = isset($this->request["shipping_alias"])?$this->request["shipping_alias"]:'';
             
             if(isset($this->request["combine_shipment_number"]) && $this->request["combine_shipment_number"] != ''){
                 $combine_invoice_number = Order::where('invoice_number', 'like','%'.$this->request["combine_shipment_number"].'%')
@@ -171,6 +175,38 @@ class OrderJob implements ShouldQueue, ShouldBeUnique
                         $new_order_item->picker_by = $so_order_items->picker_by;
                         $new_order_item->picker_by_name = $so_order_items->picker_by_name;
                         $new_order_item->save();
+                        
+                                               
+            $barcodes = Placement::join('placement_items','placement_items.placement_id','=','placements.id')
+                        ->join('barcode','barcode.id','=','placement_items.barcode_id')
+                        ->whereNull('order_item_out_id')
+                        ->where('reference','=',$so_order_items->id)
+                        ->select('barcode.*')
+                        ->get();
+
+            file_put_contents(storage_path('logs') . '/barcode.log', "[" . date('Y-m-d H:i:s') . "]reference : \n" .$so_order_items->id . "\n\n", FILE_APPEND);
+            file_put_contents(storage_path('logs') . '/barcode.log', "[" . date('Y-m-d H:i:s') . "]barcode : \n" .print_r($barcodes,1) . "\n\n", FILE_APPEND);
+            
+            $qty_barcode = $item['quantity'];
+            $barcodeids = [];
+            foreach($barcodes as $barcode){
+                $qty_barcode = $qty_barcode - $barcode->qty_bungkus;
+                if($qty_barcode > 0){
+                    $barcodeids[] = $barcode->id;
+                }elseif($qty_barcode == 0){
+                    $barcodeids[] = $barcode->id;
+                    break;
+                }else{
+                    throw new ApiException("Qr code Qty is not match");
+                }
+            }
+            
+            foreach($barcodeids as $barcodeid){
+                \App\Models\Barcode::where('id',$barcodeid)
+                        
+                        ->update(['order_item_out_id'=>$new_order_item->id]);
+            }
+                        
                         
                         $so_order_items->update(['quantity_done'=> $item['quantity']]);
                         
