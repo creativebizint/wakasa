@@ -64,10 +64,12 @@
                         :dataSource="selectedProducts"
                         :columns="orderItemBarcodeIn"
                         :pagination="false"
+                        :rowClassName="(record) => (record.qr_scanned_in < record.quantity) && (!record.note || record.note.trim() === '') ? '' : 'fully-scanned-row'"
                     >
                         <template #bodyCell="{ column, record }">
                             <template v-if="column.dataIndex === 'product_item_id'">
                                 <a-typography-link 
+                                v-if="(record.qr_scanned_in < record.quantity) && (!record.note || record.note.trim() === '') "
                                 @click="
                                                 () =>
                                                     $router.push({
@@ -87,6 +89,39 @@
                             <template v-if="column.dataIndex === 'qty_scanned'">
                                 {{record.qr_scanned_in}}
                             </template>
+                            <template v-if="column.dataIndex === 'note'">
+                                <a-button
+                                    v-if="record.qr_scanned_in < record.quantity && (!record.note || record.note.trim() === '')"
+                                    type="primary"
+                                    size="small"
+                                    @click="openNoteModal(record)"
+                                    >
+                                    <template #icon>
+                                        <plus-outlined />
+                                    </template>
+                                    Complete with Note
+                                </a-button>
+
+                                <!-- Case 2: Has note → Show the note (with edit option) -->
+                                <div v-else-if="record.note && record.note.trim() !== ''">
+                                    <a-typography-text type="secondary">
+                                        {{ record.note }}
+                                    </a-typography-text>
+                                    <a-button
+                                        type="link"
+                                        size="small"
+                                        @click="openNoteModal(record)"
+                                        style="padding: 0 4px; margin-left: 8px;"
+                                    >
+                                        <edit-outlined />
+                                    </a-button>
+                                </div>
+
+                                <!-- Case 3: Fully scanned (or equal) → Show nothing or optional check -->
+                                <span v-else>
+                                    <check-circle-outlined style="color: #52c41a;" />
+                                </span>
+                            </template>
                         </template>
                     </a-table>
                 </a-col>
@@ -94,6 +129,31 @@
 
         </a-form>
     </a-card>
+
+    <a-modal
+    :open="noteModalVisible"
+    title="Add / Edit Note"
+    @cancel="closeNoteModal"
+    :footer="null"
+    width="500px"
+>
+    <a-textarea
+        v-model:value="noteInput"
+        placeholder="Enter your note here..."
+        :rows="5"
+        :maxLength="500"
+        showCount
+    />
+    <div style="margin-top: 16px; text-align: right;">
+        <a-button @click="closeNoteModal" style="margin-right: 8px;">
+            Cancel
+        </a-button>
+        <a-button type="primary" @click="saveNote">
+            Save Note
+        </a-button>
+    </div>
+</a-modal>
+
 
     <a-modal
         :open="addEditVisible"
@@ -120,7 +180,27 @@
         </template>
     </a-modal>
 </template>
+<style>
+/* Blue background for fully scanned rows */
+.fully-scanned-row {
+    background-color: #DDDDFF !important; /* Light blue (AntD primary light) */
+}
 
+/* Optional: darker blue on hover for better UX */
+.fully-scanned-row:hover > td {
+    background-color: #DDFFDD !important;
+}
+
+/* If you want a stronger blue */
+.fully-scanned-row {
+    background-color: #DDDDFF !important;
+    color: #000 !important;
+}
+
+.fully-scanned-row:hover > td {
+    background-color: #DDFFDD !important;
+}
+</style>
 <script>
 import { onMounted, ref, toRefs } from "vue";
 import {
@@ -145,7 +225,8 @@ import ProductAddButton from "../../product-manager/products/AddButton.vue";
 import DateTimePicker from "../../../../common/components/common/calendar/DateTimePicker.vue";
 import AdminPageHeader from "../../../../common/layouts/AdminPageHeader.vue";
 import UserSearch from "./UserSearch.vue";
-
+import { Modal, message } from "ant-design-vue";   // ← Add this import
+//
 //* ADDENDUM
 import WarehouseSearch from "./WarehouseSearch.vue";
 
@@ -171,6 +252,57 @@ export default {
         WarehouseSearch,
     },
     setup() {
+        // ———————————————————— NOTE MODAL LOGIC ————————————————————
+        const noteModalVisible = ref(false);
+        const currentEditingRecord = ref(null);
+        const noteInput = ref("");
+
+        const openNoteModal = (record) => {
+            currentEditingRecord.value = record;
+            console.log('record',currentEditingRecord.value);
+            noteInput.value = record.note || "";
+            noteModalVisible.value = true;
+        };
+
+        const saveNote = () => {
+    if (!currentEditingRecord.value) return;
+
+    const payload = {
+        id: currentEditingRecord.value.item_id, // use xid or item_id
+        note: noteInput.value.trim(),
+    };
+
+    // Show loading feedback
+    const hideLoading = message.loading('Saving note...', 0);
+
+    axiosAdmin.post('inventory-detail/barcode/complete-with-note', payload)
+        .then((response) => {
+            hideLoading();
+            message.success('Note saved successfully');
+
+            // Update the record in selectedProducts so UI updates instantly
+            currentEditingRecord.value.note = noteInput.value.trim();
+
+            // Close modal
+            noteModalVisible.value = false;
+            currentEditingRecord.value = null;
+            noteInput.value = "";
+        })
+        .catch((error) => {
+            hideLoading();
+            const errorMsg = error.response?.data?.message || 'Failed to save note';
+            message.error(errorMsg);
+            console.error('Note save error:', error);
+        });
+};
+
+        const closeNoteModal = () => {
+            noteModalVisible.value = false;
+            currentEditingRecord.value = null;
+            noteInput.value = "";
+        };
+        // ————————————————————————————————————————————————————————
+        
         const { addEditRequestAdmin, loading, rules } = apiAdmin();
         const {
             appSetting,
@@ -236,7 +368,7 @@ export default {
         const warehouseSearchLabelPrefix = ref([]);
         const userWarehouses = ref([]);
 
-
+        
         onMounted(() => {
             const orderPromise = axiosAdmin.get(`${orderType.value}/${orderId}`);
             const taxesPromise = axiosAdmin.get(taxUrl);
@@ -390,6 +522,13 @@ export default {
 
             //addition
             userWarehouses,
+            
+            // ← Add these to the return object
+            openNoteModal,
+            noteModalVisible,
+            noteInput,
+            saveNote,
+            closeNoteModal,
         };
     },
 };

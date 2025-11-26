@@ -185,6 +185,7 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         ApiRoute::get('inventory-detail/barcode/{id}', ['as' => 'api.inventory_in.barcode', 'uses' => 'PurchaseController@barcode']);
         ApiRoute::post('inventory-detail/barcode/register', ['as' => 'api.inventory_in.barcode', 'uses' => 'PurchaseController@barcodeRegister']);
         ApiRoute::post('inventory-detail/barcode/out', ['as' => 'api.inventory_out.barcode', 'uses' => 'PurchaseController@barcodeOut']);
+        ApiRoute::post('inventory-detail/barcode/complete-with-note', ['as' => 'api.inventory_in.completeWithNote', 'uses' => 'PurchaseController@completeWithNote']);
         ApiRoute::get('invoices/check', ['as' => 'api.invoice.check', 'uses' => 'PurchaseController@invoiceCheck']);
         
         ApiRoute::resource('floors', 'FloorController', $options, ['as' => 'api', 'except' => ['index']]);

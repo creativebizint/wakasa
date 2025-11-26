@@ -124,6 +124,10 @@ const fields = () => {
             title: t("product.qty_scanned"),
             dataIndex: "qty_scanned",
         },
+        {
+            title: t("product.note"),
+            dataIndex: "note",
+        },
         
     ];
     

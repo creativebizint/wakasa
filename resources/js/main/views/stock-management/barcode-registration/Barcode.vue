@@ -252,6 +252,7 @@
                             :loading="loading"
                             @click="onSubmit"
                             block
+                            :disabled="formData.total_items_scanned > formData.total_items"
                         >
                             <template #icon> <SaveOutlined /> </template>
                             {{ $t("common.save") }}

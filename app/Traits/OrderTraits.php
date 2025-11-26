@@ -157,6 +157,7 @@ trait OrderTraits
                     'single_unit_price'    =>  $allOrderIteam->single_unit_price,
                     'subtotal'    =>  $allOrderIteam->subtotal,
                     'quantity'    =>  $allOrderIteam->quantity,
+                    'note'    =>  $allOrderIteam->note,
                     'qr_scanned_in'    => $allOrderIteam->quantity_scanned,
                     'qr_scanned_out'    => Barcode::where('order_item_out_id',Common::getIdFromHash($allOrderIteam->xid))->count(),
                     'tax_rate'    =>  $allOrderIteam->tax_rate,

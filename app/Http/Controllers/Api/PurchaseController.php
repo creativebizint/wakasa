@@ -9,6 +9,7 @@ use App\Http\Requests\Api\Purchase\UpdateRequest;
 use App\Http\Requests\Api\Purchase\DeleteRequest;
 use App\Http\Requests\Api\Purchase\IndexPlacementInItemRequest;
 use App\Http\Requests\Api\Purchase\IndexPlacementOutItemRequest;
+use App\Http\Requests\Api\Purchase\NoteRequest;
 use App\Models\Order;
 use App\Traits\OrderTraits;
 use Session;
@@ -78,6 +79,12 @@ class PurchaseController extends ApiBaseController
             'data' => $result,
             'meta' => ['paging'=>['links'=>$link,'total' => $total]]
         ];
+    }
+    
+    public function completeWithNote(NoteRequest $request){
+       \App\Models\OrderItem::where('id',$this->getIdFromHash($request->id))->update(['note'=>$request->note]);
+       
+       return (['id'=>$this->getIdFromHash($request->id), 'note' => $request->note]);
     }
     
     public function indexPlacementInItemHistory(IndexPlacementInItemRequest $request)
