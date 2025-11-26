@@ -160,6 +160,8 @@ class SalesImport implements ToArray, WithHeadingRow, WithMultipleSheets
 			$newOrder->subtotal = 0;
 			$newOrder->total = 0;
 			$newOrder->due_amount = 0;
+                        $newOrder->shipping_alias = trim($orderItems[0]['shipping_alias']);
+                        $newOrder->city = trim($orderItems[0]['city']);
 			$newOrder->invoice_number = $invoiceNumber;
 			$newOrder->save();
                         //file_put_contents(storage_path('logs') . '/sales.log', "[" . date('Y-m-d H:i:s') . "]order : \n" . print_r($newOrder,1) . "\n\n", FILE_APPEND);
