@@ -248,7 +248,7 @@ class pickingAssignmentController extends ApiBaseController
         foreach($result as $k=>$result_){
             $result[$k]->items = OrderItem::where('order_id',$result_->id)
                                 ->join('products','products.id','order_items.product_id')
-                                ->select('products.item_id','order_items.quantity_scanned','order_items.quantity','order_items.picker_by_name','order_items.id')
+                                ->select('products.item_id','order_items.quantity_scanned','order_items.quantity','order_items.picker_by_name','order_items.id','order_items.qc_status')
                                 ->get();
         }
         
@@ -422,7 +422,44 @@ class pickingAssignmentController extends ApiBaseController
     
     public function qcPickingComplete(Request $request){
         $data  = $request->all();
-        $order = Order::where('invoice_number',$data['invoice_number'])->update(['order_status' => 'qc']);
-        return $order;
+        $invoice_number = $data['invoice_number'];
+        
+        // Get the order
+        $order = Order::where('invoice_number', $invoice_number)->first();
+        
+        if (!$order) {
+            throw new ApiException('Order not found');
+        }
+        
+        // If item_ids are provided, update only those items
+        if (isset($data['item_ids']) && is_array($data['item_ids']) && count($data['item_ids']) > 0) {
+            // Update individual items to QC status
+            foreach ($data['item_ids'] as $item_xid) {
+                $item_id = $this->getIdFromHash($item_xid);
+                OrderItem::where('id', $item_id)
+                    ->where('order_id', $order->id)
+                    ->update(['qc_status' => 'qc']);
+            }
+            
+            // Check if all items in the order are now QC'd
+            $totalItems = OrderItem::where('order_id', $order->id)->count();
+            $qcItems = OrderItem::where('order_id', $order->id)
+                ->where('qc_status', 'qc')
+                ->count();
+            
+            // If all items are QC'd, update order status to QC
+            if ($totalItems > 0 && $qcItems >= $totalItems) {
+                $order->update(['order_status' => 'qc']);
+            }
+        } else {
+            // If no item_ids provided, update all items and order (backward compatibility)
+            OrderItem::where('order_id', $order->id)->update(['qc_status' => 'qc']);
+            $order->update(['order_status' => 'qc']);
+        }
+        
+        return ApiResponse::make('QC picking completed successfully', [
+            'order_id' => $order->id,
+            'invoice_number' => $invoice_number
+        ]);
     }
 }

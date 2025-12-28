@@ -25,10 +25,22 @@
 
                 </a-space>
             </a-col>    
-            <a-col :xs="24" :sm="24" :md="12" :lg="14" :xl="14">
+            <a-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
                 <a-row :gutter="[16, 16]" justify="end">
                     
-                    <a-col :xs="24" :sm="24" :md="12" :lg="8" :xl="6">
+                    <a-col :xs="24" :sm="12" :md="6" :lg="6" :xl="6">
+                        <a-input-search
+                            style="width: 100%"
+                            v-model:value="filters.invoice_number"
+                            show-search
+                            :placeholder="
+                                $t('common.placeholder_search_text', [
+                                    $t('stock.invoice_number'),
+                                ])
+                            "
+                        />
+                    </a-col>
+                    <a-col :xs="24" :sm="12" :md="6" :lg="6" :xl="6">
                         <a-input-search
                             style="width: 100%"
                             v-model:value="filters.item_id"
@@ -40,7 +52,7 @@
                             "
                         />
                     </a-col>
-                    <a-col :xs="24" :sm="24" :md="8" :lg="8" :xl="6">
+                    <a-col :xs="24" :sm="12" :md="6" :lg="6" :xl="6">
                         <a-select
                             v-model:value="filters.user_id"
                             :placeholder="
@@ -63,7 +75,7 @@
                             </a-select-option>
                         </a-select>
                     </a-col>
-                    <a-col :xs="24" :sm="24" :md="8" :lg="8" :xl="6">
+                    <a-col :xs="24" :sm="12" :md="6" :lg="6" :xl="6">
                         <DateRangePicker
                             ref="serachDateRangePicker"
                             @dateTimeChanged="
@@ -132,6 +144,7 @@ export default {
             searchColumn: "invoice_number",
             searchString: "",
             item_id: "",
+            invoice_number: "",
 
             //* ADDENDUM
             warehouse_id: undefined,
@@ -192,6 +205,7 @@ export default {
                         searchColumn: "invoice_number",
                         searchString: "",
                         item_id: "",
+                        invoice_number: "",
                     };
 
                     fetchUsers();

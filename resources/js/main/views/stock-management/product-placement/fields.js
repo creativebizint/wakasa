@@ -217,41 +217,120 @@ const fields = () => {
     });
 
     const setupTableColumns = () => {
-        var allColumns = [
-            {
-                title: t(`stock.invoice_number`),
-                dataIndex: "invoice_number",
-                sorter:true
-            },
-            {
-                title: t(`stock.warehouse`),
-                dataIndex: "warehouse",
-                sorter:true
-            }
-        ];
-
-        if (pageObject.value.type == 'stock-transfers') {
-            allColumns.push({
-                title: t("stock_transfer.warehouse"),
-                dataIndex: "warehouse",
-                sorter:true,
-                sorter_field:"orders.warehouse_id"
-            });
-        }
-
-        allColumns.push({
-            title: t(`${pageObject.value.langKey}.${pageObject.value.langKey}_date`),
-            dataIndex: "order_date",
-            sorter:true
+        console.log('[setupTableColumns] ========== FUNCTION CALLED ==========');
+        var allColumns = [];
+        
+        // Debug logging
+        console.log('[setupTableColumns] orderType.value:', orderType.value);
+        console.log('[setupTableColumns] route.meta.orderType:', route.meta?.orderType);
+        console.log('[setupTableColumns] window.location.pathname:', typeof window !== 'undefined' ? window.location.pathname : 'N/A');
+        
+        // Special handling for placement_in page
+        // Check both orderType.value and route.meta.orderType to be safe
+        // Also check window.location.pathname as ultimate fallback
+        const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
+        const isPlacementIn = orderType.value === 'placement_in' 
+            || route.meta?.orderType === 'placement_in'
+            || pathname.includes('/product-placement/place-in')
+            || pathname.includes('/product-placement/placement-in');
+        
+        console.log('[setupTableColumns] isPlacementIn check:', {
+            'orderType.value': orderType.value,
+            'route.meta.orderType': route.meta?.orderType,
+            'pathname': pathname,
+            'isPlacementIn': isPlacementIn
         });
+        
+        if (isPlacementIn) {
+            console.log('[setupTableColumns] ✓✓✓ MATCHED placement_in - Adding custom columns');
+            allColumns = [
+                {
+                    title: t("product.item_id"),
+                    dataIndex: "item_id",
+                    sorter: true
+                },
+                {
+                    title: t(`stock.invoice_number`),
+                    dataIndex: "invoice_number",
+                    sorter: true
+                },
+                {
+                    title: t(`stock.warehouse`),
+                    dataIndex: "warehouse",
+                    sorter: true
+                },
+                {
+                    title: t(`inventory_in.inventory_in_date`),
+                    dataIndex: "date",
+                    sorter: true
+                },
+                {
+                    title: t(`inventory_in.user`),
+                    dataIndex: "user_id",
+                    sorter: true,
+                    sorter_field: "orders.user_id"
+                },
+                {
+                    title: t("product.quantity"),
+                    dataIndex: "quantity",
+                    sorter: true
+                },
+                {
+                    title: "Total QR Activated",
+                    dataIndex: "total_qr_activated",
+                    sorter: true
+                },
+                {
+                    title: "Total Items Activated",
+                    dataIndex: "total_items_activated",
+                    sorter: true
+                },
+                {
+                    title: "Total Items Placed",
+                    dataIndex: "quantity_scanned",
+                    sorter: true
+                }
+            ];
+            console.log('[setupTableColumns] ✓✓✓ Placement_in columns defined:', allColumns.length, 'columns');
+        } else {
+            console.log('[setupTableColumns] --- NOT placement_in, using default columns');
+            // Default column structure for other order types
+            allColumns = [
+                {
+                    title: t(`stock.invoice_number`),
+                    dataIndex: "invoice_number",
+                    sorter:true
+                },
+                {
+                    title: t(`stock.warehouse`),
+                    dataIndex: "warehouse",
+                    sorter:true
+                }
+            ];
 
-        if (pageObject.value.type != 'stock-transfers') {
+            if (pageObject.value.type == 'stock-transfers') {
+                allColumns.push({
+                    title: t("stock_transfer.warehouse"),
+                    dataIndex: "warehouse",
+                    sorter:true,
+                    sorter_field:"orders.warehouse_id"
+                });
+            }
+
             allColumns.push({
-                title: t(`${pageObject.value.langKey}.user`),
-                dataIndex: "user_id",
-                sorter:true,
-                sorter_field:"orders.user_id"
+                title: t(`${pageObject.value.langKey}.${pageObject.value.langKey}_date`),
+                dataIndex: "order_date",
+                sorter:true
             });
+
+            if (pageObject.value.type != 'stock-transfers') {
+                allColumns.push({
+                    title: t(`${pageObject.value.langKey}.user`),
+                    dataIndex: "user_id",
+                    sorter:true,
+                    sorter_field:"orders.user_id"
+                });
+            }
         }
 
         columns.value = [

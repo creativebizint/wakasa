@@ -19,7 +19,7 @@ class Barcode extends BaseModel
 
     protected $hidden = ['id'];
 
-    protected $filterable = ['id', 'string','item_id'];
+    protected $filterable = ['string','item_id', 'isactive'];
 
     protected static function boot()
     {

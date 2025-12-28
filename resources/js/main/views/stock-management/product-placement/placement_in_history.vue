@@ -88,6 +88,7 @@
             tableSize="middle"
             :bordered="true"
             :selectable="true"
+            :perPageItems="100"
             @onRowSelection="(selectedIds) => (selectedRowIds = selectedIds)"
         />
     </admin-page-table-content>

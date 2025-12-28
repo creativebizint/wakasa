@@ -555,7 +555,19 @@
                         >
                             <template #bodyCell="{ column, record }">
                                 <template v-if="column.dataIndex === 'product_id'">
+                                    <a-typography-link 
+                                        @click="
+                                            () =>
+                                                $router.push({
+                                                    name: 'admin.placement_in.barcode',
+                                                    params: {
+                                                        id: record.xid,
+                                                    },
+                                                })
+                                        "
+                                    >
                                         {{ record.product.item_id }}
+                                    </a-typography-link>
                                 </template>
                                 <template v-if="column.dataIndex === 'product_code'">
                                         {{ record.product.item_code }}

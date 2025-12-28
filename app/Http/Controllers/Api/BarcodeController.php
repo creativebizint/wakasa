@@ -119,4 +119,59 @@ class BarcodeController extends ApiBaseController
         return $barcode;
     }
     
+    /**
+     * Modify the index query to support filtering by item_id and invoice_number
+     * When only item_id is provided (and no explicit isactive filter), 
+     * automatically filter by isactive = 1 for convenience
+     * This allows GET /api/v1/barcode?filters=item_id eq "VALUE" to work
+     * Also supports filtering by invoice_number via order_item relationship
+     */
+    public function modifyIndex($query)
+    {
+        $request = request();
+        
+        // Check if filters parameter exists and parse it
+        $hasItemIdFilter = false;
+        $hasIsactiveFilter = false;
+        $invoiceNumber = null;
+        
+        if ($request->has('filters')) {
+            $filters = $request->filters;
+            // Check if item_id is in filters
+            if (strpos($filters, 'item_id') !== false) {
+                $hasItemIdFilter = true;
+            }
+            // Check if isactive is in filters
+            if (strpos($filters, 'isactive') !== false) {
+                $hasIsactiveFilter = true;
+            }
+        }
+        
+        // Check if invoice_number is provided as a separate parameter
+        if ($request->has('invoice_number') && $request->invoice_number) {
+            $invoiceNumber = $request->invoice_number;
+        }
+        
+        // If invoice_number is provided, join with order_items and orders to filter
+        if ($invoiceNumber) {
+            $query = $query->join('order_items', 'order_items.id', '=', 'barcode.order_item_id')
+                ->join('orders', 'orders.id', '=', 'order_items.order_id')
+                ->where('orders.invoice_number', $invoiceNumber);
+        }
+        
+        // If only item_id filter is provided (no explicit isactive filter),
+        // automatically add isactive = 1 filter for convenience
+        // This makes it work with just: GET /api/v1/barcode?filters=item_id eq "VALUE"
+        if ($hasItemIdFilter && !$hasIsactiveFilter) {
+            // Use table prefix if joins were added, otherwise use column name directly
+            if ($invoiceNumber) {
+                $query = $query->where('barcode.isactive', 1);
+            } else {
+                $query = $query->where('isactive', 1);
+            }
+        }
+        
+        return $query;
+    }
+    
 }

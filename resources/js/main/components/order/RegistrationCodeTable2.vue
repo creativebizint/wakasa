@@ -21,6 +21,7 @@
                     :pagination="table.pagination"
                     :loading="table.loading"
                     @change="handleTableChange"
+                    @expandedRowsChange="onExpandedRowsChange"
                     :bordered="bordered"
                     :size="tableSize"
                 >
@@ -62,6 +63,9 @@
                         </template>
                         <template v-if="column.dataIndex === 'order_date'">
                             {{ formatDate(record.order_date) }}
+                        </template>
+                        <template v-if="column.dataIndex === 'date'">
+                            {{ formatDate(record.date) }}
                         </template>
                         <template
                             v-if="
@@ -113,6 +117,18 @@
                             >
                                 {{ record.user_code }}
                             </span>
+                        </template>
+                        <template v-if="column.dataIndex === 'quantity'">
+                            {{ record.quantity || 0 }}
+                        </template>
+                        <template v-if="column.dataIndex === 'total_qr_activated'">
+                            {{ record.total_qr_activated || 0 }}
+                        </template>
+                        <template v-if="column.dataIndex === 'total_items_activated'">
+                            {{ record.total_items_activated || 0 }}
+                        </template>
+                        <template v-if="column.dataIndex === 'quantity_scanned'">
+                            {{ record.quantity_scanned || 0 }}
                         </template>
                         <template v-if="column.dataIndex === 'paid_amount'">
                             {{ formatAmountCurrency(record.paid_amount) }}
@@ -475,6 +491,54 @@
                         </template>
                     </template>
                     
+                    <template #expandedRowRender="recordData" v-if="props.orderType === 'placement_in'">
+                        <div v-if="recordData && recordData.record">
+                            <a-spin v-if="recordData.record.loadingBarcodes" :spinning="true" />
+                            <div v-else-if="!recordData.record.barcodes || recordData.record.barcodes.length === 0" style="padding: 16px; text-align: center; color: #999;">
+                                Tidak ada data
+                            </div>
+                            <a-table
+                                v-else
+                                :row-key="(record) => record.xid"
+                                :columns="barcodeColumns"
+                                :data-source="recordData.record.barcodes"
+                                :pagination="false"
+                                size="small"
+                                bordered
+                            >
+                                <template #bodyCell="{ column, record }">
+                                    <template v-if="column.dataIndex === 'string'">
+                                        {{ record.string }}
+                                    </template>
+                                    <template v-if="column.dataIndex === 'rows'">
+                                        <span v-if="record.product_placements && record.product_placements.rows && record.product_placements.rows.value">
+                                            {{ record.product_placements.rows.value }}
+                                        </span>
+                                        <span v-else-if="record.product_placements && record.product_placements.rows && Array.isArray(record.product_placements.rows)">
+                                            <span v-for="(row, index) in record.product_placements.rows" :key="row.id">
+                                                {{ row.value }}<span v-if="index < record.product_placements.rows.length - 1">, </span>
+                                            </span>
+                                        </span>
+                                        <span v-else>-</span>
+                                    </template>
+                                    <template v-if="column.dataIndex === 'qty_bungkus'">
+                                        {{ record.qty_bungkus }}
+                                    </template>
+                                    <template v-if="column.dataIndex === 'isactive'">
+                                        <a-tag v-if="record.isactive === 1" color="green">
+                                            {{ $t("barcode.active") }}
+                                        </a-tag>
+                                        <a-tag v-else-if="record.isactive === 0" color="orange">
+                                            {{ $t("barcode.inactive") }}
+                                        </a-tag>
+                                        <a-tag v-else color="gray">
+                                            {{ $t("common.not_in_use") }}
+                                        </a-tag>
+                                    </template>
+                                </template>
+                            </a-table>
+                        </div>
+                    </template>
                     
                 </a-table>
             </div>
@@ -557,7 +621,9 @@ import { useStore } from "vuex";
 import { find, forEach } from "lodash-es";
 import { useI18n } from "vue-i18n";
 import print from "print-js";
-import fields from "../../views/stock-management/barcode-registration/fields";
+// Import fields - use product-placement/fields for placement_in, otherwise barcode-registration/fields
+import fieldsPlacement from "../../views/stock-management/product-placement/fields";
+import fieldsBarcode from "../../views/stock-management/barcode-registration/fields";
 import common from "../../../common/composable/common";
 import datatable from "../../../common/composable/datatable";
 import PaymentStatus from "../../../common/components/order/PaymentStatus.vue";
@@ -631,6 +697,8 @@ export default {
     },
     setup(props, { emit }) {
         const store = useStore();
+        // Use product-placement/fields for placement_in, otherwise barcode-registration/fields
+        const fieldsModule = props.orderType === 'placement_in' ? fieldsPlacement() : fieldsBarcode();
         const {
             columns,
             hashableColumns,
@@ -641,7 +709,7 @@ export default {
             orderStatus,
             orderItemDetailsColumns,
             initPaymentData,
-        } = fields();
+        } = fieldsModule;
         const datatableVariables = datatable();
         const {
             formatAmountCurrency,
@@ -656,6 +724,129 @@ export default {
         const route = useRoute();
         const { t } = useI18n();
         const detailsDrawerVisible = ref(false);
+        
+        // Barcode columns for expanded rows
+        const barcodeColumns = ref([
+            {
+                title: t('barcode.string'),
+                dataIndex: 'string',
+                key: 'string',
+            },
+            {
+                title: t('product.rows'),
+                dataIndex: 'rows',
+                key: 'rows',
+            },
+            {
+                title: t('barcode.qty_bungkus'),
+                dataIndex: 'qty_bungkus',
+                key: 'qty_bungkus',
+            },
+            {
+                title: t('barcode.status'),
+                dataIndex: 'isactive',
+                key: 'isactive',
+            },
+        ]);
+        
+        // Function to fetch barcodes for a row
+        const fetchBarcodesForRow = async (record) => {
+            console.log('=== FETCHING BARCODES FOR ROW ===');
+            console.log('Row clicked:', record);
+            
+            if (!record || record.loadingBarcodes || record.barcodes) {
+                console.log('Skipping fetch - already loaded or loading');
+                return; // Already loaded or loading
+            }
+            
+            record.loadingBarcodes = true;
+            console.log('Starting fetch process...');
+            
+            try {
+                // Validate required fields - need both item_id and invoice_number
+                if (!record.item_id) {
+                    console.warn('Missing required field item_id:', { 
+                        item_id: record.item_id
+                    });
+                    record.barcodes = [];
+                    record.loadingBarcodes = false;
+                    return;
+                }
+                
+                if (!record.invoice_number) {
+                    console.warn('Missing required field invoice_number:', { 
+                        invoice_number: record.invoice_number
+                    });
+                    record.barcodes = [];
+                    record.loadingBarcodes = false;
+                    return;
+                }
+                
+                console.log('Making API call to: barcode');
+                console.log('Request params (item_id and invoice_number):', { 
+                    item_id: record.item_id,
+                    invoice_number: record.invoice_number
+                });
+                
+                // Use standard barcode API with item_id filter and invoice_number parameter
+                // The backend will automatically filter by isactive=1 when only item_id is provided
+                // The backend will also filter by invoice_number through order_item relationship
+                const response = await axiosAdmin.get('barcode', {
+                    params: {
+                        filters: `item_id eq "${record.item_id}"`,
+                        invoice_number: record.invoice_number,
+                        fields: 'id,xid,string,item_id,qty_bungkus,isactive,order_item,order_item:order{id,xid,invoice_number},order_item_out,order_item_out:order{id,xid,invoice_number},product_placements:rows{id,value}'
+                    },
+                });
+                
+                console.log('API Response received:', response);
+                console.log('Response data:', response.data);
+                
+                // Handle different response structures
+                let barcodes = [];
+                if (Array.isArray(response.data)) {
+                    barcodes = response.data;
+                } else if (response.data && Array.isArray(response.data.data)) {
+                    barcodes = response.data.data;
+                } else if (response.data && response.data.data) {
+                    barcodes = Array.isArray(response.data.data) ? response.data.data : [];
+                }
+                
+                console.log('Barcodes array:', barcodes);
+                console.log('Number of barcodes:', barcodes.length);
+                
+                // The endpoint returns barcodes filtered by item_id and isactive=1
+                record.barcodes = barcodes;
+                
+                console.log('Barcodes assigned to record:', record.barcodes);
+                console.log('=== FETCH COMPLETED SUCCESSFULLY ===');
+            } catch (error) {
+                console.error('=== ERROR FETCHING BARCODES ===');
+                console.error('Error object:', error);
+                console.error('Error message:', error.message);
+                console.error('Error response:', error.response);
+                console.error('Error response data:', error.response?.data);
+                console.error('Error response status:', error.response?.status);
+                record.barcodes = [];
+            } finally {
+                record.loadingBarcodes = false;
+                console.log('Loading state set to false');
+            }
+        };
+        
+        // Handle row expansion
+        const onExpandedRowsChange = (expandedRows) => {
+            if (props.orderType !== 'placement_in') {
+                return;
+            }
+            
+            expandedRows.forEach((rowKey) => {
+                const record = datatableVariables.table.data.find(r => r.xid === rowKey);
+                if (record) {
+                    fetchBarcodesForRow(record);
+                }
+            });
+        };
 
         const selectedItem = ref({});
         const printInvoiceModalVisible = ref(false);
@@ -727,8 +918,9 @@ export default {
         };
 
         const initialSetup = () => {
-            console.log('props.orderType:', props.orderType);
+            console.log('[initialSetup] props.orderType:', props.orderType);
             orderType.value = props.orderType;
+            console.log('[initialSetup] orderType.value after setting:', orderType.value);
             if (props.perPageItems) {
                 datatableVariables.table.pagination.pageSize =
                     props.perPageItems;
@@ -737,7 +929,14 @@ export default {
             datatableVariables.table.pagination.currentPage = 1;
             datatableVariables.hashable.value = hashableColumns;
 
-            setupTableColumns();
+            console.log('[initialSetup] About to call setupTableColumns, orderType.value:', orderType.value);
+            console.log('[initialSetup] setupTableColumns function:', typeof setupTableColumns);
+            try {
+                setupTableColumns();
+                console.log('[initialSetup] setupTableColumns() completed successfully');
+            } catch (error) {
+                console.error('[initialSetup] Error in setupTableColumns:', error);
+            }
             setUrlData();
         };
 
@@ -752,6 +951,9 @@ export default {
             }
             if (tableFilter.item_id) {
                 extraFilterObject.item_id = tableFilter.item_id;
+            }
+            if (tableFilter.invoice_number) {
+                extraFilterObject.invoice_number = tableFilter.invoice_number;
             }
             if (tableFilter.user_id) {
                 extraFilterObject.user_id = tableFilter.user_id;
@@ -1147,7 +1349,7 @@ export default {
             columns,
             ...datatableVariables,
             filterableColumns,
-            pageObject,
+            pageObject: pageObject,
             totals,
             formatDate,
             orderStatus,
@@ -1173,6 +1375,10 @@ export default {
             initialSetup,
 
             convertToSale,
+            
+            // Barcode expanded row functionality
+            barcodeColumns,
+            onExpandedRowsChange,
 
             // For Online Orders
             confirmOrder,

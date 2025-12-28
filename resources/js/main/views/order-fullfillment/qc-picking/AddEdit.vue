@@ -61,10 +61,18 @@
                         <thead>
                             <tr>
                                 <td align="center"><b>#</b></td>
+                                <td align="center">
+                                    <a-checkbox
+                                        :checked="isAllSelected"
+                                        :indeterminate="isIndeterminate"
+                                        @change="onSelectAll"
+                                    />
+                                </td>
                                 <td align="center"><b>{{ $t("product.item_id") }}</b></td>
                                 <td align="center"><b>{{ $t("product.quantity") }}</b></td>
                                 <td align="center"><b>{{ $t("product.qty_scanned") }}</b></td>
                                 <td align="center"><b>{{ $t("common.picking") }}</b></td>
+                                <td align="center"><b>{{ $t("common.status") }}</b></td>
                             </tr>
                         </thead>
                         <tbody>
@@ -72,10 +80,25 @@
                                 <td align="center">
                                     {{ index + 1 }}
                                 </td>
+                                <td align="center">
+                                    <a-checkbox
+                                        :checked="isItemSelected(item.xid)"
+                                        :disabled="item.qc_status === 'qc'"
+                                        @change="(e) => onCheck(e, item)"
+                                    />
+                                </td>
                                 <td align="center">{{ item.item_id || 'N/A' }}</td>
                                 <td align="center">{{ item.quantity || 'N/A' }}</td>
                                 <td align="center">{{ item.quantity_scanned }}</td>
                                 <td align="center">{{ item.picker_by_name }}</td>
+                                <td align="center">
+                                    <a-tag v-if="item.qc_status === 'qc'" color="green">
+                                        {{ $t("common.qc_complete") }}
+                                    </a-tag>
+                                    <a-tag v-else color="orange">
+                                        {{ $t("common.picking") }}
+                                    </a-tag>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -86,6 +109,7 @@
             <a-button
                 @click="createDeliveryOrder"
                 type="primary"
+                :disabled="!hasSelectedItems"
                 class="mt-3"
             >
                 {{ $t('common.complete_qc') }}
@@ -113,6 +137,7 @@ import {
     EyeOutlined,
     SettingOutlined,
 } from "@ant-design/icons-vue";
+import { message } from "ant-design-vue";
 import apiAdmin from "../../../../common/composable/apiAdmin";
 import Upload from "../../../../common/core/ui/file/Upload.vue";
 import common from "../../../../common/composable/common";
@@ -212,23 +237,9 @@ export default defineComponent({
             }
         });
 
-        // Computed property to enable/disable the Create Delivery Order button
-        const canCreateDeliveryOrder = computed(() => {
-            if (selectedItems.value.length === 0) {
-                return false;
-            }
-            try {
-                const invoiceNumbers = selectedItems.value.map(xid => {
-                    const item = items.value.find(item => item.xid === xid);
-                    return item ? item.invoice_number || '' : '';
-                });
-                const uniqueInvoiceNumbers = [...new Set(invoiceNumbers)];
-                return uniqueInvoiceNumbers.length === 1 && uniqueInvoiceNumbers[0] !== '';
-            } catch (e) {
-                console.error('Error in canCreateDeliveryOrder:', e);
-                error.value = e;
-                return false;
-            }
+        // Get items that can be selected (not already QC'd)
+        const selectableItems = computed(() => {
+            return items.value.filter(item => item.qc_status !== 'qc');
         });
 
         // Check if an item is selected
@@ -242,16 +253,58 @@ export default defineComponent({
             }
         };
 
-        // Handle checkbox change
-        const onCheck = (event, item) => {
+        // Check if all selectable items are selected
+        const isAllSelected = computed(() => {
+            if (selectableItems.value.length === 0) return false;
+            return selectableItems.value.every(item => selectedItems.value.includes(item.xid));
+        });
+
+        // Check if some (but not all) items are selected (indeterminate state)
+        const isIndeterminate = computed(() => {
+            const selectedCount = selectableItems.value.filter(item => 
+                selectedItems.value.includes(item.xid)
+            ).length;
+            return selectedCount > 0 && selectedCount < selectableItems.value.length;
+        });
+
+        // Check if there are any selected items (for button enable/disable)
+        const hasSelectedItems = computed(() => {
+            return selectedItems.value.length > 0;
+        });
+
+        // Handle select all checkbox
+        const onSelectAll = (event) => {
             try {
                 const isChecked = event.target.checked;
                 if (isChecked) {
-                    selectedItems.value = [...selectedItems.value, item.xid];
+                    // Select all selectable items
+                    selectedItems.value = selectableItems.value.map(item => item.xid);
+                } else {
+                    // Deselect all
+                    selectedItems.value = [];
+                }
+            } catch (e) {
+                console.error('Error in onSelectAll:', e);
+                error.value = e;
+            }
+        };
+
+        // Handle individual checkbox change
+        const onCheck = (event, item) => {
+            try {
+                // Don't allow checking items that are already QC'd
+                if (item.qc_status === 'qc') {
+                    return;
+                }
+
+                const isChecked = event.target.checked;
+                if (isChecked) {
+                    if (!selectedItems.value.includes(item.xid)) {
+                        selectedItems.value = [...selectedItems.value, item.xid];
+                    }
                 } else {
                     selectedItems.value = selectedItems.value.filter(xid => xid !== item.xid);
                 }
-                console.log('Selected items:', selectedItems.value);
             } catch (e) {
                 console.error('Error in onCheck:', e);
                 error.value = e;
@@ -260,24 +313,36 @@ export default defineComponent({
 
         // Handle Create Delivery Order button click
         const createDeliveryOrder = () => {
-//            if (canCreateDeliveryOrder.value) {
-                try {
-//                    console.log('Creating delivery order for items:', selectedItems.value);
-                    // Add API call to create delivery order
-                    // Example:
-                    addEditRequestAdmin({
-                        url: '/delivery-order',
-                        data: { invoice_number:  props.formData.invoice_number},
-                        success: (res) => {
-//                            console.log('Delivery order created:', res);
-                            emit('addEditSuccess', res);
-                        }
-                    });
-                } catch (e) {
-                    console.error('Error in createDeliveryOrder:', e);
-                    error.value = e;
+            try {
+                // Get selected items that are not already QC'd
+                const itemsToQc = selectedItems.value.filter(xid => {
+                    const item = items.value.find(i => i.xid === xid);
+                    return item && item.qc_status !== 'qc';
+                });
+
+                if (itemsToQc.length === 0) {
+                    // If no items selected, show message
+                    message.warning('Please select at least one item to complete QC');
+                    return;
                 }
-//            }
+
+                // Add API call to create delivery order with selected items
+                addEditRequestAdmin({
+                    url: '/delivery-order',
+                    data: { 
+                        invoice_number: props.formData.invoice_number,
+                        item_ids: itemsToQc
+                    },
+                    success: (res) => {
+                        // Reset selected items after success
+                        selectedItems.value = [];
+                        emit('addEditSuccess', res);
+                    }
+                });
+            } catch (e) {
+                console.error('Error in createDeliveryOrder:', e);
+                error.value = e;
+            }
         };
 
         const exportExcel = () => {
@@ -366,9 +431,12 @@ export default defineComponent({
             drawerWidth: window.innerWidth <= 991 ? "90%" : "45%",
             selectedItems,
             items,
-            canCreateDeliveryOrder,
             isItemSelected,
             onCheck,
+            onSelectAll,
+            isAllSelected,
+            isIndeterminate,
+            hasSelectedItems,
             createDeliveryOrder,
             exportExcel,
             error

@@ -39,15 +39,28 @@ class PurchaseController extends ApiBaseController
                 ->join('products','products.id','=','order_items.product_id')
                 ->leftJoin('warehouses','warehouses.id','=','orders.warehouse_id')
                 ->leftJoin('users','users.id','=','orders.user_id')
+                // Join barcode by item_id to get all active QR codes with same item code
+                ->leftJoin('barcode','barcode.item_id','=','products.item_id')
                 ->where('order_type', 'purchases')
-                ->whereNotNull('quantity_scanned')
+                ->whereNotNull('order_items.quantity_scanned')
                 ->select('orders.invoice_number','orders.order_date as date','products.item_id','order_items.quantity_scanned','order_items.quantity',
                         'orders.warehouse_id','warehouses.code as warehouse_code','warehouses.name as warehouse_name','orders.user_id','users.name as user_name',
-                        'users.code as user_code','order_items.product_id','order_items.id')
+                        'users.code as user_code','order_items.product_id','order_items.id',
+                        // Count distinct active QR codes with same item_id
+                        \DB::raw('COUNT(DISTINCT CASE WHEN barcode.isactive = 1 THEN barcode.id END) as total_qr_activated'),
+                        // Sum qty_bungkus from all active QR codes with same item_id
+                        \DB::raw('COALESCE(SUM(CASE WHEN barcode.isactive = 1 THEN barcode.qty_bungkus ELSE 0 END), 0) as total_items_activated'))
+                ->groupBy('order_items.id','orders.invoice_number','orders.order_date','products.item_id','order_items.quantity_scanned','order_items.quantity',
+                        'orders.warehouse_id','warehouses.code','warehouses.name','orders.user_id','users.name',
+                        'users.code','order_items.product_id')
                 ->orderBy('orders.id','desc');
         
         if ($request->has('item_id')) {
             $query->where('products.item_id','like','%'.$request->item_id.'%');
+        }
+        
+        if ($request->has('invoice_number')) {
+            $query->where('orders.invoice_number','like','%'.$request->invoice_number.'%');
         }
         
         if ($request->has('user_id')) {
