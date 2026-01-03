@@ -1,6 +1,8 @@
 # Documentation Templates
 
-This directory contains the documentation standards and templates for the Wakasa project.
+This directory contains the documentation standards and templates for the Wakasa project. For a quick reference guide, see [TEMPLATES_README.md](./TEMPLATES_README.md).
+
+---
 
 ## Available Templates
 
