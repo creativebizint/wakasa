@@ -113,10 +113,6 @@ const fields = () => {
             dataIndex: "text1",
         },
         {
-            title: t("product.sat"),
-            dataIndex: "sat",
-        },
-        {
             title: t("product.quantity_faktur"),
             dataIndex: "quantity",
         },
@@ -295,7 +291,7 @@ const fields = () => {
         //* ADDENDUM
         if (pageObject.value.type == "purchases") {
             allColumns.push({
-                title: t("stock_transfer.to_warehouse"),
+                title: orderType.value == "inventory_in" ? "Gudang" : t("stock_transfer.to_warehouse"),
                 dataIndex: "warehouse",
             });
         }
@@ -337,18 +333,18 @@ const fields = () => {
         columns.value = [
             ...allColumns,
             {
-                title: t(`${pageObject.value.langKey}.${pageObject.value.langKey}_status`),
+                title: t("common.status"),
                 dataIndex: "order_status",
                 sorter:true,
             },
             {
-                title: t("invoice.total_items"),
+                title: t("common.completed") + " " + t("common.items"),
                 dataIndex: "total_items",
             },
-            {
-                title: t("invoice.total_quantities"),
-                dataIndex: "total_quantities",
-            },    
+            //{
+            //    title: t("invoice.total_quantities"),
+            //    dataIndex: "total_quantities",
+            //},    
             //{
             //    title: t("payments.total_amount"),
             //    dataIndex: "total_amount",

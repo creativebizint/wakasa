@@ -106,7 +106,17 @@
                         </template>
                         <template v-if="column.dataIndex === 'warehouse'">
                             <span
-                                v-if="record.warehouse_name"
+                                v-if="record.warehouse_code"
+                            >
+                                {{ record.warehouse_code }}
+                            </span>
+                            <span
+                                v-else-if="record.warehouse && record.warehouse.code"
+                            >
+                                {{ record.warehouse.code }}
+                            </span>
+                            <span
+                                v-else-if="record.warehouse_name"
                             >
                                 {{ record.warehouse_name }}
                             </span>

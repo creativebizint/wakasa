@@ -22,7 +22,7 @@
 
     <admin-page-filters>
         <a-row :gutter="[16, 16]">
-            <a-col :xs="24" :sm="24" :md="12" :lg="10" :xl="10">
+            <a-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
                 <a-space>
                     <template
                         v-if="
@@ -70,31 +70,42 @@
                     </a-button>
                 </a-space>
             </a-col>
-            <a-col :xs="24" :sm="24" :md="12" :lg="14" :xl="14">
-                <a-row :gutter="[16, 16]" justify="end">
-                        <a-input-group compact>
-                            <a-select
-                                style="width: 50%"
-                                v-model:value="table.searchColumn"
-                                :placeholder="$t('common.select_default_text', [''])"
-                            >
-                                <a-select-option
-                                    v-for="filterableColumn in filterableColumns"
-                                    :key="filterableColumn.key"
-                                >
-                                    {{ filterableColumn.value }}
-                                </a-select-option>
-                            </a-select>
-                            <a-input-search
-                                style="width: 50%"
-                                v-model:value="table.searchString"
-                                show-search
-                                @change="onTableSearch"
-                                @search="onTableSearch"
-                                :loading="table.filterLoading"
-                            />
-                        </a-input-group>
-                </a-row>
+        </a-row>
+        <a-row :gutter="[16, 16]" justify="end" style="margin-top: 16px">
+            <a-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
+                <a-input-group compact>
+                    <a-select
+                        style="width: 50%"
+                        v-model:value="table.searchColumn"
+                        :placeholder="$t('common.select_default_text', [''])"
+                    >
+                        <a-select-option
+                            v-for="filterableColumn in filterableColumns"
+                            :key="filterableColumn.key"
+                        >
+                            {{ filterableColumn.value }}
+                        </a-select-option>
+                    </a-select>
+                    <a-input-search
+                        style="width: 50%"
+                        v-model:value="table.searchString"
+                        show-search
+                        @change="onTableSearch"
+                        @search="onTableSearch"
+                        :loading="table.filterLoading"
+                    />
+                </a-input-group>
+            </a-col>
+            <a-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
+                <a-input-search
+                    v-model:value="invoiceNumberFilter"
+                    :placeholder="$t('common.placeholder_search_text', [$t('barcode.invoice_number')])"
+                    show-search
+                    @change="onInvoiceNumberSearch"
+                    @search="onInvoiceNumberSearch"
+                    :loading="table.filterLoading"
+                    style="width: 100%"
+                />
             </a-col>
         </a-row>
     </admin-page-filters>
@@ -205,8 +216,9 @@
     </admin-page-table-content>
 </template>
 <script>
-import { onMounted } from "vue";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons-vue";
+import { onMounted, ref } from "vue";
+import { useRoute } from "vue-router";
+import { PlusOutlined, EditOutlined, DeleteOutlined, FileExcelOutlined } from "@ant-design/icons-vue";
 import fields from "./fields";
 import crud from "../../../../common/composable/crud";
 import common from "../../../../common/composable/common";
@@ -219,6 +231,7 @@ export default {
         PlusOutlined,
         EditOutlined,
         DeleteOutlined,
+        FileExcelOutlined,
         AddEdit,
         AdminPageHeader,
         QueueImport,
@@ -227,16 +240,47 @@ export default {
         const { addEditUrl, initData, columns, filterableColumns } = fields();
         const crudVariables = crud();
         const { permsArray } = common();
+        const route = useRoute();
         const sampleFileUrl = window.config.barcode_sample_file;
         const exportUrl = window.config.barcode_export_url;
+        const invoiceNumberFilter = ref("");
 
         onMounted(() => {
+            // Load filter values from URL query parameters
+            if (route.query.item_id) {
+                // If item_id is provided, set searchColumn to item_id and use item_id as searchString
+                crudVariables.table.searchColumn = "item_id";
+                crudVariables.table.searchString = route.query.item_id;
+            } else if (route.query.searchColumn) {
+                crudVariables.table.searchColumn = route.query.searchColumn;
+            } else {
+                // Set default search column to "Kode" (string)
+                crudVariables.table.searchColumn = "string";
+            }
+
+            if (route.query.searchString && !route.query.item_id) {
+                crudVariables.table.searchString = route.query.searchString;
+            }
+
+            if (route.query.invoice_number) {
+                invoiceNumberFilter.value = route.query.invoice_number;
+            }
+
             setUrlData();
         });
 
         const setUrlData = () => {
+            const extraFilters = {};
+            
+            // Add invoice_number filter if provided
+            // The backend modifyIndex method handles this via query parameter
+            if (invoiceNumberFilter.value && invoiceNumberFilter.value.trim() !== "") {
+                extraFilters.invoice_number = invoiceNumberFilter.value.trim();
+            }
+
             crudVariables.tableUrl.value = {
                 url: "barcode?fields=id,xid,string,isactive,order_item,item_id,order_item:order{id,xid,invoice_number},order_item_out,order_item_out:order{id,xid,invoice_number},reg_bungkus_id,fk_reg_bungkus_id,nik,box_id,qty_bungkus,reason,comment,product{id,xid,name,kemasan_jual_qty},product_placements:rows{id,value}",
+                extraFilters: extraFilters,
             };
             crudVariables.table.filterableColumns = filterableColumns;
 
@@ -250,6 +294,12 @@ export default {
             crudVariables.formData.value = { ...initData };
         };
 
+        const onInvoiceNumberSearch = () => {
+            crudVariables.currentPage.value = 1;
+            crudVariables.table.pagination.current = 1;
+            setUrlData();
+        };
+
         return {
             columns,
             filterableColumns,
@@ -257,7 +307,9 @@ export default {
             ...crudVariables,
             sampleFileUrl,
             setUrlData,
-            exportUrl
+            exportUrl,
+            invoiceNumberFilter,
+            onInvoiceNumberSearch,
         };
     },
 };
