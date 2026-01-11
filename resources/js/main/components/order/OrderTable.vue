@@ -65,16 +65,7 @@
                             "
                         >
                             <div>
-                                <a-badge>
-                                    <a-avatar
-                                        :size="30"
-                                        :src="
-                                            record.staff_member
-                                                .profile_image_url
-                                        "
-                                    />
-                                    {{ record.staff_member.name }}
-                                </a-badge>
+                                {{ record.staff_member.name }}
                             </div>
                         </template>
                         <template
@@ -99,12 +90,12 @@
                             <span
                                 v-if="record.warehouse && record.warehouse.xid"
                             >
-                                {{ record.warehouse.name }}
+                                {{ record.warehouse.code ? record.warehouse.code : record.warehouse.name }}
                             </span>
                         </template>
                         <a-typography-link @click="userView(record)">
                             <template v-if="column.dataIndex === 'user_id'">
-                                <user-info :user="record.user" />
+                                {{ record.user && record.user.code ? record.user.code : (record.user ? record.user.name : '') }}
                             </template>
                         </a-typography-link>
                         <template v-if="column.dataIndex === 'paid_amount'">
@@ -117,7 +108,7 @@
                             {{ formatAmountCurrency(record.total) }}
                         </template> -->
                         <template v-if="column.dataIndex === 'total_items'">
-                            {{ record.total_items }}
+                            {{ `${calculateCompletedItems(record)} / ${record.total_items || 0}` }}
                         </template>
                         <template
                             v-if="column.dataIndex === 'total_quantities'"
@@ -584,15 +575,35 @@
                                 <template v-if="column.dataIndex === 'text1'">
                                         {{ record.product.text1 }}
                                 </template>
-                                <template v-if="column.dataIndex === 'sat'">
-                                        {{ record.product.uom_buy_in !== null ? record.product.uom_buy_in.short_name : record.product.unit.short_name }}
-                                </template>
                                 <template
                                     v-if="column.dataIndex === 'quantity'"
                                 >
                                     {{
                                         `${record.quantity} ${record.product.unit.short_name}`
                                     }}
+                                </template>
+                                <template
+                                    v-if="column.dataIndex === 'quantity_scanned'"
+                                >
+                                    <a-typography-link 
+                                        @click="
+                                            () => {
+                                                const queryParams = {};
+                                                if (record.product && record.product.item_id) {
+                                                    queryParams.item_id = record.product.item_id;
+                                                }
+                                                if (orderItemData.record && orderItemData.record.invoice_number) {
+                                                    queryParams.invoice_number = orderItemData.record.invoice_number;
+                                                }
+                                                $router.push({
+                                                    name: 'admin.barcode.index',
+                                                    query: queryParams,
+                                                });
+                                            }
+                                        "
+                                    >
+                                        {{ record.quantity_scanned || 0 }}
+                                    </a-typography-link>
                                 </template>
                                 <template
                                     v-if="
@@ -981,6 +992,11 @@ export default {
                 datatableVariables.table.pagination.pageSize =
                     props.perPageItems;
             }
+            // Set default page size and options for inventory_in
+            if (orderType.value === "inventory_in") {
+                datatableVariables.table.pagination.pageSize = 100;
+                datatableVariables.table.pagination.pageSizeOptions = ['10', '20', '50', '100', '500', '1000'];
+            }
             datatableVariables.table.pagination.current = 1;
             datatableVariables.table.pagination.currentPage = 1;
             datatableVariables.hashable.value = hashableColumns;
@@ -1020,7 +1036,7 @@ export default {
             console.log("API URL:", `${props.orderType}?${filterString}`);
             
             datatableVariables.tableUrl.value = {
-                url: `${props.orderType}?type=${props.orderType}&fields=id,city,shipping_alias,delivery_address,notes,weight,priority,total_items,total_quantity,xid,unique_id,warehouse_id,x_warehouse_id,warehouse{id,xid,name},from_warehouse_id,x_from_warehouse_id,fromWarehouse{id,xid,name},invoice_number,refference,combined_shipment_number,order_type,order_date,tax_amount,discount,shipping,subtotal,paid_amount,due_amount,order_status,payment_status,total,tax_rate,staff_user_id,x_staff_user_id,staffMember{id,xid,name,profile_image,profile_image_url,shipping_address,tax_number,email,user_type},user_id,x_user_id,user{id,xid,user_type,name,email,address,tax_number,profile_image,profile_image_url,phone},user:details{opening_balance,opening_balance_type,credit_period,credit_limit,due_amount,warehouse_id,x_warehouse_id},orderPayments{id,xid,amount,payment_id,x_payment_id},orderPayments:payment{id,xid,payment_number,amount,payment_mode_id,x_payment_mode_id,date,notes},orderPayments:payment:paymentMode{id,xid,name},items{id,xid,product_id,x_product_id,unit_id,x_unit_id,single_unit_price,unit_price,quantity,tax_rate,total_tax,tax_type,total_discount,subtotal,mrp,quantity_scanned,quantity_qrcode},items:unit{id,xid,name,short_name},items:product{id,xid,name,item_id,item_code,subgroup2,text1,image,image_url,description,uom_sale_in},items:product:unit{id,xid,name,short_name},items:product:uomBuyIn{id,xid,name,short_name},items:product:details{id,xid,warehouse_id,x_warehouse_id,product_id,x_product_id,current_stock},items:orderItemTaxes{id,xid,order_item_id,order_item_id,tax_name,tax_amount},cancelled,terms_condition,shippingAddress{id,xid,order_id,name,email,phone,address,address,city,state,country,zipcode},sales_by`,
+                url: `${props.orderType}?type=${props.orderType}&fields=id,city,shipping_alias,delivery_address,notes,weight,priority,total_items,total_quantity,xid,unique_id,warehouse_id,x_warehouse_id,warehouse{id,xid,name,code},from_warehouse_id,x_from_warehouse_id,fromWarehouse{id,xid,name,code},invoice_number,refference,combined_shipment_number,order_type,order_date,tax_amount,discount,shipping,subtotal,paid_amount,due_amount,order_status,payment_status,total,tax_rate,staff_user_id,x_staff_user_id,staffMember{id,xid,name,profile_image,profile_image_url,shipping_address,tax_number,email,user_type},user_id,x_user_id,user{id,xid,user_type,name,code,email,address,tax_number,profile_image,profile_image_url,phone},user:details{opening_balance,opening_balance_type,credit_period,credit_limit,due_amount,warehouse_id,x_warehouse_id},orderPayments{id,xid,amount,payment_id,x_payment_id},orderPayments:payment{id,xid,payment_number,amount,payment_mode_id,x_payment_mode_id,date,notes},orderPayments:payment:paymentMode{id,xid,name},items{id,xid,product_id,x_product_id,unit_id,x_unit_id,single_unit_price,unit_price,quantity,tax_rate,total_tax,tax_type,total_discount,subtotal,mrp,quantity_scanned,quantity_qrcode},items:unit{id,xid,name,short_name},items:product{id,xid,name,item_id,item_code,subgroup2,text1,image,image_url,description,uom_sale_in},items:product:unit{id,xid,name,short_name},items:product:uomBuyIn{id,xid,name,short_name},items:product:details{id,xid,warehouse_id,x_warehouse_id,product_id,x_product_id,current_stock},items:orderItemTaxes{id,xid,order_item_id,order_item_id,tax_name,tax_amount},cancelled,terms_condition,shippingAddress{id,xid,order_id,name,email,phone,address,address,city,state,country,zipcode},sales_by`,
                 filterString,
                 filters: {
                     user_id: tableFilter.user_id
@@ -1412,6 +1428,25 @@ export default {
             };
         });
 
+        const calculateCompletedItems = (record) => {
+            if (!record.items || !Array.isArray(record.items)) {
+                return 0;
+            }
+            
+            let completedCount = 0;
+            record.items.forEach((item) => {
+                // Check if quantity faktur (quantity) equals quantity activated (quantity_qrcode)
+                const quantityFaktur = item.quantity || 0;
+                const quantityActivated = item.quantity_qrcode || item.quantity_scanned || 0;
+                
+                if (quantityFaktur === quantityActivated && quantityFaktur > 0) {
+                    completedCount++;
+                }
+            });
+            
+            return completedCount;
+        };
+
         return {
             columns,
             ...datatableVariables,
@@ -1484,6 +1519,9 @@ export default {
             noteModalVisible,
             selectedNote,
             showNoteModal,
+            
+            // Calculate completed items
+            calculateCompletedItems,
         };
     },
 };

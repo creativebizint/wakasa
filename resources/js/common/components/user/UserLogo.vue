@@ -1,6 +1,5 @@
 <template>
     <template v-if="user">
-        <a-avatar :size="size" :src="user.profile_image_url" />
         {{ user.name }}
     </template>
     <template v-else>

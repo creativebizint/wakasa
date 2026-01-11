@@ -276,18 +276,28 @@ const fields = () => {
                     sorter: true
                 },
                 {
-                    title: "Total QR Activated",
+                    title: "QR",
                     dataIndex: "total_qr_activated",
                     sorter: true
                 },
                 {
-                    title: "Total Items Activated",
+                    title: "Qty Aktif",
                     dataIndex: "total_items_activated",
                     sorter: true
                 },
                 {
-                    title: "Total Items Placed",
+                    title: "di Lokasi",
                     dataIndex: "quantity_scanned",
+                    sorter: true
+                },
+                {
+                    title: "Antrian",
+                    dataIndex: "antrian",
+                    sorter: true
+                },
+                {
+                    title: "di Picker",
+                    dataIndex: "di_picker",
                     sorter: true
                 }
             ];
